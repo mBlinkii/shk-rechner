@@ -1,0 +1,2155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHK Rechner</title>
+<meta name="theme-color" content="#f7f6f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141417" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="SHK Rechner">
+<style>
+  /* ---------- Reset ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  input::placeholder { color: var(--muted); opacity:.75; }
+  input[type=number]::-webkit-inner-spin-button { opacity: 0.35; }
+  button { font-family: inherit; }
+  ::selection { background: var(--accentSoft); }
+
+  /* ---------- Theme-Variablen (Hell als Standard) ---------- */
+  :root {
+    --bg:#f7f6f3; --bgT:rgba(247,246,243,.82); --surface:#ffffff; --text:#1b1a18; --muted:#6e6a64;
+    --border:#e7e3dd; --field:#ffffff; --fieldBorder:#d9d5ce;
+    --chip:#edeae5; --chipActive:#ffffff; --result:#f2f0ec;
+    --accent:oklch(0.55 0.13 245); --accent2:oklch(0.47 0.13 252);
+    --accentSoft:oklch(0.55 0.13 245 / .13); --accentBorder:oklch(0.78 0.07 245);
+    --ring:0 0 0 3px oklch(0.55 0.13 245 / .20);
+    --shadow-sm:0 1px 2px rgba(30,26,20,.05), 0 1px 5px rgba(30,26,20,.04);
+    --shadow:0 12px 32px rgba(30,26,20,.10), 0 3px 9px rgba(30,26,20,.05);
+    --shadow-accent:0 10px 26px oklch(0.55 0.13 245 / .28);
+  }
+  /* Dunkel via [data-theme="dark"] */
+  [data-theme="dark"] {
+    --bg:#141417; --bgT:rgba(20,20,23,.78); --surface:#1d1d22; --text:#eeedf0; --muted:#9c9ba4;
+    --border:#2a2a31; --field:#202027; --fieldBorder:#35353e;
+    --chip:#242429; --chipActive:#3b3b45; --result:#202027;
+    --accent:oklch(0.66 0.13 245); --accent2:oklch(0.56 0.13 252);
+    --accentSoft:oklch(0.66 0.13 245 / .18); --accentBorder:oklch(0.5 0.08 245);
+    --ring:0 0 0 3px oklch(0.66 0.13 245 / .28);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.25);
+    --shadow:0 12px 32px rgba(0,0,0,.45), 0 3px 9px rgba(0,0,0,.3);
+    --shadow-accent:0 10px 26px oklch(0.66 0.13 245 / .22);
+  }
+
+  body {
+    min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    transition:background .25s,color .25s;
+  }
+  .wrap { max-width:840px; margin:0 auto; padding:0 24px 70px 24px; }
+  .tool-wrap { max-width:560px; margin:26px auto 0 auto; }
+
+  /* Sichtbarer Tastatur-Fokus */
+  :where(button, summary):focus-visible { outline:none; box-shadow:var(--ring); border-radius:9px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition:none !important; animation:none !important; }
+  }
+
+  /* ---------- Header (schwebend) ---------- */
+  .header {
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    position:sticky; top:0; z-index:10; padding:20px 8px 14px 8px; margin:0 -8px;
+    background:var(--bgT); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  }
+  .logo { cursor:pointer; display:flex; align-items:baseline; gap:11px; background:none; border:none; padding:0; }
+  .logo-dot { width:11px; height:11px; border-radius:3.5px; background:var(--accent); display:inline-block; box-shadow:0 0 0 4px var(--accentSoft); }
+  .logo-text { font-size:21px; font-weight:700; letter-spacing:-0.02em; color:var(--text); }
+  .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+  .seg { display:flex; background:var(--chip); border-radius:999px; padding:3px; box-shadow:inset 0 1px 2px rgba(0,0,0,.04); }
+  .seg-btn {
+    font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px;
+    cursor:pointer; transition:all .18s ease; border:none; background:transparent; color:var(--muted);
+  }
+  .seg-btn:focus-visible { border-radius:999px; }
+  .seg-btn.active { color:var(--text); background:var(--chipActive); box-shadow:0 1px 3px rgba(0,0,0,.10); }
+  [data-theme="dark"] .seg-btn.active { color:#fff; }
+
+  .icon-btn {
+    border:1px solid var(--border); background:var(--surface); color:var(--muted);
+    border-radius:999px; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer;
+    transition:all .18s ease; box-shadow:var(--shadow-sm);
+  }
+  .icon-btn:hover { color:var(--text); border-color:var(--accentBorder); transform:translateY(-1px); }
+  .icon-btn:focus-visible { border-radius:999px; }
+
+  /* ---------- Home ---------- */
+  .subtitle { font-size:15px; color:var(--muted); margin-top:14px; }
+  .search {
+    display:flex; align-items:center; gap:12px; margin-top:22px;
+    background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:13px 20px;
+    box-shadow:var(--shadow-sm); transition:border-color .18s, box-shadow .18s;
+  }
+  .search:focus-within { border-color:var(--accent); box-shadow:var(--ring); }
+  .search-ring { position:relative; width:13px; height:13px; border:2px solid var(--muted); border-radius:50%; flex-shrink:0; }
+  .search-ring::after { content:''; position:absolute; width:2px; height:6px; background:var(--muted); border-radius:2px; transform:rotate(-45deg); right:-3px; bottom:-5px; }
+  .search input { border:none; outline:none; background:transparent; font-size:15px; color:var(--text); width:100%; font-family:inherit; }
+
+  .group { margin-top:30px; }
+  .group-head {
+    display:flex; align-items:center; gap:10px; margin-bottom:14px; margin-left:-8px;
+    width:calc(100% + 16px); padding:6px 8px; background:none; border:none; cursor:pointer;
+    text-align:left; border-radius:10px; transition:background .15s ease;
+  }
+  .group-head:hover { background:var(--chip); }
+  .group-head:hover .group-label { color:var(--text); }
+  .group-head:focus-visible { border-radius:10px; }
+  .group-head.collapsed { margin-bottom:2px; }
+  .group-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .group-label { font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); transition:color .15s; }
+  .group-count { font-size:11px; font-weight:650; color:var(--muted); background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:1px 8px; font-variant-numeric:tabular-nums; }
+  .group-head:hover .group-count { background:var(--surface); }
+  .group-chev { margin-left:auto; color:var(--muted); font-size:13px; line-height:1; transition:transform .18s ease; }
+  .group-head.collapsed .group-chev { transform:rotate(-90deg); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:560px){ .grid { grid-template-columns:1fr; } }
+  .card {
+    position:relative; overflow:hidden;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:19px 20px 17px 20px;
+    cursor:pointer; text-align:left; box-shadow:var(--shadow-sm);
+    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  }
+  .card::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--cat, var(--accent)); opacity:0; transition:opacity .16s ease;
+  }
+  .card:hover, .card:focus-visible { box-shadow:var(--shadow); transform:translateY(-2px); border-color:var(--accentBorder); }
+  .card:hover::before, .card:focus-visible::before { opacity:1; }
+  .card:focus-visible { border-radius:14px; box-shadow:var(--shadow), var(--ring); }
+  .card-name { font-size:16.5px; font-weight:650; letter-spacing:-0.01em; color:var(--text); }
+  .card-desc { font-size:13.5px; color:var(--muted); margin-top:5px; line-height:1.5; }
+  .no-results { margin-top:40px; text-align:center; color:var(--muted); font-size:15px; }
+  .footer-note { text-align:center; font-size:12px; color:var(--muted); margin-top:52px; opacity:.8; }
+  .app-save-wrap { text-align:center; margin-top:14px; }
+  .app-save {
+    border:1px solid var(--border); background:var(--surface); color:var(--muted);
+    border-radius:999px; padding:9px 18px; font-size:13px; font-weight:600; cursor:pointer;
+    transition:all .18s ease; box-shadow:var(--shadow-sm);
+  }
+  .app-save:hover { color:var(--accent); border-color:var(--accentBorder); transform:translateY(-1px); }
+  .app-save:focus-visible { border-radius:999px; }
+  .home-hint { max-width:560px; margin:16px auto 0 auto; }
+  .hint-step { margin-top:12px; }
+  .hint-step:first-child { margin-top:2px; }
+  .hint-step strong { display:block; font-size:13px; color:var(--text); margin-bottom:3px; }
+
+  /* ---------- Tool ---------- */
+  .back { display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:14px; font-weight:500; color:var(--muted); background:none; border:none; padding:2px 4px; margin-left:-4px; border-radius:8px; transition:color .15s; }
+  .back:hover { color:var(--text); }
+  .back .chev { font-size:17px; line-height:1; transition:transform .15s ease; }
+  .back:hover .chev { transform:translateX(-2px); }
+  .tool-top { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .tool-cat { display:flex; align-items:center; gap:9px; margin-top:20px; }
+  .tool-cat-dot { width:9px; height:9px; border-radius:50%; }
+  .tool-cat-label { font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  .tool-name { font-size:29px; font-weight:700; letter-spacing:-0.02em; color:var(--text); margin-top:9px; line-height:1.15; }
+  .tool-desc { font-size:15px; color:var(--muted); margin-top:7px; line-height:1.55; }
+  .tool-explain { margin-top:18px; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:var(--shadow-sm); }
+  .tool-explain summary { cursor:pointer; padding:12px 16px; font-size:13.5px; font-weight:600; color:var(--text); list-style:none; user-select:none; border-radius:12px; }
+  .tool-explain summary::-webkit-details-marker { display:none; }
+  .tool-explain summary::before { content:'▸'; display:inline-block; margin-right:9px; color:var(--accent); transition:transform .18s ease; }
+  .tool-explain[open] summary::before { transform:rotate(90deg); }
+  .tool-explain-body { padding:0 16px 15px 16px; font-size:13.5px; color:var(--muted); line-height:1.65; }
+
+  .fields { display:flex; flex-direction:column; gap:18px; margin-top:28px; }
+  .field { display:flex; flex-direction:column; gap:8px; }
+  .field-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .field-label { font-size:14px; font-weight:600; color:var(--text); }
+  .field-unit { font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .field input, .field select {
+    width:100%; padding:12px 15px; font-size:16px; border:1px solid var(--fieldBorder);
+    border-radius:11px; background:var(--field); color:var(--text); outline:none; font-family:inherit;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field select { cursor:pointer; }
+  .field input:hover, .field select:hover { border-color:var(--accentBorder); }
+  .field input:focus, .field select:focus { border-color:var(--accent); box-shadow:var(--ring); }
+
+  /* dynamische Abschnitte (Rohrvolumen, Heizlast) */
+  .rohr-section { border:1px solid var(--border); border-radius:13px; background:var(--surface); padding:14px 16px; box-shadow:var(--shadow-sm); }
+  .rohr-section-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .rohr-section-title { font-size:12px; font-weight:700; letter-spacing:0.06em; color:var(--muted); text-transform:uppercase; }
+  .rohr-remove { border:none; background:transparent; color:var(--muted); font-size:13px; cursor:pointer; padding:2px 6px; border-radius:7px; transition:color .15s, background .15s; }
+  .rohr-remove:hover { color:var(--accent); background:var(--accentSoft); }
+  .rohr-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .hz-row { display:grid; grid-template-columns:2fr 1fr; gap:12px; }
+  .rohr-add { width:100%; padding:13px; border:1.5px dashed var(--fieldBorder); border-radius:12px; background:transparent; color:var(--muted); font-size:14.5px; font-weight:600; cursor:pointer; transition:all .18s ease; }
+  .rohr-add:hover { border-color:var(--accent); color:var(--accent); background:var(--accentSoft); }
+
+  .result-block { margin-top:30px; }
+  .result-main {
+    background:linear-gradient(135deg, var(--accent), var(--accent2)); color:#fff;
+    border-radius:16px; padding:22px 24px; box-shadow:var(--shadow-accent);
+  }
+  .result-main-label { font-size:13px; font-weight:600; opacity:.9; letter-spacing:0.01em; }
+  .result-main-row { display:flex; align-items:baseline; gap:9px; margin-top:8px; flex-wrap:wrap; }
+  .result-main-value { font-size:40px; font-weight:700; letter-spacing:-0.02em; line-height:1.05; font-variant-numeric:tabular-nums; }
+  .result-main-unit { font-size:19px; font-weight:600; opacity:.85; }
+  .result-subs { display:flex; flex-direction:column; gap:1px; margin-top:16px; border-radius:13px; overflow:hidden; border:1px solid var(--border); background:var(--border); box-shadow:var(--shadow-sm); }
+  .result-sub { display:flex; justify-content:space-between; align-items:baseline; gap:14px; background:var(--surface); padding:13px 18px; }
+  .result-sub-label { font-size:14px; color:var(--muted); }
+  .result-sub-value { font-size:15.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--text); text-align:right; }
+  .result-note { font-size:13px; color:var(--muted); margin-top:16px; line-height:1.65; padding:0 2px; }
+  .result-ref-title { font-size:11.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:26px; margin-bottom:10px; padding-left:2px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+"use strict";
+(function () {
+  /* =========================================================
+     SHK Rechner — eigenständig, offline, ohne Abhängigkeiten.
+     Reines Vanilla-JS. Persistenz über localStorage (+ JSON-Export/-Import).
+     ========================================================= */
+
+  // ---------- Kategorien ----------
+  var cats = {
+    heizung:  { label: 'Heizung',           dot: 'oklch(0.62 0.15 40)' },
+    wp:       { label: 'Wärmepumpe',        dot: 'oklch(0.6 0.13 300)' },
+    solar:    { label: 'Solar',             dot: 'oklch(0.78 0.15 85)' },
+    sanitaer: { label: 'Sanitär',           dot: 'oklch(0.6 0.11 235)' },
+    allg:     { label: 'Klima & Allgemein', dot: 'oklch(0.62 0.08 175)' }
+  };
+
+  // ---------- Werkzeuge ----------
+  var TOOLS = [
+    { id:'mag',         cat:'heizung',  name:'Ausdehnungsgefäß',          desc:'MAG-Volumen für Heizungsanlagen auslegen.' },
+    { id:'leistung',    cat:'heizung',  name:'Volumenstrom aus Leistung', desc:'Volumenstrom aus kW und Spreizung Δt ermitteln.' },
+    { id:'leistungaus', cat:'heizung',  name:'Leistung aus Volumenstrom', desc:'kW aus Volumenstrom und Spreizung Δt ermitteln.' },
+    { id:'heizkoerper', cat:'heizung',  name:'Heizkörper-Umrechnung',     desc:'Norm-Leistung auf andere Systemtemperaturen.' },
+    { id:'hkleistung',  cat:'heizung',  name:'Heizkörper-Leistung',       desc:'Leistung aus Bauart und Maßen für verschiedene Systemtemperaturen.' },
+    { id:'gas',         cat:'heizung',  name:'Gasverbrauch',              desc:'Gasdurchfluss eines Brenners aus Leistung und Heizwert.' },
+    { id:'oelduese',    cat:'heizung',  name:'Öldüsen-Auswahl',           desc:'Düsengröße in gph aus Kesselleistung und Pumpendruck.' },
+    { id:'abgas',       cat:'heizung',  name:'Abgasverlust',              desc:'Abgasverlust und Wirkungsgrad nach Siegert-Formel.' },
+    { id:'oelreich',    cat:'heizung',  name:'Heizöl-Reichweite',         desc:'Ölverbrauch und Tankreichweite aus Düse und Brennerlaufzeit.' },
+    { id:'fuellwasser', cat:'heizung',  name:'Füllwasser (VDI 2035)',     desc:'Muss das Heizungsfüllwasser enthärtet werden?' },
+    { id:'aufheiz',     cat:'sanitaer', name:'Speicher-Aufheizzeit',      desc:'Aufheizdauer eines Speichers aus Inhalt und Ladeleistung.' },
+    { id:'mischwasser', cat:'sanitaer', name:'Mischwasser-Menge',         desc:'Wie viel 38-°C-Wasser liefert der Speicher?' },
+    { id:'ausstoss',    cat:'sanitaer', name:'Ausstoßzeit Warmwasser',    desc:'Wartezeit bis warmes Wasser an der Zapfstelle ankommt.' },
+    { id:'spitzenvs',   cat:'sanitaer', name:'Spitzendurchfluss',         desc:'Spitzenvolumenstrom mit Gleichzeitigkeit (DIN 1988-300).' },
+    { id:'druckpruef',  cat:'sanitaer', name:'Dichtheitsprüfung',         desc:'Prüfdruck und -dauer für Trinkwasserleitungen.' },
+    { id:'lueftung',    cat:'allg',     name:'Lüftungs-Volumenstrom',     desc:'Erforderlicher Luftvolumenstrom je Raumtyp.' },
+    { id:'kaeltemittel',cat:'allg',     name:'Kältemittel / CO₂-Äquiv.',  desc:'CO₂-Äquivalent und Dichtheitsprüfpflicht (F-Gase).' },
+    { id:'kondensat',   cat:'heizung',  name:'Kondensatmenge',            desc:'Kondensatanfall eines Brennwertgeräts pro Stunde.' },
+    { id:'pumpe',       cat:'heizung',  name:'Pumpe / Förderhöhe',        desc:'Volumenstrom und Förderhöhe für den Heizkreis abschätzen.' },
+    { id:'fbhdurch',    cat:'heizung',  name:'Fußboden-Durchfluss',       desc:'Durchflussmenge einer Fußbodenheizung aus Fläche und Baualter.' },
+    { id:'heizlast',    cat:'heizung',  name:'Heizlast (Überschlag)',     desc:'Heizleistung je Raum und gesamt nach Fläche und Baualter.' },
+    { id:'sv',          cat:'heizung',  name:'Sicherheitsventil',         desc:'Mindest-Anschlussgröße nach Kesselleistung (DIN EN 12828).' },
+    { id:'solarmag',    cat:'solar',    name:'Solar-Ausdehnungsgefäß',    desc:'MAG-Volumen für Solaranlagen inkl. Stagnation auslegen.' },
+    { id:'frost',       cat:'solar',    name:'Frostschutz-Mischung',      desc:'Glykolanteil für gewünschten Frostschutz.' },
+    { id:'rohrvol',     cat:'sanitaer', name:'Rohrvolumen',               desc:'Wasserinhalt nach Durchmesser und Länge.' },
+    { id:'gefaelle',    cat:'sanitaer', name:'Rohrgefälle',               desc:'Abwassergefälle in % und cm/m.' },
+    { id:'twmag',       cat:'sanitaer', name:'Trinkwasser-MAG',           desc:'Ausdehnungsgefäß am Wassererwärmer nach DIN 4807-5.' },
+    { id:'wtdurch',     cat:'sanitaer', name:'Wärmetauscher-Durchfluss',  desc:'Durchflussmenge am Wärmetauscher eines Speicherladesystems.' },
+    { id:'taupunkt',    cat:'allg',     name:'Taupunkt',                  desc:'Taupunkt und Kondensatrisiko ermitteln.' },
+    { id:'einheiten',   cat:'allg',     name:'Einheiten-Umrechner',       desc:'Druck, Leistung, Temperatur, Durchfluss.' },
+    { id:'mwst',        cat:'allg',     name:'MwSt & Angebot',            desc:'Netto, Brutto und Aufschlag berechnen.' },
+    { id:'cop',         cat:'wp',       name:'COP-Schätzung',             desc:'COP aus Quellen- und Vorlauftemperatur abschätzen.' },
+    { id:'jaz',         cat:'wp',       name:'JAZ & Wirtschaftlichkeit',  desc:'Betriebskosten Wärmepumpe vs. Gas/Öl vergleichen.' },
+    { id:'bivalenz',    cat:'wp',       name:'Bivalenzpunkt / Heizstab',  desc:'Bivalenztemperatur und Zuheizer-Leistung ermitteln.' },
+    { id:'puffer',      cat:'wp',       name:'Pufferspeicher',            desc:'Puffervolumen einer Wärmepumpe nach Leistung.' },
+    { id:'schall',      cat:'wp',       name:'Schallabstand',             desc:'Mindestabstand der Außeneinheit nach Schallpegel.' },
+    { id:'heizkurve',   cat:'wp',       name:'Heizkurve / Vorlauf',       desc:'Erforderliche Vorlauftemperatur je Außentemperatur.' },
+    { id:'abgleich',    cat:'heizung',  name:'Hydraulischer Abgleich',    desc:'Volumenstrom und kv-Wert je Heizkörper.' },
+    { id:'wwspeicher',  cat:'sanitaer', name:'Warmwasser-Speicher',       desc:'Speichergröße nach Personenzahl und Komfort.' },
+    { id:'rohrdim',     cat:'allg',     name:'Rohrdimensionierung',       desc:'Rohrdurchmesser aus Volumenstrom und Geschwindigkeit.' }
+  ];
+
+  // ---------- Kurzerklärung je Werkzeug (eingeklappt) ----------
+  var EXPLAIN = {
+    mag:        'Berechnet das nötige Volumen des Membran-Ausdehnungsgefäßes (MAG) einer Heizung, damit es die temperaturbedingte Ausdehnung des Heizwassers aufnimmt. Eingaben: Wasserinhalt, max. Vorlauftemperatur, statische Höhe und Ansprechdruck des Sicherheitsventils.',
+    leistung:   'Rechnet Heizleistung (kW) und Spreizung Δt in den nötigen Volumenstrom um. Grundlage: V = Q × 860 / Δt.',
+    leistungaus:'Umkehrung: ermittelt aus gemessenem Volumenstrom und der Spreizung Δt die übertragene Leistung in kW.',
+    heizkoerper:'Rechnet die Norm-Heizleistung eines Heizkörpers (Bezug 75/65/20) auf andere Systemtemperaturen um — z. B. für niedrigere Vorlauftemperaturen bei Wärmepumpen.',
+    hkleistung: 'Schätzt die Wärmeleistung eines Heizkörpers aus Bauart und Maßen und zeigt sie für mehrere Systemtemperaturen.',
+    gas:        'Berechnet den Gasdurchsatz eines Brenners in l/min und m³/h aus der Leistung und dem regionalen Heizwert.',
+    kondensat:  'Schätzt den Kondensatanfall eines Brennwertgeräts pro Stunde — abhängig von Brennstoff, Leistung und Rücklauftemperatur.',
+    oelduese:   'Bestimmt die passende Öldüse für die gewünschte Kesselleistung: aus Leistung und Wirkungsgrad wird der Öldurchsatz berechnet und über den Pumpendruck auf die 7-bar-Nenngröße (Angabe in US-Gallonen/h) umgerechnet. Zusätzlich wird die tatsächliche Leistung mit der gewählten Normdüse angezeigt.',
+    pumpe:      'Schätzt den Betriebspunkt der Heizkreispumpe (Volumenstrom und Förderhöhe) aus Heizleistung, Heizsystem, Leitungstyp und Rohrlänge — Δt, Rohrreibung und Zuschlag werden automatisch angesetzt.',
+    fbhdurch:   'Berechnet die Durchflussmenge einer Fußbodenheizung: aus Fläche und Baualter wird die Heizlast geschätzt und daraus mit der Spreizung Δt der Volumenstrom ermittelt.',
+    heizlast:   'Überschlägige Heizlast je Raum und für die ganze Wohnung anhand von Fläche, Raumhöhe und Gebäudestandard (Baualter).',
+    sv:         'Bestimmt die Mindest-Anschlussgröße des Heizungs-Sicherheitsventils nach Kesselleistung und kann den Ansprechdruck aus der statischen Höhe berechnen (DIN EN 12828).',
+    solarmag:   'Legt das Ausdehnungsgefäß einer Solaranlage aus — inklusive Verdampfungsvolumen bei Kollektor-Stagnation. Der Kollektorinhalt wird aus Fläche und Typ geschätzt.',
+    frost:      'Ermittelt den nötigen Glykolanteil für einen gewünschten Frostschutz und die Mengen für das Anlagenvolumen.',
+    rohrvol:    'Berechnet den Wasserinhalt von Rohrleitungen. Mehrere Abschnitte mit Innendurchmesser und Länge werden zum Gesamtvolumen summiert.',
+    abgas:      'Berechnet den Abgasverlust nach der Siegert-Formel aus Abgastemperatur, Verbrennungslufttemperatur und gemessenem O₂ — wie bei der Schornsteinfeger-Messung. Zeigt zusätzlich den feuerungstechnischen Wirkungsgrad und den CO₂-Gehalt.',
+    oelreich:   'Schätzt den Ölverbrauch aus Düsengröße, Pumpendruck und täglicher Brennerlaufzeit und berechnet daraus, wie lange der Tankvorrat reicht.',
+    fuellwasser:'Prüft nach VDI 2035, ob das Trinkwasser als Heizungsfüllwasser aufbereitet (enthärtet) werden muss — aus Kesselleistung, Anlagenvolumen und örtlicher Wasserhärte.',
+    aufheiz:    'Berechnet, wie lange ein Speicher zum Aufheizen braucht: Energiebedarf aus Inhalt und Temperaturhub, Zeit über die Ladeleistung.',
+    mischwasser:'Berechnet, wie viel Mischwasser (z. B. 38 °C zum Duschen) ein Warmwasserspeicher liefert — die klassische Kundenfrage „Wie lange kann ich duschen?".',
+    ausstoss:   'Berechnet die Wartezeit, bis warmes Wasser an der Zapfstelle ankommt: Leitungsinhalt aus Innendurchmesser und Länge, geteilt durch den Zapfdurchfluss.',
+    spitzenvs:  'Vereinfachte Ermittlung des Spitzenvolumenstroms nach DIN 1988-300: Die Summe aller Berechnungsdurchflüsse ΣVR wird über die Gleichzeitigkeitsformel des Gebäudetyps in den Spitzendurchfluss umgerechnet. Die Berechnungsdurchflüsse je Entnahmestelle stehen unten als Tabelle.',
+    druckpruef: 'Zeigt Prüfdruck und Prüfdauer für die Dichtheitsprüfung von Trinkwasserleitungen nach ZVSHK-Merkblatt / DIN EN 806-4 — wahlweise mit Wasser oder Luft.',
+    lueftung:   'Berechnet den erforderlichen Luftvolumenstrom aus Raumgröße und Luftwechselrate je Raumtyp, inklusive passendem Kanaldurchmesser.',
+    kaeltemittel:'Rechnet die Kältemittel-Füllmenge in das CO₂-Äquivalent um und zeigt, ob und wie oft eine Dichtheitsprüfung nach F-Gase-Verordnung nötig ist.',
+    wtdurch:    'Ermittelt den einzustellenden Durchfluss (l/min) am Wärmetauscher eines Speicherladesystems aus dessen Leistung. Formel: Leistung × 860 / (60 × Δt); bei Δt = 50 K = Leistung × 860 / 3000.',
+    gefaelle:   'Rechnet das Gefälle einer (Abwasser-)Leitung in Prozent, cm/m, Grad und den Höhenunterschied um.',
+    taupunkt:   'Ermittelt die Taupunkttemperatur aus Lufttemperatur und Luftfeuchte und prüft, ob an einer Oberfläche Kondensat entsteht.',
+    einheiten:  'Rechnet gängige SHK-Einheiten um: Druck, Leistung, Durchfluss und Temperatur.',
+    mwst:       'Berechnet aus einem Nettobetrag den Bruttobetrag inkl. MwSt und optionalem Aufschlag.',
+    cop:        'Schätzt die Leistungszahl (COP) einer Wärmepumpe aus Bauart, Quellen- und Vorlauftemperatur. Der Gütegrad wird je Wärmepumpen-Typ automatisch angesetzt.',
+    jaz:        'Vergleicht die jährlichen Energiekosten einer Wärmepumpe (über die JAZ) mit Gas, Öl, Pellet oder Strom. Die Vergleichs-Auswahl belegt Preis und Wirkungsgrad vor — beide bleiben bearbeitbar.',
+    bivalenz:   'Ermittelt den Bivalenzpunkt (Außentemperatur, ab der der Zuheizer einspringt) und die nötige Heizstab-Leistung aus Heizlast und WP-Leistung.',
+    puffer:     'Empfiehlt das Puffervolumen einer Wärmepumpe nach Heizleistung und Puffertyp (Reihen-, Parallel- oder Trennspeicher).',
+    schall:     'Berechnet den Mindestabstand der Außeneinheit zum Nachbarn aus deren Schallleistungspegel und dem zulässigen Immissionsrichtwert (TA Lärm).',
+    heizkurve:  'Berechnet die erforderliche Vorlauftemperatur bei einer bestimmten Außentemperatur — hilft beim effizienten Einstellen der Heizkurve.',
+    abgleich:   'Liefert für den hydraulischen Abgleich den Volumenstrom je Heizkörper und den erforderlichen kv-Wert für die Ventil-Voreinstellung.',
+    wwspeicher: 'Empfiehlt die Warmwasser-Speichergröße nach Komfortstufe — beim Einfamilienhaus über die Personenzahl, beim Mehrfamilienhaus über die Anzahl der Wohnungen.',
+    rohrdim:    'Berechnet den erforderlichen Rohr-Innendurchmesser aus Volumenstrom und zulässiger Fließgeschwindigkeit und schlägt eine Standardgröße vor.'
+  };
+
+  // ---------- Standardwerte je Werkzeug ----------
+  var DEFAULTS = {
+    mag:         { vol:200, tmax:70, hstat:5, psv:3 },
+    leistung:    { leistung:12, dt:20 },
+    leistungaus: { vstrom:516, veinheit:'l/h', dt:20 },
+    heizkoerper: { typ:'platte', pnorm:1500, vl:55, rl:45, tr:20, n:1.30 },
+    hkleistung:  { bauart:'platte', ptyp:'22', hoehe:600, laenge:1000, tiefe:100 },
+    gas:         { leistung:20, region:'hh' },
+    kondensat:   { brennstoff:'erdgasH', leistung:20, ruecklauf:30 },
+    oelduese:    { leistung:20, eta:92, druck:10 },
+    abgas:       { brennstoff:'erdgas', ta:160, tl:20, o2:4 },
+    oelreich:    { duese:0.5, druck:10, stunden:6, tank:2000 },
+    fuellwasser: { leistung:20, vol:200, haerte:15 },
+    aufheiz:     { vol:300, tstart:10, tziel:60, leistung:20 },
+    mischwasser: { vsp:300, tsp:60, tkalt:10, tmisch:38 },
+    ausstoss:    { di:13, laenge:10, durchfluss:5 },
+    spitzenvs:   { typ:'wohn', summe:1.2 },
+    druckpruef:  { verfahren:'wasser', vol:100 },
+    lueftung:    { raum:'wohnen', flaeche:20, hoehe:2.5 },
+    kaeltemittel:{ mittel:'r32', menge:1.2 },
+    pumpe:       { leistung:12, sys:'heizkoerper', leitung:'kupfer', laenge:30 },
+    fbhdurch:    { flaeche:20, standard:'enev09', dt:7 },
+    heizlast:    { standard:'b1984', hoehe:2.5, rooms:[{name:'Wohnzimmer', flaeche:25},{name:'Schlafzimmer', flaeche:15}] },
+    sv:          { leistung:25, psv:'auto', hstat:10 },
+    solarmag:    { va:50, flaeche:6, kolltyp:'flach', hstat:8, psv:6 },
+    frost:       { frost:-15, vol:100 },
+    rohrvol:     { sections:[{di:20, len:10},{di:16, len:8}] },
+    gefaelle:    { len:5, gef:2 },
+    twmag:       { vsp:300, tk:10, tw:60, pa:4.0, psv:6 },
+    wtdurch:     { leistung:30, dt:50 },
+    taupunkt:    { temp:20, rh:60, surf:14 },
+    einheiten:   { kategorie:'druck', wert:1, einheit:'bar' },
+    mwst:        { netto:1000, mwst:19, aufschlag:0 },
+    cop:         { wptyp:'luftwasser', src:2, sink:35 },
+    jaz:         { bedarf:15000, jz:3.5, strom:28, vergleich:'gas', brennstoff:12, eta:95 },
+    bivalenz:    { hl:10, tnorm:-12, hgrenze:15, pwp:8 },
+    puffer:      { pwp:8, typ:'parallel' },
+    schall:      { lw:55, immission:35 },
+    heizkurve:   { vlnorm:35, tnorm:-12, traum:20, taussen:0, typ:'fbh', n:1.1 },
+    abgleich:    { last:1000, dt:10, dp:10 },
+    wwspeicher:  { gebaeude:'efh', personen:4, wohnungen:6, komfort:'mittel' },
+    rohrdim:     { vstrom:600, v:0.8 }
+  };
+
+  // ---------- Umrechnungstabellen ----------
+  var UNITS = {
+    druck:      { units:[['bar',1e5],['mbar',100],['kPa',1000],['hPa',100],['Pa',1],['psi',6894.757],['mWS',9806.65]] },
+    leistung:   { units:[['kW',1000],['W',1],['kcal/h',1.163],['BTU/h',0.293071],['PS',735.499]] },
+    durchfluss: { units:[['m³/h',1000],['l/h',1],['l/min',60],['l/s',3600]] }
+  };
+
+  var Etable = [[40,0.0078],[50,0.0121],[60,0.0171],[70,0.0228],[80,0.029],[90,0.0359],[100,0.0434],[110,0.0515]];
+  var frostTable = [[0,0],[10,-3.4],[20,-8.9],[25,-12],[30,-15.5],[34,-20],[40,-24.5],[45,-30],[50,-37]];
+  // Dichte von Wasser (°C, kg/m³) — für Ausdehnungsberechnung Trinkwasser
+  var densTable = [[10,999.70],[20,998.21],[30,995.65],[40,992.22],[50,988.04],[60,983.20],[70,977.76],[80,971.79],[90,965.32],[95,961.92]];
+  // Standard-Nennvolumina Trinkwasser-MAG (Liter)
+  var twSizes = [8,12,18,25,33,60,80,120,180,300,400,500,600,800,1000];
+  // Heizkörpertypen mit typischem Exponenten n (Richtwerte, exakt lt. Herstellerdatenblatt)
+  var HKTYP = {
+    platte:    { label:'Plattenheizkörper', n:1.30 },
+    stahl:     { label:'Stahlradiator',     n:1.30 },
+    guss:      { label:'Gussradiator',      n:1.30 },
+    konvektor: { label:'Konvektor',         n:1.40 },
+    fbh:       { label:'Fußbodenheizung',   n:1.10 }
+  };
+
+  // Spez. Leistung Plattenheizkörper bei 75/65/20 (ΔT 50 K), Bauhöhe 600 mm, je Meter Länge [W/m]
+  var PANEL_Q600 = { '10':505, '11':765, '20':950, '21':1110, '22':1465, '33':2070 };
+  // Wärmedichte Gliederheizkörper [W je (m² Frontfläche × mm Bautiefe)] bei 75/65/20
+  var RAD_K = { stahl:15, guss:16 };
+  // Systemtemperaturen VL/RL (Raumtemperatur 20 °C) für die Leistungsanzeige
+  var HK_TEMPSETS = [[75,65],[70,55],[55,45],[50,40],[40,30]];
+
+  // Spezifische Heizlast je Gebäudestandard/Baualter [W/m²] (Anhaltswerte, bezogen auf 2,5 m Raumhöhe)
+  var STANDARDS = [
+    { id:'altbau', label:'Altbau bis 1977 (unsaniert)',  w:150 },
+    { id:'b1977',  label:'1977–1983 (1. WSchV)',          w:110 },
+    { id:'b1984',  label:'1984–1994 (WSchV 1984)',        w:90 },
+    { id:'b1995',  label:'1995–2001 (WSchV 1995)',        w:70 },
+    { id:'enev02', label:'2002–2008 (EnEV 2002/2007)',    w:55 },
+    { id:'enev09', label:'2009–2015 (EnEV 2009)',         w:45 },
+    { id:'enev16', label:'ab 2016 (EnEV 2014/2016)',      w:35 },
+    { id:'geg',    label:'Neubau heute (GEG / KfW 55)',   w:30 },
+    { id:'kfw40',  label:'KfW 40 / Passivhaus',           w:15 }
+  ];
+
+  // Pumpe: Heizsystem → Auslegungs-Spreizung Δt [K] und Zuschlag Einzelwiderstände [%]
+  var HEIZSYS = {
+    heizkoerper: { label:'Heizkörper / Radiator', dt:15, zuschlag:120 },
+    konvektor:   { label:'Konvektor',             dt:15, zuschlag:130 },
+    fbh:         { label:'Fußbodenheizung',        dt:7,  zuschlag:100 }
+  };
+  // Pumpe: Leitungstyp → spez. Rohrreibung [Pa/m] (Richtwerte)
+  var LEITUNG = {
+    stahl:      { label:'Stahl',      r:150 },
+    kupfer:     { label:'Kupfer',     r:100 },
+    kunststoff: { label:'Kunststoff', r:80 }
+  };
+  // Pufferspeicher-Typ → spez. Volumen [l/kW] (Richtwerte)
+  var PUFFERTYP = {
+    reihe:    { label:'Reihenpuffer',    lpk:12 },
+    parallel: { label:'Parallelpuffer',  lpk:20 },
+    trenn:    { label:'Trennspeicher',   lpk:35 }
+  };
+  // Warmwasser-Komfort → Speicher [l/Person] und Tagesbedarf [l/Person, 60 °C]
+  var WWKOMFORT = {
+    niedrig: { label:'Sparsam',      speicher:40, bedarf:25 },
+    mittel:  { label:'Mittel',       speicher:60, bedarf:35 },
+    hoch:    { label:'Komfortabel',  speicher:80, bedarf:50 }
+  };
+  // Vergleichsheizung → typischer Energiepreis [ct/kWh] und Wirkungsgrad [%] (Richtwerte, bearbeitbar)
+  var VERGLEICH = {
+    gas:    { label:'Erdgas',          preis:12, eta:95 },
+    oel:    { label:'Heizöl',          preis:11, eta:92 },
+    pellet: { label:'Pellet',          preis:8,  eta:88 },
+    strom:  { label:'Strom (Direkt)',  preis:30, eta:99 }
+  };
+
+  // Wärmepumpen-Bauart → typischer Gütegrad [%] (Verhältnis realer COP zu Carnot)
+  var WPTYP = {
+    luftwasser:   { label:'Luft/Wasser',                 guete:42 },
+    luftluft:     { label:'Luft/Luft',                   guete:38 },
+    solewasser:   { label:'Sole/Wasser (Erdwärme)',      guete:47 },
+    wasserwasser: { label:'Wasser/Wasser (Grundwasser)', guete:52 }
+  };
+
+  // Brennwert-Kondensat: spez. Kondensat [kg/kWh] und Abgastaupunkt [°C] je Brennstoff (Richtwerte)
+  var KONDFUELS = {
+    erdgasH:  { label:'Erdgas H',   spec:0.16, dew:56 },
+    erdgasL:  { label:'Erdgas L',   spec:0.15, dew:55 },
+    fluessig: { label:'Flüssiggas', spec:0.13, dew:51 },
+    heizoel:  { label:'Heizöl EL',  spec:0.12, dew:47 }
+  };
+
+  // Kollektor-Flüssigkeitsinhalt je m² (Richtwerte; deckt auch das Stagnations-/Dampfvolumen ab)
+  var KOLL = {
+    flach:  { label:'Flachkollektor',   lpm2:1.0 },
+    roehre: { label:'Röhrenkollektor',  lpm2:1.5 }
+  };
+
+  // Gas-Heizwerte je Region (kWh/m³, Richtwerte)
+  var GAS_HW = {
+    hh:   { label:'Hamburg (Erdgas H)',            hw:10.5 },
+    sh:   { label:'Schleswig-Holstein (Erdgas H)', hw:10.6 },
+    ni_l: { label:'Niedersachsen (Erdgas L)',      hw:9.0 },
+    ni_h: { label:'Niedersachsen (Erdgas H)',      hw:10.5 }
+  };
+
+  // Siegert-Konstanten und CO₂max je Brennstoff (Richtwerte)
+  var ABGAS_FUELS = {
+    erdgas:   { label:'Erdgas',     A2:0.66, B:0.009, co2max:11.8 },
+    heizoel:  { label:'Heizöl EL',  A2:0.68, B:0.007, co2max:15.4 },
+    fluessig: { label:'Flüssiggas', A2:0.63, B:0.008, co2max:13.8 }
+  };
+  // Luftwechselraten je Raumtyp [1/h] (Richtwerte)
+  var LUFTWECHSEL = {
+    wohnen:    { label:'Wohn-/Schlafraum',        n:0.5 },
+    kueche:    { label:'Küche',                   n:6 },
+    bad:       { label:'Bad / WC (innenliegend)', n:7 },
+    buero:     { label:'Büro',                    n:5 },
+    bespr:     { label:'Besprechung / Gastraum',  n:8 },
+    werkstatt: { label:'Werkstatt',               n:4 }
+  };
+  // Kältemittel → GWP (AR4, Basis der F-Gase-Verordnung)
+  var KAELTEMITTEL = {
+    r32:   { label:'R32',           gwp:675 },
+    r410a: { label:'R410A',         gwp:2088 },
+    r407c: { label:'R407C',         gwp:1774 },
+    r134a: { label:'R134a',         gwp:1430 },
+    r454b: { label:'R454B',         gwp:466 },
+    r290:  { label:'R290 (Propan)', gwp:3 }
+  };
+  // Gleichzeitigkeits-Koeffizienten DIN 1988-300: VS = a·(ΣVR)^b − c [l/s]
+  var SPITZEN_TYP = {
+    wohn:   { label:'Wohngebäude',              a:1.48, b:0.19, c:0.94 },
+    hotel:  { label:'Hotel',                    a:0.70, b:0.48, c:0.13 },
+    schule: { label:'Schule / Bürogebäude',     a:0.91, b:0.31, c:0.38 },
+    kh:     { label:'Krankenhaus / Pflegeheim', a:0.75, b:0.44, c:0.18 }
+  };
+  // Berechnungsdurchflüsse je Entnahmestelle [l/s] (DIN 1988-300, kalt/warm)
+  var VR_TABELLE = [
+    {label:'Waschtisch',            value:'0,07 / 0,07'},
+    {label:'Dusche',                value:'0,15 / 0,15'},
+    {label:'Badewanne',             value:'0,15 / 0,15'},
+    {label:'Küchenspüle',           value:'0,07 / 0,07'},
+    {label:'WC-Spülkasten',         value:'0,13 (kalt)'},
+    {label:'Waschmaschine',         value:'0,15 (kalt)'},
+    {label:'Geschirrspüler',        value:'0,07 (kalt)'},
+    {label:'Außenzapfstelle DN 15', value:'0,30 (kalt)'}
+  ];
+
+  // Übliche Temperaturspreizungen Δt je Anlagentyp (Richtwerte)
+  var SPREIZUNGEN = [
+    {label:'Heizkörper-Heizung',            value:'10–20 K'},
+    {label:'Fußbodenheizung',               value:'5–10 K'},
+    {label:'Solarthermie (Kollektorkreis)', value:'10–20 K'},
+    {label:'Warmwasserspeicher-Ladung',     value:'15–30 K'},
+    {label:'Frischwasserstation (primär)',  value:'30–40 K'},
+    {label:'Wärmepumpe',                    value:'5–8 K'}
+  ];
+
+  // ---------- Zustand ----------
+  var state = { theme:'light', view:'home', query:'', vals:{}, collapsed:{} };
+  var themeChosen = false;   // true, sobald der Nutzer Hell/Dunkel explizit gewählt hat
+
+  // ---------- Persistenz ----------
+  function loadState() {
+    try {
+      var t = localStorage.getItem('shk.theme');
+      var v = localStorage.getItem('shk.vals');
+      if (t === 'light' || t === 'dark') {
+        state.theme = t;
+        themeChosen = true;
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // Systemeinstellung respektieren, wenn nichts gespeichert ist
+        state.theme = 'dark';
+      }
+      if (v) { var p = JSON.parse(v); if (p && typeof p === 'object') state.vals = p; }
+      var co = localStorage.getItem('shk.collapsed');
+      if (co) { var pc = JSON.parse(co); if (pc && typeof pc === 'object') state.collapsed = pc; }
+    } catch (e) {}
+  }
+  function persist() {
+    try {
+      // Theme nur speichern, wenn explizit gewählt — sonst folgt es der Systemeinstellung
+      if (themeChosen) localStorage.setItem('shk.theme', state.theme);
+      localStorage.setItem('shk.vals', JSON.stringify(state.vals));
+      localStorage.setItem('shk.collapsed', JSON.stringify(state.collapsed));
+    } catch (e) {}
+  }
+
+  // ---------- Hilfsfunktionen ----------
+  function P(x)  { var f = parseFloat(String(x).replace(',', '.')); return isFinite(f) ? f : 0; }
+  function fmt(n, d) {
+    if (d == null) d = 2;
+    return isFinite(n) ? n.toLocaleString('de-DE', { minimumFractionDigits:d, maximumFractionDigits:d }) : '–';
+  }
+  function f2(n) {
+    if (!isFinite(n)) return '–';
+    var a = Math.abs(n);
+    var d = a >= 100 ? 2 : a >= 1 ? 3 : a > 0 ? 4 : 2;
+    return n.toLocaleString('de-DE', { maximumFractionDigits:d });
+  }
+  function interp(t, x) {
+    if (x <= t[0][0]) return t[0][1];
+    var n = t.length;
+    if (x >= t[n-1][0]) return t[n-1][1];
+    for (var i = 1; i < n; i++) {
+      if (x <= t[i][0]) { var x1=t[i-1][0], y1=t[i-1][1], x2=t[i][0], y2=t[i][1]; return y1 + (y2-y1)*(x-x1)/(x2-x1); }
+    }
+    return t[n-1][1];
+  }
+  function pctFor(T) {
+    var tab = frostTable;
+    if (T >= 0) return 0;
+    for (var i = 1; i < tab.length; i++) {
+      var p1=tab[i-1][0], fl=tab[i-1][1], p2=tab[i][0], f2_=tab[i][1];
+      if (T <= fl && T >= f2_) { var r = (fl - T) / (fl - f2_); return p1 + r*(p2-p1); }
+    }
+    return tab[tab.length-1][0];
+  }
+
+  function effVals(id) {
+    var out = {}, k;
+    var d = DEFAULTS[id] || {};
+    for (k in d) out[k] = d[k];
+    var v = state.vals[id] || {};
+    for (k in v) out[k] = v[k];
+    return out;
+  }
+
+  // ---------- Feld-Definitionen ----------
+  function fieldDefs(id, ev) {
+    switch (id) {
+      case 'mag': return [
+        {key:'vol',label:'Anlagenwasserinhalt',unit:'l'},
+        {key:'tmax',label:'max. Vorlauftemperatur',unit:'°C'},
+        {key:'hstat',label:'statische Höhe',unit:'m'},
+        {key:'psv',label:'Ansprechdruck Sicherheitsventil',unit:'bar'}
+      ];
+      case 'leistung': return [
+        {key:'leistung',label:'Heizleistung',unit:'kW'},
+        {key:'dt',label:'Spreizung Δt',unit:'K'}
+      ];
+      case 'leistungaus': return [
+        {key:'vstrom',label:'Volumenstrom',unit:''},
+        {key:'veinheit',type:'select',label:'Einheit Volumenstrom',options:[['l/h','l/h'],['l/min','l/min'],['m³/h','m³/h']]},
+        {key:'dt',label:'Spreizung Δt',unit:'K'}
+      ];
+      case 'heizkoerper': return [
+        {key:'typ',type:'select',label:'Heizkörpertyp',options:[['platte','Plattenheizkörper'],['stahl','Stahlradiator'],['guss','Gussradiator'],['konvektor','Konvektor'],['fbh','Fußbodenheizung']]},
+        {key:'pnorm',label:'Normleistung (75/65/20)',unit:'W'},
+        {key:'vl',label:'Vorlauftemperatur',unit:'°C'},
+        {key:'rl',label:'Rücklauftemperatur',unit:'°C'},
+        {key:'tr',label:'Raumtemperatur',unit:'°C'},
+        {key:'n',label:'Heizkörper-Exponent n',unit:''}
+      ];
+      case 'hkleistung': {
+        var bauartFld = {key:'bauart',type:'select',label:'Bauart',options:[['platte','Plattenheizkörper'],['stahl','Stahlradiator'],['guss','Gussradiator']]};
+        if (ev.bauart === 'platte') return [
+          bauartFld,
+          {key:'ptyp',type:'select',label:'Bautyp',options:[['10','Typ 10'],['11','Typ 11'],['20','Typ 20'],['21','Typ 21'],['22','Typ 22'],['33','Typ 33']]},
+          {key:'hoehe',label:'Bauhöhe',unit:'mm'},
+          {key:'laenge',label:'Baulänge',unit:'mm'}
+        ];
+        return [
+          bauartFld,
+          {key:'hoehe',label:'Höhe',unit:'mm'},
+          {key:'laenge',label:'Länge',unit:'mm'},
+          {key:'tiefe',label:'Bautiefe',unit:'mm'}
+        ];
+      }
+      case 'gas': return [
+        {key:'leistung',label:'Leistung',unit:'kW'},
+        {key:'region',type:'select',label:'Region',options:[['hh','Hamburg (Erdgas H)'],['sh','Schleswig-Holstein (Erdgas H)'],['ni_l','Niedersachsen (Erdgas L)'],['ni_h','Niedersachsen (Erdgas H)']]}
+      ];
+      case 'kondensat': return [
+        {key:'brennstoff',type:'select',label:'Brennstoff',options:[['erdgasH','Erdgas H'],['erdgasL','Erdgas L'],['fluessig','Flüssiggas'],['heizoel','Heizöl EL']]},
+        {key:'leistung',label:'Feuerungsleistung',unit:'kW'},
+        {key:'ruecklauf',label:'Rücklauftemperatur',unit:'°C'}
+      ];
+      case 'oelduese': return [
+        {key:'leistung',label:'Kessel-Nennleistung',unit:'kW'},
+        {key:'eta',label:'Kesselwirkungsgrad',unit:'%'},
+        {key:'druck',label:'Pumpendruck',unit:'bar'}
+      ];
+      case 'abgas': return [
+        {key:'brennstoff',type:'select',label:'Brennstoff',options:[['erdgas','Erdgas'],['heizoel','Heizöl EL'],['fluessig','Flüssiggas']]},
+        {key:'ta',label:'Abgastemperatur',unit:'°C'},
+        {key:'tl',label:'Verbrennungslufttemperatur',unit:'°C'},
+        {key:'o2',label:'gemessener O₂-Gehalt',unit:'%'}
+      ];
+      case 'oelreich': return [
+        {key:'duese',label:'Düsengröße',unit:'gph'},
+        {key:'druck',label:'Pumpendruck',unit:'bar'},
+        {key:'stunden',label:'Brennerlaufzeit pro Tag',unit:'h'},
+        {key:'tank',label:'Ölvorrat im Tank',unit:'l'}
+      ];
+      case 'fuellwasser': return [
+        {key:'leistung',label:'Kesselleistung (kleinster Erzeuger)',unit:'kW'},
+        {key:'vol',label:'Anlagenvolumen',unit:'l'},
+        {key:'haerte',label:'örtliche Trinkwasserhärte',unit:'°dH'}
+      ];
+      case 'aufheiz': return [
+        {key:'vol',label:'Speicherinhalt',unit:'l'},
+        {key:'tstart',label:'Starttemperatur',unit:'°C'},
+        {key:'tziel',label:'Zieltemperatur',unit:'°C'},
+        {key:'leistung',label:'Ladeleistung',unit:'kW'}
+      ];
+      case 'mischwasser': return [
+        {key:'vsp',label:'Speicherinhalt',unit:'l'},
+        {key:'tsp',label:'Speichertemperatur',unit:'°C'},
+        {key:'tkalt',label:'Kaltwassertemperatur',unit:'°C'},
+        {key:'tmisch',label:'gewünschte Mischtemperatur',unit:'°C'}
+      ];
+      case 'ausstoss': return [
+        {key:'di',label:'Rohr-Innendurchmesser',unit:'mm'},
+        {key:'laenge',label:'Leitungslänge bis Zapfstelle',unit:'m'},
+        {key:'durchfluss',label:'Zapfdurchfluss',unit:'l/min'}
+      ];
+      case 'spitzenvs': return [
+        {key:'typ',type:'select',label:'Gebäudetyp',options:[['wohn','Wohngebäude'],['hotel','Hotel'],['schule','Schule / Bürogebäude'],['kh','Krankenhaus / Pflegeheim']]},
+        {key:'summe',label:'Summendurchfluss ΣVR',unit:'l/s'}
+      ];
+      case 'druckpruef': {
+        var pvFld = {key:'verfahren',type:'select',label:'Prüfverfahren',options:[['wasser','Wasser (DIN EN 806-4)'],['luftdicht','Luft — Dichtheitsprüfung'],['luftlast_klein','Luft — Belastungsprüfung bis DN 50'],['luftlast_gross','Luft — Belastungsprüfung über DN 50']]};
+        if (ev.verfahren === 'luftdicht') return [ pvFld, {key:'vol',label:'Leitungsvolumen',unit:'l'} ];
+        return [ pvFld ];
+      }
+      case 'lueftung': return [
+        {key:'raum',type:'select',label:'Raumtyp',options:[['wohnen','Wohn-/Schlafraum'],['kueche','Küche'],['bad','Bad / WC (innenliegend)'],['buero','Büro'],['bespr','Besprechung / Gastraum'],['werkstatt','Werkstatt']]},
+        {key:'flaeche',label:'Raumfläche',unit:'m²'},
+        {key:'hoehe',label:'Raumhöhe',unit:'m'}
+      ];
+      case 'kaeltemittel': return [
+        {key:'mittel',type:'select',label:'Kältemittel',options:[['r32','R32'],['r410a','R410A'],['r407c','R407C'],['r134a','R134a'],['r454b','R454B'],['r290','R290 (Propan)']]},
+        {key:'menge',label:'Füllmenge',unit:'kg'}
+      ];
+      case 'pumpe': return [
+        {key:'leistung',label:'Heizleistung',unit:'kW'},
+        {key:'sys',type:'select',label:'Heizsystem',options:[['heizkoerper','Heizkörper / Radiator'],['konvektor','Konvektor'],['fbh','Fußbodenheizung']]},
+        {key:'leitung',type:'select',label:'Leitungstyp',options:[['stahl','Stahl'],['kupfer','Kupfer'],['kunststoff','Kunststoff']]},
+        {key:'laenge',label:'Rohrlänge längster Kreis (einfach)',unit:'m'}
+      ];
+      case 'fbhdurch': return [
+        {key:'flaeche',label:'Fläche',unit:'m²'},
+        {key:'standard',type:'select',label:'Baujahr / Standard',options:STANDARDS.map(function(s){ return [s.id, s.label]; })},
+        {key:'dt',label:'Spreizung Δt',unit:'K'}
+      ];
+      case 'sv': return [
+        {key:'leistung',label:'Kessel-/Wärmeleistung',unit:'kW'},
+        {key:'psv',type:'select',label:'Ansprechdruck',options:[['auto','automatisch berechnen'],[2.5,'2,5 bar'],[3,'3,0 bar'],[4,'4,0 bar']]},
+        {key:'hstat',label:'statische Höhe',unit:'m'}
+      ];
+      case 'solarmag': return [
+        {key:'va',label:'Anlagenvolumen (gesamt)',unit:'l'},
+        {key:'flaeche',label:'Kollektorfläche',unit:'m²'},
+        {key:'kolltyp',type:'select',label:'Kollektortyp',options:[['flach','Flachkollektor'],['roehre','Röhrenkollektor']]},
+        {key:'hstat',label:'statische Höhe',unit:'m'},
+        {key:'psv',type:'select',label:'Ansprechdruck SV',options:[[6,'6 bar'],[8,'8 bar'],[10,'10 bar']]}
+      ];
+      case 'frost': return [
+        {key:'frost',label:'gewünschter Frostschutz',unit:'°C'},
+        {key:'vol',label:'Anlagenvolumen',unit:'l'}
+      ];
+      case 'gefaelle': return [
+        {key:'len',label:'Länge',unit:'m'},
+        {key:'gef',label:'Gefälle',unit:'%'}
+      ];
+      case 'twmag': return [
+        {key:'vsp',label:'Speicherinhalt Wassererwärmer',unit:'l'},
+        {key:'tk',label:'Kaltwassertemperatur',unit:'°C'},
+        {key:'tw',label:'Warmwassertemperatur',unit:'°C'},
+        {key:'pa',label:'Einstelldruck Druckminderer',unit:'bar'},
+        {key:'psv',type:'select',label:'Ansprechdruck Sicherheitsventil',unit:'bar',options:[[6,'6 bar'],[8,'8 bar'],[10,'10 bar']]}
+      ];
+      case 'wtdurch': return [
+        {key:'leistung',label:'Wärmetauscher-Leistung',unit:'kW'},
+        {key:'dt',label:'Spreizung Δt',unit:'K'}
+      ];
+      case 'taupunkt': return [
+        {key:'temp',label:'Lufttemperatur',unit:'°C'},
+        {key:'rh',label:'rel. Luftfeuchte',unit:'%'},
+        {key:'surf',label:'Oberflächentemperatur',unit:'°C'}
+      ];
+      case 'mwst': return [
+        {key:'netto',label:'Nettobetrag',unit:'€'},
+        {key:'mwst',type:'select',label:'MwSt-Satz',unit:'%',options:[[19,'19 %'],[7,'7 %']]},
+        {key:'aufschlag',label:'Aufschlag',unit:'%'}
+      ];
+      case 'einheiten': {
+        var kat = ev.kategorie;
+        var unitList = kat === 'temperatur'
+          ? ['°C','°F','K']
+          : (UNITS[kat] ? UNITS[kat].units.map(function(u){return u[0];}) : []);
+        return [
+          {key:'kategorie',type:'select',label:'Kategorie',options:[['druck','Druck'],['leistung','Leistung'],['durchfluss','Durchfluss'],['temperatur','Temperatur']]},
+          {key:'wert',label:'Wert',unit:''},
+          {key:'einheit',type:'select',label:'Einheit',options:unitList}
+        ];
+      }
+      case 'cop': return [
+        {key:'wptyp',type:'select',label:'Wärmepumpen-Typ',options:[['luftwasser','Luft/Wasser'],['luftluft','Luft/Luft'],['solewasser','Sole/Wasser (Erdwärme)'],['wasserwasser','Wasser/Wasser']]},
+        {key:'src',label:'Quellentemperatur',unit:'°C'},
+        {key:'sink',label:'Vorlauftemperatur',unit:'°C'}
+      ];
+      case 'jaz': return [
+        {key:'bedarf',label:'Jahres-Heizwärmebedarf',unit:'kWh/a'},
+        {key:'jz',label:'JAZ (SCOP)',unit:''},
+        {key:'strom',label:'Strompreis Wärmepumpe',unit:'ct/kWh'},
+        {key:'vergleich',type:'select',label:'Vergleichsheizung',options:[['gas','Erdgas'],['oel','Heizöl'],['pellet','Pellet'],['strom','Strom (Direkt)']]},
+        {key:'brennstoff',label:'Energiepreis Vergleich',unit:'ct/kWh'},
+        {key:'eta',label:'Wirkungsgrad Vergleich',unit:'%'}
+      ];
+      case 'bivalenz': return [
+        {key:'hl',label:'Gebäude-Heizlast (bei Norm)',unit:'kW'},
+        {key:'tnorm',label:'Norm-Außentemperatur',unit:'°C'},
+        {key:'hgrenze',label:'Heizgrenze',unit:'°C'},
+        {key:'pwp',label:'WP-Heizleistung',unit:'kW'}
+      ];
+      case 'puffer': return [
+        {key:'pwp',label:'WP-Heizleistung',unit:'kW'},
+        {key:'typ',type:'select',label:'Puffertyp',options:[['reihe','Reihenpuffer'],['parallel','Parallelpuffer'],['trenn','Trennspeicher']]}
+      ];
+      case 'schall': return [
+        {key:'lw',label:'Schallleistungspegel Lw',unit:'dB(A)'},
+        {key:'immission',type:'select',label:'Immissionsrichtwert (nachts)',options:[[35,'Reines Wohngebiet — 35'],[40,'Allg. Wohngebiet — 40'],[45,'Mischgebiet — 45'],[50,'Gewerbegebiet — 50']]}
+      ];
+      case 'heizkurve': return [
+        {key:'vlnorm',label:'Auslegungs-Vorlauf (bei Norm)',unit:'°C'},
+        {key:'tnorm',label:'Norm-Außentemperatur',unit:'°C'},
+        {key:'traum',label:'Raumtemperatur',unit:'°C'},
+        {key:'taussen',label:'aktuelle Außentemperatur',unit:'°C'},
+        {key:'typ',type:'select',label:'Heizflächentyp',options:[['platte','Plattenheizkörper'],['stahl','Stahlradiator'],['guss','Gussradiator'],['konvektor','Konvektor'],['fbh','Fußbodenheizung']]},
+        {key:'n',label:'Heizflächen-Exponent n',unit:''}
+      ];
+      case 'abgleich': return [
+        {key:'last',label:'Raum-Heizlast',unit:'W'},
+        {key:'dt',label:'Spreizung Δt',unit:'K'},
+        {key:'dp',label:'verfügbarer Differenzdruck',unit:'kPa'}
+      ];
+      case 'wwspeicher': {
+        var gFld = {key:'gebaeude',type:'select',label:'Gebäudetyp',options:[['efh','Einfamilienhaus'],['mfh','Mehrfamilienhaus']]};
+        var kFld = {key:'komfort',type:'select',label:'Komfort',options:[['niedrig','Sparsam'],['mittel','Mittel'],['hoch','Komfortabel']]};
+        if (ev.gebaeude === 'mfh') return [ gFld, {key:'wohnungen',label:'Anzahl Wohnungen',unit:''}, kFld ];
+        return [ gFld, {key:'personen',label:'Personen im Haushalt',unit:''}, kFld ];
+      }
+      case 'rohrdim': return [
+        {key:'vstrom',label:'Volumenstrom',unit:'l/h'},
+        {key:'v',label:'max. Fließgeschwindigkeit',unit:'m/s'}
+      ];
+      default: return [];
+    }
+  }
+
+  // ---------- Berechnungen ----------
+  function computeFor(id, ev) {
+    switch (id) {
+      case 'mag': {
+        var vol=P(ev.vol), tmax=P(ev.tmax), hstat=P(ev.hstat), psv=P(ev.psv);
+        var n = interp(Etable, tmax);
+        var Ve = vol*n, Vv = Math.max(vol*0.005, 3);
+        var p0 = hstat/10 + 0.2; if (p0 < 0.5) p0 = 0.5;
+        var pa = p0 + 0.3;                          // empfohlener Anlagenfülldruck (kalt)
+        var pe = psv <= 5 ? psv*0.9 : psv-0.5;
+        var valid = pe > p0;                        // Enddruck muss über dem Vordruck liegen
+        var Vn = valid ? (Ve+Vv)*(pe+1)/(pe-p0) : NaN;
+        var sizes = [8,12,18,25,35,50,80,100,140,200,250,300,400,500,600,800,1000];
+        var size = isFinite(Vn) ? sizes.find(function(s){return s >= Vn;}) : null;
+        return { main:{label:'Empfohlenes Ausdehnungsgefäß', value: size ? String(size) : (isFinite(Vn) ? '> '+sizes[sizes.length-1] : '–'), unit:'l'},
+          subs:[
+            {label:'Berechnetes Nennvolumen', value:fmt(Vn,1)+' l'},
+            {label:'Ausdehnungsvolumen', value:fmt(Ve,1)+' l'},
+            {label:'Wasservorlage', value:fmt(Vv,1)+' l'},
+            {label:'Vordruck p₀', value:fmt(p0,2)+' bar'},
+            {label:'Empfohlener Fülldruck p_a', value:fmt(pa,2)+' bar'},
+            {label:'Enddruck pₑ', value:fmt(pe,2)+' bar'}
+          ],
+          note: (!valid ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen — Sicherheitsventil mit höherem Ansprechdruck wählen oder statische Höhe prüfen. ' : '')
+            + (isFinite(Vn) && !size ? 'Über 1000 l Nennvolumen: mehrere Gefäße parallel schalten oder eine Druckhaltestation (Kompressor- bzw. Pumpendruckhaltung) vorsehen. ' : '')
+            + 'Orientierungswerte nach DIN EN 12828. Vordruck p₀ = statische Höhe / 10 + 0,2 bar; empfohlener Anlagenfülldruck p_a = p₀ + 0,3 bar (kalt, vor dem Aufheizen).' };
+      }
+      case 'leistung': {
+        var Pk=P(ev.leistung), dt=P(ev.dt);
+        var V = dt > 0 ? Pk*860/dt : NaN;
+        return { main:{label:'Volumenstrom', value:fmt(V,0), unit:'l/h'},
+          subs:[
+            {label:'Volumenstrom', value:fmt(V/60,2)+' l/min'},
+            {label:'Volumenstrom', value:fmt(V/1000,3)+' m³/h'},
+            {label:'Heizleistung', value:fmt(Pk,2)+' kW'},
+            {label:'Spreizung Δt', value:fmt(dt,1)+' K'}
+          ],
+          note:'Formel: V = Q × 860 / Δt (Wasser, c = 1,163 Wh/kg·K).',
+          refTitle:'Übliche Spreizungen Δt', refs:SPREIZUNGEN };
+      }
+      case 'leistungaus': {
+        var Vin=P(ev.vstrom);
+        var Vh = ev.veinheit === 'l/min' ? Vin*60 : ev.veinheit === 'm³/h' ? Vin*1000 : Vin;   // Eingabe → l/h
+        var dt2=P(ev.dt);
+        var Qk = Vh*dt2/860;            // kW
+        return { main:{label:'Heizleistung', value:fmt(Qk,2), unit:'kW'},
+          subs:[
+            {label:'Heizleistung', value:fmt(Qk*1000,0)+' W'},
+            {label:'Heizleistung', value:fmt(Qk*860,0)+' kcal/h'},
+            {label:'Volumenstrom', value:fmt(Vh,0)+' l/h'},
+            {label:'Volumenstrom', value:fmt(Vh/60,2)+' l/min'},
+            {label:'Spreizung Δt', value:fmt(dt2,1)+' K'}
+          ],
+          note:'Formel: Q = V × Δt / 860 (Wasser, c = 1,163 Wh/kg·K). Umkehrung von „Volumenstrom aus Leistung".',
+          refTitle:'Übliche Spreizungen Δt', refs:SPREIZUNGEN };
+      }
+      case 'heizkoerper': {
+        var pn=P(ev.pnorm), vl=P(ev.vl), rl=P(ev.rl), tr=P(ev.tr), nn=P(ev.n)||1.3;
+        var A=vl-tr, B=rl-tr, dtlog;
+        if (A>0 && B>0 && A!==B) dtlog=(vl-rl)/Math.log(A/B);
+        else if (A>0 && A===B) dtlog=A; else dtlog=NaN;
+        var dtnorm=49.83;
+        var f = isFinite(dtlog) ? Math.pow(dtlog/dtnorm, nn) : NaN;
+        var Pa = pn*f;
+        return { main:{label:'Tatsächliche Wärmeleistung', value:fmt(Pa,0), unit:'W'},
+          subs:[
+            {label:'Korrekturfaktor f', value:fmt(f,3)},
+            {label:'Übertemperatur Δt', value:fmt(dtlog,1)+' K'},
+            {label:'Norm-Δt (75/65/20)', value:'49,8 K'},
+            {label:'Normleistung', value:fmt(pn,0)+' W'}
+          ],
+          note:'Der Heizkörper-Exponent n beschreibt, wie stark die Wärmeleistung von der Übertemperatur abhängt: Q = Q_norm × (Δt/Δt_norm)ⁿ. Je größer n, desto stärker fällt die Leistung bei niedriger Vorlauftemperatur. Ermittlung aus dem Datenblatt mit zwei Leistungsangaben bei zwei Spreizungen: n = ln(Q₁/Q₂) / ln(Δt₁/Δt₂). Die Typ-Auswahl oben trägt nur einen Richtwert ein — der exakte Wert steht im Herstellerdatenblatt.',
+          refTitle:'Typische Exponenten n', refs:[
+            {label:'Plattenheizkörper', value:'1,30'},
+            {label:'Stahlradiator',     value:'1,30'},
+            {label:'Gussradiator',      value:'1,30'},
+            {label:'Konvektor',         value:'1,40'},
+            {label:'Fußbodenheizung',   value:'1,10'}
+          ] };
+      }
+      case 'hkleistung': {
+        var hoehe=P(ev.hoehe), laenge=P(ev.laenge);
+        var Qnorm, nExp, info;
+        if (ev.bauart === 'platte') {
+          var q600 = PANEL_Q600[ev.ptyp] || PANEL_Q600['22'];
+          // Norm-Leistung 75/65/20: spez. Leistung × Länge × Höhen-Korrektur (Bezug 600 mm)
+          Qnorm = (laenge/1000) * q600 * Math.pow(hoehe/600, 0.7);
+          nExp = 1.30;
+          info = 'Plattenheizkörper Typ ' + ev.ptyp;
+        } else {
+          var tiefe=P(ev.tiefe);
+          var k = RAD_K[ev.bauart] || RAD_K.stahl;
+          // Norm-Leistung über Frontfläche × Bautiefe × Wärmedichte
+          Qnorm = (hoehe/1000) * (laenge/1000) * tiefe * k;
+          nExp = 1.30;
+          info = (ev.bauart === 'guss' ? 'Gussradiator' : 'Stahlradiator');
+        }
+        var subs = HK_TEMPSETS.map(function(s){
+          var vl=s[0], rl=s[1], tr=20;
+          var A=vl-tr, B=rl-tr;
+          var dl = (A>0 && B>0 && A!==B) ? (vl-rl)/Math.log(A/B) : (A>0?A:NaN);
+          var fac = isFinite(dl) ? Math.pow(dl/49.83, nExp) : NaN;
+          var W = Qnorm*fac;
+          return { label: vl+'/'+rl+'/20 °C  (Δt '+fmt(dl,1)+' K)', value: fmt(W,0)+' W' };
+        });
+        return { main:{label:'Norm-Leistung 75/65/20 (ΔT 50 K)', value:fmt(Qnorm,0), unit:'W'},
+          subs: subs,
+          note:'Richtwert-Schätzung für '+info+' (Exponent n='+fmt(nExp,2)+'). Plattenheizkörper aus spez. Leistung × Länge × (Höhe/600)^0,7; Gliederheizkörper aus Frontfläche × Bautiefe × Wärmedichte. Genaue Werte bitte dem Herstellerdatenblatt entnehmen.' };
+      }
+      case 'heizlast': {
+        var hl = ensureHeizlast();
+        var std = STANDARDS.find(function(s){ return s.id === hl.standard; }) || STANDARDS[2];
+        var hf = P(hl.hoehe) > 0 ? P(hl.hoehe)/2.5 : 1;   // Korrektur auf Bezugshöhe 2,5 m
+        var specEff = std.w * hf;
+        var total=0, totalA=0, subs=[];
+        hl.rooms.forEach(function(r, i){
+          var a=P(r.flaeche); var w=a*specEff;
+          total+=w; totalA+=a;
+          subs.push({ label:(r.name||('Raum '+(i+1)))+' ('+fmt(a,1)+' m²)', value:fmt(w,0)+' W' });
+        });
+        subs.push({ label:'Gesamtfläche', value:fmt(totalA,1)+' m²' });
+        subs.push({ label:'spezifische Heizlast', value:fmt(specEff,0)+' W/m²' });
+        subs.push({ label:'Gesamt-Heizlast', value:fmt(total,0)+' W' });
+        return { main:{label:'Gesamt-Heizlast', value:fmt(total/1000,2), unit:'kW'},
+          subs:subs,
+          note:'Überschlag nach spezifischer Heizlast (W/m²) je Gebäudestandard — Anhaltswerte, bezogen auf 2,5 m Raumhöhe. Die genaue Heizlast wird raumweise nach DIN EN 12831 ermittelt (Bauteile, Fenster, Lüftung, Wärmebrücken). Für die ganze Wohnung alle Räume eintragen, für einen einzelnen Raum nur diesen.' };
+      }
+      case 'sv': {
+        var Q=P(ev.leistung), hstat=P(ev.hstat);
+        var auto = ev.psv === 'auto';
+        // Druckkette nach DIN EN 12828
+        var pstat = hstat/10;
+        var p0 = Math.max(pstat + 0.2, 0.5);        // MAG-Vordruck
+        var pa = p0 + 0.3;                          // Anlagenfülldruck (kalt)
+        var peMin = pa + 0.5;                       // erforderlicher Enddruck mit Reserve
+        var psvMin = peMin / 0.9;                   // Schließdruckdifferenz 10 %
+        var stdP = [2.5,3.0,4.0,5.0,6.0];
+        var psvCalc = stdP.find(function(p){ return p >= psvMin; }) || Math.ceil(psvMin*10)/10;
+        var psv = auto ? psvCalc : P(ev.psv);
+        var pe = psv<=5 ? psv*0.9 : psv-0.5;        // max. Betriebsdruck (Schließdruck)
+        var valves=[
+          {dn:'DN 15', conn:'½" × ¾"',  kw:50},
+          {dn:'DN 20', conn:'¾" × 1"',  kw:100},
+          {dn:'DN 25', conn:'1" × 1¼"', kw:200},
+          {dn:'DN 32', conn:'1¼" × 1½"',kw:350},
+          {dn:'DN 40', conn:'1½" × 2"', kw:600},
+          {dn:'DN 50', conn:'2" × 2½"', kw:900}
+        ];
+        var v = valves.find(function(x){ return x.kw >= Q; });
+        var subs=[
+          {label:'Ansprechdruck'+(auto?' (berechnet)':''), value:fmt(psv,1)+' bar'},
+          {label:'max. Leistung dieser Größe', value:(v?fmt(v.kw,0):'> 900')+' kW'},
+          {label:'Kessel-/Wärmeleistung', value:fmt(Q,1)+' kW'},
+          {label:'statischer Druck', value:fmt(pstat,2)+' bar'}
+        ];
+        if (auto) {
+          subs.push({label:'MAG-Vordruck p₀', value:fmt(p0,2)+' bar'});
+          subs.push({label:'Anlagenfülldruck p_a', value:fmt(pa,2)+' bar'});
+          subs.push({label:'max. Enddruck pₑ', value:fmt(pe,2)+' bar'});
+          subs.push({label:'rechn. Mindestdruck', value:fmt(psvMin,2)+' bar'});
+        }
+        var pLow = !auto && hstat>0 && psv < pstat + 0.8;
+        var note = 'Auswahl nach DIN EN 12828: Sicherheitsventil mit „H" gekennzeichnet, nicht absperrbar, mit frostsicherer Abblaseleitung mit Gefälle. Der Ansprechdruck darf den zulässigen Betriebsüberdruck (PS) des Kessels nicht überschreiten; je Wärmeerzeuger ein eigenes Ventil.';
+        if (auto) note = 'Ansprechdruck aus statischer Höhe: p₀ = stat. Druck + 0,2 bar, Fülldruck p_a = p₀ + 0,3 bar, Mindestdruck = (p_a + 0,5) / 0,9 (10 % Schließdruckdifferenz), aufgerundet auf die nächste Normgröße. ' + note;
+        if (Q>900) note = 'Über 900 kW: Sonderberechnung der Abblaseleistung nach DIN EN ISO 4126 / TRD 721 erforderlich. ' + note;
+        if (pLow) note = 'Hinweis: Ansprechdruck '+fmt(psv,1)+' bar ist für '+fmt(hstat,0)+' m statische Höhe (statisch '+fmt(pstat,2)+' bar) zu knapp — höheren Ansprechdruck wählen oder „automatisch berechnen". ' + note;
+        return { main:{label:'Empfohlene Mindest-Anschlussgröße', value: v?v.dn:'> DN 50', unit: v?('· '+v.conn):''},
+          subs:subs, note:note };
+      }
+      case 'fbhdurch': {
+        var area=P(ev.flaeche), dtF=P(ev.dt);
+        var stdF = STANDARDS.find(function(s){ return s.id === ev.standard; }) || STANDARDS[5];
+        var specF = stdF.w;
+        var Qw = area*specF;                       // Heizlast [W]
+        var Vlh = dtF>0 ? Qw*0.86/dtF : NaN;       // l/h
+        return { main:{label:'Durchflussmenge', value:fmt(Vlh/60,2), unit:'l/min'},
+          subs:[
+            {label:'Durchfluss', value:fmt(Vlh,0)+' l/h'},
+            {label:'Durchfluss', value:fmt(Vlh/1000,3)+' m³/h'},
+            {label:'Heizlast', value:fmt(Qw,0)+' W'},
+            {label:'spezifische Heizlast', value:fmt(specF,0)+' W/m²'},
+            {label:'Fläche', value:fmt(area,1)+' m²'},
+            {label:'Spreizung Δt', value:fmt(dtF,1)+' K'}
+          ],
+          note:'Durchfluss V = Heizlast × 0,86 / Δt. Die Heizlast wird aus Fläche × spezifischer Heizlast (je Baualter/Standard) geschätzt; übliche Spreizung der Fußbodenheizung 5–10 K. Für die Auslegung einzelner Heizkreise zusätzlich die Schleifenlänge (max. ~100 m) und den Durchfluss je Kreis beachten.' };
+      }
+      case 'pumpe': {
+        var sysP = HEIZSYS[ev.sys] || HEIZSYS.heizkoerper;
+        var pipeP = LEITUNG[ev.leitung] || LEITUNG.kupfer;
+        var Q=P(ev.leistung), L=P(ev.laenge);
+        var dt=sysP.dt, z=sysP.zuschlag, R=pipeP.r;
+        var Vlh = dt>0 ? Q*860/dt : NaN;           // l/h
+        var Lges = 2*L;                            // Vor- + Rücklauf
+        var dpRohr = R*Lges;                       // Pa
+        var dpTot = dpRohr*(1+z/100);              // Pa inkl. Einzelwiderstände
+        var H = dpTot/9810;                        // m (1 m ≈ 9810 Pa)
+        return { main:{label:'Erforderliche Förderhöhe', value:fmt(H,2), unit:'m'},
+          subs:[
+            {label:'Volumenstrom', value:fmt(Vlh,0)+' l/h'},
+            {label:'Volumenstrom', value:fmt(Vlh/1000,2)+' m³/h'},
+            {label:'Volumenstrom', value:fmt(Vlh/60,1)+' l/min'},
+            {label:'Druckverlust gesamt', value:fmt(dpTot/100,0)+' mbar'},
+            {label:'angesetzte Spreizung Δt', value:fmt(dt,0)+' K'},
+            {label:'spez. Rohrreibung ('+pipeP.label+')', value:fmt(R,0)+' Pa/m'},
+            {label:'Rohrlänge gesamt (VL+RL)', value:fmt(Lges,0)+' m'}
+          ],
+          note:'Vereinfachter Überschlag: das Heizsystem bestimmt die Spreizung Δt und den Zuschlag für Einzelwiderstände, der Leitungstyp die spez. Rohrreibung. Förderhöhe H = Δp/(ρ·g), 1 m ≈ 98 mbar; Volumenstrom V = Q × 860 / Δt; Rohrlänge = 2 × einfache Länge. Betriebspunkt = Volumenstrom bei Förderhöhe — Hocheffizienzpumpen regeln selbst.' };
+      }
+      case 'kondensat': {
+        var fuel = KONDFUELS[ev.brennstoff] || KONDFUELS.erdgasH;
+        var Pk=P(ev.leistung), rl=P(ev.ruecklauf);
+        var maxC = Pk * fuel.spec;                 // kg/h ≈ l/h, theoretisches Maximum
+        var grad = (fuel.dew - rl) / (fuel.dew - 25);
+        if (grad < 0) grad = 0; if (grad > 1) grad = 1;
+        grad = grad * 0.92;                        // real max. ~92 %
+        var estC = maxC * grad;
+        return { main:{label:'Geschätzte Kondensatmenge', value:fmt(estC,2), unit:'l/h'},
+          subs:[
+            {label:'Theoretisches Maximum', value:fmt(maxC,2)+' l/h'},
+            {label:'Kondensationsgrad', value:fmt(grad*100,0)+' %'},
+            {label:'Abgastaupunkt ('+fuel.label+')', value:fmt(fuel.dew,0)+' °C'},
+            {label:'spez. Kondensat', value:fmt(fuel.spec,3)+' kg/kWh'},
+            {label:'Feuerungsleistung', value:fmt(Pk,1)+' kW'}
+          ],
+          note: (rl>=fuel.dew ? 'Rücklauftemperatur liegt über dem Abgastaupunkt — kaum Kondensation, kein echter Brennwertbetrieb. ' : '')
+            + 'Schätzung bezogen auf die Feuerungsleistung; Kondensat ≈ 1 kg/l. Die tatsächliche Menge schwankt mit Last und Rücklauftemperatur. Kondensat ist sauer (Erdgas pH ~3–5, Heizöl niedriger) — Einleitung nach örtlicher Satzung bzw. ATV-DVWK-A 251; größere Anlagen mit Neutralisationseinrichtung.' };
+      }
+      case 'gas': {
+        var kw=P(ev.leistung);
+        var reg=GAS_HW[ev.region] || GAS_HW.hh;
+        var hw=reg.hw;
+        var lmin = hw>0 ? kw*16.667/hw : NaN;
+        var m3h = lmin*0.06;                       // l/min × 60 / 1000
+        return { main:{label:'Gasverbrauch', value:fmt(lmin,1), unit:'l/min'},
+          subs:[
+            {label:'Volumenstrom', value:fmt(m3h,2)+' m³/h'},
+            {label:'Heizwert ('+reg.label+')', value:fmt(hw,1)+' kWh/m³'},
+            {label:'Leistung', value:fmt(kw,1)+' kW'}
+          ],
+          note:'Formel: l/min = Leistung × 16,667 / Heizwert. Die Heizwerte sind regionale Richtwerte — den genauen Brennwert/Heizwert nennt der örtliche Gasnetzbetreiber.' };
+      }
+      case 'oelduese': {
+        var PnO=P(ev.leistung), etaO=P(ev.eta), prO=P(ev.druck);
+        var HI=11.86, RHO=0.845, GAL=3.785;        // Heizöl EL: Hi [kWh/kg], Dichte [kg/l], US-Gallone [l]
+        var QF = etaO>0 ? PnO/(etaO/100) : NaN;    // Feuerungsleistung
+        var kgh = QF/HI;                           // Öldurchsatz [kg/h]
+        var lhO = kgh/RHO;                         // Öldurchsatz [l/h]
+        var facO = prO>0 ? Math.sqrt(prO/7) : NaN; // Düsen bei 7 bar kalibriert: Durchsatz ∝ √(p/7)
+        var gphNenn = (isFinite(facO) && facO>0) ? (lhO/GAL)/facO : NaN;
+        // nächstliegende Normgröße wählen (Feinabstimmung über den Pumpendruck)
+        var duesen=[0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.75,0.85,1.00,1.10,1.20,1.25,1.35,1.50,1.65,1.75,2.00,2.25,2.50,2.75,3.00,3.50,4.00,4.50,5.00,5.50,6.00];
+        var best=null, bDiff=Infinity;
+        if (isFinite(gphNenn)) duesen.forEach(function(s){ var d=Math.abs(s-gphNenn); if (d<bDiff) { bDiff=d; best=s; } });
+        var tooBig = isFinite(gphNenn) && gphNenn > duesen[duesen.length-1];
+        var kghBest = best!=null ? best*facO*GAL*RHO : NaN;   // Durchsatz der gewählten Düse beim eingestellten Druck
+        var QFbest = kghBest*HI;
+        var PnBest = QFbest*(etaO/100);
+        return { main:{label:'Empfohlene Düsengröße', value: (best!=null && !tooBig) ? fmt(best,2) : (tooBig ? '> 6,00' : '–'), unit:'gph'},
+          subs:[
+            {label:'Rechnerische Düsengröße (7-bar-Basis)', value:fmt(gphNenn,2)+' gph'},
+            {label:'Benötigter Öldurchsatz', value:fmt(kgh,2)+' kg/h'},
+            {label:'Benötigter Öldurchsatz', value:fmt(lhO,2)+' l/h'},
+            {label:'Feuerungsleistung (Soll)', value:fmt(QF,1)+' kW'},
+            {label:'Durchsatz gewählte Düse bei '+fmt(prO,0)+' bar', value:fmt(kghBest,2)+' kg/h'},
+            {label:'Feuerungsleistung mit gewählter Düse', value:fmt(QFbest,1)+' kW'},
+            {label:'Kesselleistung mit gewählter Düse', value:fmt(PnBest,1)+' kW'}
+          ],
+          note: (tooBig ? 'Über 6,00 gph: Größe außerhalb der üblichen Baureihe — Herstellerprogramm bzw. Zweidüsen-/Zweistoffbrenner prüfen. ' : '')
+            + 'Öldüsen sind bei 7 bar kalibriert (Angabe in US-Gallonen/h); der Durchsatz steigt mit √(Druck/7 bar). Rechenwerte: Heizöl EL Hi ≈ 11,86 kWh/kg, Dichte ≈ 0,845 kg/l, 1 US-Gallone = 3,785 l. Es wird die nächstliegende Normgröße vorgeschlagen — die Feinabstimmung der Leistung erfolgt über den Pumpendruck. Sprühwinkel und Sprühbild nach Brennkammer und Brenner-Vorgabe wählen; Endkontrolle immer per Abgasmessung (CO₂, Rußzahl) und ggf. Ölmengenmessung.',
+          refTitle:'Sprühwinkel & Sprühbild', refs:[
+            {label:'45° — lange, schmale Brennkammer', value:'z. B. Stahlkessel'},
+            {label:'60° — Standard', value:'die meisten Gebläsebrenner'},
+            {label:'80° — kurze, breite Brennkammer', value:'z. B. Gusskessel'},
+            {label:'Sprühbild', value:'H = Hohlkegel · S = Vollkegel · B = universal'}
+          ] };
+      }
+      case 'solarmag': {
+        var va=P(ev.va), flaeche=P(ev.flaeche), hstatS=P(ev.hstat), psvS=P(ev.psv);
+        var koll = KOLL[ev.kolltyp] || KOLL.flach;
+        var vk = flaeche * koll.lpm2;              // Kollektor-/Stagnationsinhalt aus Fläche × Typ
+        var beta=0.085;                            // Ausdehnung Solarmedium (Wasser-Glykol)
+        var p0S = Math.max(hstatS/10 + 0.5, 1.0);  // Vordruck (Solar: min. 1,0 bar)
+        var paS = p0S + 0.3;                        // empfohlener Anlagenfülldruck (kalt)
+        var peS = psvS<=5 ? psvS*0.9 : psvS-0.5;   // Enddruck (Schließdruck)
+        var VeS = va*beta;                         // Ausdehnungsvolumen
+        var VvS = Math.max(va*0.005, 3);           // Wasservorlage, min. 3 l
+        var VdS = vk;                              // Verdampfungs-/Stagnationsvolumen
+        var validS = peS > p0S;
+        var VnS = validS ? (VeS+VvS+VdS)*(peS+1)/(peS-p0S) : NaN;
+        var sizesS=[12,18,25,35,50,80,100,140,200,250,300,400,500];
+        var sizeS = isFinite(VnS) ? sizesS.find(function(s){return s>=VnS;}) : null;
+        return { main:{label:'Empfohlenes Solar-MAG', value: sizeS ? String(sizeS) : (isFinite(VnS) ? '> '+sizesS[sizesS.length-1] : '–'), unit:'l'},
+          subs:[
+            {label:'Berechnetes Nennvolumen', value:fmt(VnS,1)+' l'},
+            {label:'Kollektorinhalt ('+fmt(flaeche,1)+' m² × '+fmt(koll.lpm2,1)+' l/m²)', value:fmt(vk,1)+' l'},
+            {label:'Ausdehnungsvolumen Ve', value:fmt(VeS,1)+' l'},
+            {label:'Verdampfungsvolumen (Stagnation)', value:fmt(VdS,1)+' l'},
+            {label:'Wasservorlage Vv', value:fmt(VvS,1)+' l'},
+            {label:'Vordruck p₀', value:fmt(p0S,2)+' bar'},
+            {label:'Empfohlener Fülldruck p_a', value:fmt(paS,2)+' bar'},
+            {label:'Enddruck pₑ', value:fmt(peS,2)+' bar'}
+          ],
+          note: (!validS ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen (höheres Sicherheitsventil oder geringere statische Höhe). ' : '')
+            + 'Auslegung für Solaranlagen (VDI 6002 / Herstellerregeln): aufzunehmen sind die Ausdehnung des Solarmediums (β ≈ 8,5 %), die Wasservorlage und das Verdampfungsvolumen der Kollektoren bei Stagnation. Der Kollektorinhalt wird aus Fläche × Typ geschätzt (Flach ≈ 1,0 l/m², Röhre ≈ 1,5 l/m²) — exakter Wert lt. Datenblatt. Vordruck p₀ = statische Höhe / 10 + 0,5 bar (min. 1,0). Bei Rücklauftemperaturen über ~70 °C ein Vorschaltgefäß zum Schutz der Membran vorsehen; nur für Glykol geeignetes Gefäß verwenden.' };
+      }
+      case 'frost': {
+        var T=P(ev.frost), vol2=P(ev.vol);
+        var pct=pctFor(T);
+        var gly=vol2*pct/100, wat=vol2-gly;
+        var capped = T < frostTable[frostTable.length-1][1];
+        return { main:{label:'Benötigter Glykolanteil', value:fmt(pct,0), unit:'%'},
+          subs:[
+            {label:'Frostschutz (Ziel)', value:fmt(T,0)+' °C'},
+            {label:'Glykol benötigt', value:fmt(gly,1)+' l'},
+            {label:'Wasseranteil', value:fmt(wat,1)+' l'},
+            {label:'Anlagenvolumen', value:fmt(vol2,0)+' l'}
+          ],
+          note:(capped?'Hinweis: unter ca. −37 °C nicht mit Wasser-Glykol erreichbar. ':'')+'Richtwerte für Ethylenglykol — Herstellerangaben beachten.' };
+      }
+      case 'rohrvol': {
+        var secs = rohrSections();
+        var total=0, totalLen=0, subs=[];
+        secs.forEach(function(s, i){
+          var di=P(s.di), len=P(s.len);
+          var perM=Math.PI*Math.pow(di/2000,2)*1000;
+          var v=perM*len;
+          total+=v; totalLen+=len;
+          subs.push({label:'Abschnitt '+(i+1)+' (Ø '+fmt(di,1)+' mm × '+fmt(len,2)+' m)', value:fmt(v,2)+' l'});
+        });
+        subs.push({label:'Gesamtlänge', value:fmt(totalLen,2)+' m'});
+        return { main:{label:'Gesamt-Wasserinhalt', value:fmt(total,2), unit:'l'},
+          subs:subs,
+          note:'V = π/4 × d² × L je Abschnitt (Innendurchmesser), anschließend summiert.' };
+      }
+      case 'gefaelle': {
+        var len2=P(ev.len), gef=P(ev.gef);
+        var dropCm=len2*gef;
+        var deg=Math.atan(gef/100)*180/Math.PI;
+        return { main:{label:'Höhenunterschied', value:fmt(dropCm,1), unit:'cm'},
+          subs:[
+            {label:'Gefälle', value:fmt(gef,1)+' cm/m'},
+            {label:'Gefälle (Winkel)', value:fmt(deg,2)+' °'},
+            {label:'Höhenunterschied', value:fmt(dropCm/100,3)+' m'},
+            {label:'Länge', value:fmt(len2,2)+' m'}
+          ],
+          note:'DIN 1986-100 empfiehlt 0,5–2 % für Grund- und Sammelleitungen.' };
+      }
+      case 'twmag': {
+        var vsp=P(ev.vsp), tk=P(ev.tk), tw=P(ev.tw), pa=P(ev.pa), psv=P(ev.psv);
+        var rc=interp(densTable, tk), rh=interp(densTable, tw);
+        var beta = rc/rh - 1;                     // Ausdehnungskoeffizient kalt→warm
+        if (beta < 0) beta = 0;
+        var Ve = vsp*beta;                         // Ausdehnungswasser
+        var p0 = pa - 0.2;                         // Gasvordruck (DIN 4807-5: pa − 0,2…1,0 bar)
+        if (p0 < 0.5) p0 = 0.5;
+        var pe = psv*0.9;                          // Enddruck: 90 % des Ansprechdrucks (Gefäß voll vor Ansprechen SV)
+        var valid = pe > p0;
+        var Vn = valid ? Ve*(pe+1)/(pe-p0) : NaN;
+        var size = isFinite(Vn) ? twSizes.find(function(s){return s >= Vn;}) : null;
+        return { main:{label:'Empfohlenes Trinkwasser-MAG', value: size ? String(size) : (isFinite(Vn) ? '> '+twSizes[twSizes.length-1] : '–'), unit:'l'},
+          subs:[
+            {label:'Berechnetes Nennvolumen', value:fmt(Vn,1)+' l'},
+            {label:'Ausdehnungswasser Ve', value:fmt(Ve,2)+' l'},
+            {label:'Ausdehnung β', value:fmt(beta*100,2)+' %'},
+            {label:'Gasvordruck p₀', value:fmt(p0,2)+' bar'},
+            {label:'Enddruck pₑ', value:fmt(pe,2)+' bar'}
+          ],
+          note: (!valid ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen (Druckminderer niedriger einstellen oder größeres Sicherheitsventil). '
+                        : 'Auslegung nach DIN 4807-5 / DIN 1988-200. p₀ = Druckminderer − 0,2 bar, pₑ = 90 % des Ansprechdrucks. ')
+              + 'Einbau in die Kaltwasserzuleitung; durchströmtes, DVGW-geprüftes MAG-W verwenden (Hygiene).' };
+      }
+      case 'wtdurch': {
+        var Qwt=P(ev.leistung), dtWt=P(ev.dt);
+        var VlminWt = dtWt>0 ? Qwt*860/(60*dtWt) : NaN;   // l/min
+        var VlhWt = VlminWt*60;
+        return { main:{label:'Einzustellender Durchfluss', value:fmt(VlminWt,1), unit:'l/min'},
+          subs:[
+            {label:'Durchfluss', value:fmt(VlhWt,0)+' l/h'},
+            {label:'Durchfluss', value:fmt(VlhWt/1000,3)+' m³/h'},
+            {label:'Wärmetauscher-Leistung', value:fmt(Qwt,1)+' kW'},
+            {label:'Spreizung Δt', value:fmt(dtWt,0)+' K'}
+          ],
+          note:'l/min = Leistung × 860 / (60 × Δt). Bei Δt = 50 K (z. B. Trinkwasser 10 → 60 °C) entspricht das Leistung × 860 / 3000. Durchfluss am Wärmetauscher des Speicherladesystems entsprechend einstellen (Strangregulierventil / Pumpenstufe).' };
+      }
+      case 'taupunkt': {
+        var t=P(ev.temp), rh=P(ev.rh), surf=P(ev.surf);
+        var a=17.62, b=243.12;
+        var g=Math.log(Math.max(rh,0.01)/100)+a*t/(b+t);
+        var td=b*g/(a-g);
+        var es=6.112*Math.exp(a*t/(b+t));
+        var ah=216.7*(rh/100*es)/(273.15+t);
+        var cond = surf<=td;
+        return { main:{label:'Taupunkttemperatur', value:fmt(td,1), unit:'°C'},
+          subs:[
+            {label:'Oberflächentemperatur', value:fmt(surf,1)+' °C'},
+            {label:'absolute Feuchte', value:fmt(ah,1)+' g/m³'},
+            {label:'Lufttemperatur', value:fmt(t,1)+' °C'},
+            {label:'rel. Luftfeuchte', value:fmt(rh,0)+' %'}
+          ],
+          note: cond
+            ? ('Achtung: Oberfläche ('+fmt(surf,1)+' °C) liegt auf/unter dem Taupunkt — Kondensat bildet sich.')
+            : ('Kein Kondensat: Oberfläche liegt '+fmt(surf-td,1)+' K über dem Taupunkt.') };
+      }
+      case 'einheiten': {
+        var kat=ev.kategorie, wert=P(ev.wert);
+        if (kat==='temperatur') {
+          var list=['°C','°F','K'];
+          var u0=list.indexOf(ev.einheit)>=0?ev.einheit:'°C';
+          var toC=function(uu,v){ return uu==='°C'?v: uu==='°F'?(v-32)*5/9 : v-273.15; };
+          var fromC=function(uu,c){ return uu==='°C'?c: uu==='°F'?c*9/5+32 : c+273.15; };
+          var c0=toC(u0,wert);
+          return { main:null, subs:list.filter(function(x){return x!==u0;}).map(function(x){return {label:x, value:f2(fromC(x,c0))};}), note:'Eingabe: '+f2(wert)+' '+u0 };
+        }
+        var U=UNITS[kat].units;
+        var u = U.find(function(x){return x[0]===ev.einheit;}) ? ev.einheit : U[0][0];
+        var f0 = U.find(function(x){return x[0]===u;})[1];
+        var base=wert*f0;
+        return { main:null, subs:U.filter(function(x){return x[0]!==u;}).map(function(x){return {label:x[0], value:f2(base/x[1])};}), note:'Eingabe: '+f2(wert)+' '+u };
+      }
+      case 'mwst': {
+        var netto=P(ev.netto), mw=P(ev.mwst), auf=P(ev.aufschlag);
+        var n2=netto*(1+auf/100), bet=n2*mw/100, br=n2+bet;
+        var subs=[
+          {label:'Nettobetrag', value:fmt(n2,2)+' €'},
+          {label:'MwSt ('+fmt(mw,0)+' %)', value:fmt(bet,2)+' €'}
+        ];
+        if (auf>0) subs.unshift({label:'Aufschlag ('+fmt(auf,0)+' %)', value:'+ '+fmt(n2-netto,2)+' €'});
+        return { main:{label:'Bruttobetrag', value:fmt(br,2), unit:'€'}, subs:subs, note: auf>0?'Aufschlag wird auf den Nettobetrag vor MwSt gerechnet.':'' };
+      }
+      case 'cop': {
+        var wt = WPTYP[ev.wptyp] || WPTYP.luftwasser;
+        var src=P(ev.src), sink=P(ev.sink), g=wt.guete;
+        var Ts=src+273.15, Tv=sink+273.15;
+        var carnot = Tv>Ts ? Tv/(Tv-Ts) : NaN;
+        var copv = carnot*g/100;
+        return { main:{label:'Geschätzter COP', value:fmt(copv,2), unit:''},
+          subs:[
+            {label:'Carnot-COP', value:fmt(carnot,2)},
+            {label:'Temperaturhub', value:fmt(sink-src,1)+' K'},
+            {label:'Gütegrad ('+wt.label+')', value:fmt(g,0)+' %'},
+            {label:'Quelle / Vorlauf', value:fmt(src,1)+' / '+fmt(sink,1)+' °C'}
+          ],
+          note:'COP = Carnot-Wirkungsgrad × Gütegrad. Carnot-COP = T_VL / (T_VL − T_Quelle) in Kelvin. Der Gütegrad wird je Bauart angesetzt (Luft/Wasser ~0,42, Sole/Wasser ~0,47, Wasser/Wasser ~0,52, Luft/Luft ~0,38) und beschreibt die Maschinenqualität gegenüber dem idealen Prozess. Je kleiner der Temperaturhub (niedrige Vorlauftemperatur, hohe Quellentemperatur), desto höher der COP.' };
+      }
+      case 'jaz': {
+        var vgl = VERGLEICH[ev.vergleich] || VERGLEICH.gas;
+        var bedarf=P(ev.bedarf), jz=P(ev.jz), strom=P(ev.strom), bren=P(ev.brennstoff), eta=P(ev.eta);
+        var sWP = jz>0 ? bedarf/jz : NaN;
+        var kWP = sWP*strom/100;
+        var brenKwh = eta>0 ? bedarf/(eta/100) : NaN;
+        var kV = brenKwh*bren/100;
+        var diff = kV-kWP;
+        return { main:{label: diff>=0?'Jährliche Ersparnis':'Jährliche Mehrkosten', value:fmt(Math.abs(diff),0), unit:'€/a'},
+          subs:[
+            {label:'Stromkosten Wärmepumpe', value:fmt(kWP,0)+' €/a'},
+            {label:'Kosten Vergleich ('+vgl.label+')', value:fmt(kV,0)+' €/a'},
+            {label:'Strombedarf WP', value:fmt(sWP,0)+' kWh/a'},
+            {label:'Endenergie Vergleich', value:fmt(brenKwh,0)+' kWh/a'}
+          ],
+          note:'Stromkosten = Heizwärmebedarf / JAZ × Strompreis. Vergleichsheizung = Bedarf / Wirkungsgrad × Energiepreis. Die hinterlegten Preise sind Richtwerte und über die Dropdown-Auswahl vorbelegt — jederzeit überschreibbar. Nur reine Energiekosten, ohne Investition, Wartung und Grundgebühren.' };
+      }
+      case 'bivalenz': {
+        var HL=P(ev.hl), Tn=P(ev.tnorm), Hg=P(ev.hgrenze), Pwp=P(ev.pwp);
+        var span = Hg-Tn;
+        var Tbiv = (HL>0 && span!==0) ? Hg-(Pwp/HL)*span : NaN;
+        if (Tbiv < Tn) Tbiv = Tn;
+        var heizstab = Math.max(0, HL-Pwp);
+        var deckung = HL>0 ? Math.min(100, Pwp/HL*100) : NaN;
+        var mono = Pwp >= HL;
+        return { main:{label:'Bivalenzpunkt', value:fmt(Tbiv,1), unit:'°C'},
+          subs:[
+            {label:'Betriebsweise', value: mono?'monovalent':'bivalent'},
+            {label:'Erf. Heizstab-Leistung', value:fmt(heizstab,1)+' kW'},
+            {label:'WP-Deckung am Auslegungspunkt', value:fmt(deckung,0)+' %'},
+            {label:'WP-Heizleistung', value:fmt(Pwp,1)+' kW'},
+            {label:'Gebäude-Heizlast', value:fmt(HL,1)+' kW'}
+          ],
+          note:'Vereinfacht mit konstanter WP-Leistung gerechnet. Real sinkt die WP-Leistung mit der Außentemperatur, der Bivalenzpunkt liegt dann etwas höher — WP-Kennlinie des Herstellers beachten. Bivalenzpunkt = Außentemperatur, ab der der Zuheizer einspringt.' };
+      }
+      case 'puffer': {
+        var Pwp=P(ev.pwp);
+        var t = PUFFERTYP[ev.typ] || PUFFERTYP.parallel;
+        var V = Pwp*t.lpk;
+        var sizes=[50,80,100,120,140,200,300,400,500];
+        var size = sizes.find(function(s){return s>=V;});
+        return { main:{label:'Empfohlenes Puffervolumen', value: size?String(size):'> 500', unit:'l'},
+          subs:[
+            {label:'Berechnetes Volumen ('+t.label+')', value:fmt(V,0)+' l'},
+            {label:'spez. Volumen', value:fmt(t.lpk,0)+' l/kW'},
+            {label:'WP-Heizleistung', value:fmt(Pwp,1)+' kW'}
+          ],
+          note:'Richtwerte: Reihenpuffer ~12 l/kW, Parallelpuffer ~20 l/kW, Trennspeicher ~35 l/kW. Der Puffer sichert die Mindestlaufzeit, liefert Energie für die Abtauung und überbrückt EVU-Sperrzeiten. Herstellervorgaben haben Vorrang.' };
+      }
+      case 'schall': {
+        var Lw=P(ev.lw), Li=P(ev.immission);
+        var r = Math.sqrt(Math.pow(10,(Lw-Li)/10)/(2*Math.PI));
+        return { main:{label:'Mindestabstand', value:fmt(r,1), unit:'m'},
+          subs:[
+            {label:'Schallleistungspegel', value:fmt(Lw,0)+' dB(A)'},
+            {label:'Immissionsrichtwert (nachts)', value:fmt(Li,0)+' dB(A)'},
+            {label:'Pegeldifferenz', value:fmt(Lw-Li,0)+' dB'}
+          ],
+          note:'Freie Halbkugel-Abstrahlung: L = Lw − 10·log(2π·r²). Aufstellung an einer Wand +3 dB, in einer Ecke +6 dB → größerer Abstand nötig. Maßgeblich ist der Immissionsrichtwert am Nachbarfenster nach TA Lärm (nachts). Reflexionen und Vorbelastung gesondert prüfen.' };
+      }
+      case 'heizkurve': {
+        var VLn=P(ev.vlnorm), TnH=P(ev.tnorm), Tr=P(ev.traum), Ta=P(ev.taussen), nH=P(ev.n)||1.1;
+        var rl = (Tr-TnH)!==0 ? (Tr-Ta)/(Tr-TnH) : NaN;
+        if (rl<0) rl=0; if (rl>1) rl=1;
+        var VL = Tr + (VLn-Tr)*Math.pow(rl, 1/nH);
+        return { main:{label:'Erforderliche Vorlauftemperatur', value:fmt(VL,1), unit:'°C'},
+          subs:[
+            {label:'relative Heizlast', value:fmt(rl*100,0)+' %'},
+            {label:'Auslegung', value:fmt(VLn,0)+' °C bei '+fmt(TnH,0)+' °C'},
+            {label:'aktuelle Außentemperatur', value:fmt(Ta,1)+' °C'},
+            {label:'Heizflächen-Exponent n', value:fmt(nH,2)}
+          ],
+          note:'VL = Raumtemp + (Auslegungs-VL − Raumtemp) × (relative Last)^(1/n). Relative Last = (Raum − Außen)/(Raum − Norm). Exponent n: Fußbodenheizung ~1,1, Heizkörper ~1,3. Hilft, die Heizkurve möglichst niedrig (effizient) einzustellen.' };
+      }
+      case 'abgleich': {
+        var Qab=P(ev.last), dtab=P(ev.dt), dp=P(ev.dp);
+        var m = dtab>0 ? Qab*0.86/dtab : NaN;
+        var kvv = dp>0 ? (m/1000)/Math.sqrt(dp/100) : NaN;
+        return { main:{label:'Erforderlicher kv-Wert', value:fmt(kvv,3), unit:'m³/h'},
+          subs:[
+            {label:'Volumenstrom', value:fmt(m,0)+' l/h'},
+            {label:'Volumenstrom', value:fmt(m/60,2)+' l/min'},
+            {label:'Massenstrom', value:fmt(m,0)+' kg/h'},
+            {label:'Differenzdruck Ventil', value:fmt(dp,1)+' kPa'},
+            {label:'Spreizung Δt', value:fmt(dtab,1)+' K'}
+          ],
+          note:'Volumenstrom V = Heizlast × 0,86 / Δt; kv = V[m³/h] / √(Δp[bar]). Mit dem kv-Wert die Voreinstellung des Thermostat-/Rücklaufventils aus der Herstellertabelle wählen. Δt am Heizkörper meist 10–15 K.' };
+      }
+      case 'wwspeicher': {
+        var k = WWKOMFORT[ev.komfort] || WWKOMFORT.mittel;
+        var mfh = ev.gebaeude === 'mfh';
+        var persPerWhg = 2;
+        var whg = P(ev.wohnungen);
+        var pers = mfh ? whg*persPerWhg : P(ev.personen);
+        var Vww = pers*k.speicher;
+        var sizesW=[80,120,150,200,300,400,500,600,750,800,1000,1500,2000];
+        var sizeW = sizesW.find(function(s){return s>=Vww;});
+        var tag = pers*k.bedarf;
+        var Eww = tag*1.163*50/1000;
+        var subs=[
+          {label:'Richtwert ('+k.label+')', value:fmt(Vww,0)+' l'},
+          {label:'WW-Tagesbedarf (60 °C)', value:fmt(tag,0)+' l/Tag'},
+          {label:'Heizenergie/Tag (10→60 °C)', value:fmt(Eww,1)+' kWh'}
+        ];
+        if (mfh) { subs.push({label:'Wohnungen', value:fmt(whg,0)}); subs.push({label:'Personen (gerechnet, 2/Whg)', value:fmt(pers,0)}); }
+        else subs.push({label:'Personen', value:fmt(pers,0)});
+        return { main:{label:'Empfohlene Speichergröße', value: sizeW?String(sizeW):'> 2000', unit:'l'},
+          subs:subs,
+          note:'Richtwerte: sparsam ~40, mittel ~60, komfortabel ~80 l Speicher je Person. Bei Mehrfamilienhäusern wird mit ~2 Personen je Wohnung gerechnet; die genaue Auslegung erfolgt nach DIN 4708 (Bedarfskennzahl N) mit Gleichzeitigkeitsfaktor. Bei Wärmepumpe größeren Speicher und niedrigere Bereitschaftstemperatur wählen; Legionellenschutz (regelmäßig ≥ 60 °C) beachten.' };
+      }
+      case 'rohrdim': {
+        var Vlhr=P(ev.vstrom), vr=P(ev.v);
+        var Vs = Vlhr/1000/3600;
+        var d = vr>0 ? Math.sqrt(4*Vs/(Math.PI*vr))*1000 : NaN;
+        var dims=[['12×1 (Di 10)',10],['15×1 (Di 13)',13],['18×1 (Di 16)',16],['22×1 (Di 20)',20],['28×1,5 (Di 25)',25],['35×1,5 (Di 32)',32],['42×1,5 (Di 39)',39],['54×2 (Di 50)',50]];
+        var dim = isFinite(d) ? dims.find(function(x){return x[1]>=d;}) : null;
+        return { main:{label:'Erf. Innendurchmesser', value:fmt(d,1), unit:'mm'},
+          subs:[
+            {label:'Empfohlene Dimension', value: dim?dim[0]:'> 54×2'},
+            {label:'Volumenstrom', value:fmt(Vlhr,0)+' l/h'},
+            {label:'max. Geschwindigkeit', value:fmt(vr,2)+' m/s'}
+          ],
+          note:'d = √(4·V / (π·v)). Richtwerte max. Fließgeschwindigkeit: Heizung ~0,5–1,0 m/s, Trinkwasser-Verteilung bis ~2 m/s (Geräusch/Erosion beachten). Empfohlene Dimension = nächstgrößere Standardgröße (Kupfer-Maße als Beispiel).' };
+      }
+      case 'abgas': {
+        var fuAb = ABGAS_FUELS[ev.brennstoff] || ABGAS_FUELS.erdgas;
+        var taA=P(ev.ta), tlA=P(ev.tl), o2A=P(ev.o2);
+        var validAb = o2A >= 0 && o2A < 21 && taA > tlA;
+        var qa = validAb ? (taA-tlA)*(fuAb.A2/(21-o2A)+fuAb.B) : NaN;   // Siegert
+        var etaF = 100-qa;
+        var co2A = fuAb.co2max*(21-o2A)/21;
+        return { main:{label:'Abgasverlust', value:fmt(qa,1), unit:'%'},
+          subs:[
+            {label:'Feuerungstechn. Wirkungsgrad', value:fmt(etaF,1)+' %'},
+            {label:'CO₂-Gehalt (gerechnet)', value:fmt(co2A,1)+' %'},
+            {label:'Abgas / Luft', value:fmt(taA,0)+' / '+fmt(tlA,0)+' °C'},
+            {label:'O₂-Gehalt', value:fmt(o2A,1)+' %'}
+          ],
+          note: (!validAb ? 'Eingaben prüfen: O₂ muss unter 21 % und die Abgastemperatur über der Lufttemperatur liegen. ' : '')
+            + 'Siegert-Formel: qA = (tA − tL) × (A2/(21 − O₂) + B). Konstanten für '+fuAb.label+': A2 = '+fmt(fuAb.A2,2)+', B = '+fmt(fuAb.B,3)+'. Grenzwerte siehe unten — bei Überschreitung Brenner einstellen (Luftzahl, Düse, Wärmetauscher reinigen).',
+          refTitle:'Grenzwerte Abgasverlust (1. BImSchV)', refs:[
+            {label:'4–25 kW',   value:'max. 11 %'},
+            {label:'25–50 kW',  value:'max. 10 %'},
+            {label:'über 50 kW',value:'max. 9 %'}
+          ] };
+      }
+      case 'oelreich': {
+        var gphR=P(ev.duese), prR=P(ev.druck), hR=P(ev.stunden), tankR=P(ev.tank);
+        var lhR = prR>0 ? gphR*Math.sqrt(prR/7)*3.785 : NaN;   // Durchsatz [l/h]
+        var lTag = lhR*hR;
+        var tage = lTag>0 ? tankR/lTag : NaN;
+        var kwR = lhR*0.845*11.86;                              // Feuerungsleistung
+        return { main:{label:'Tankreichweite', value:fmt(tage,0), unit:'Tage'},
+          subs:[
+            {label:'Reichweite', value:fmt(tage/7,1)+' Wochen'},
+            {label:'Verbrauch', value:fmt(lhR,2)+' l/h'},
+            {label:'Verbrauch', value:fmt(lTag,1)+' l/Tag'},
+            {label:'Feuerungsleistung', value:fmt(kwR,1)+' kW'},
+            {label:'Ölvorrat', value:fmt(tankR,0)+' l'}
+          ],
+          note:'Durchsatz = Düse × √(Druck/7 bar) × 3,785 l. Die Brennerlaufzeit pro Tag liefert der Betriebsstundenzähler (Differenz zweier Ablesungen ÷ Tage); sie schwankt stark mit der Außentemperatur — die Reichweite ist ein Momentwert.' };
+      }
+      case 'fuellwasser': {
+        var Qf=P(ev.leistung), Vf=P(ev.vol), hdF=P(ev.haerte);
+        var spezF = Qf>0 ? Vf/Qf : NaN;
+        // zulässige Gesamthärte nach VDI 2035 (vereinfacht)
+        var grenz;
+        if (Qf<=50) grenz=16.8; else if (Qf<=200) grenz=11.2; else if (Qf<=600) grenz=8.4; else grenz=0.1;
+        if (isFinite(spezF) && spezF>20) grenz = (Qf<=50) ? 11.2 : (Qf<=200 ? 8.4 : 0.1);
+        if (isFinite(spezF) && spezF>50) grenz = 0.1;
+        var okF = isFinite(hdF) && hdF <= grenz;
+        return { main:{label:'Aufbereitung erforderlich?', value: okF?'Nein':'Ja', unit:''},
+          subs:[
+            {label:'zulässige Gesamthärte', value:fmt(grenz,1)+' °dH ('+fmt(grenz/5.6,1)+' mol/m³)'},
+            {label:'örtliche Trinkwasserhärte', value:fmt(hdF,1)+' °dH'},
+            {label:'spezifisches Anlagenvolumen', value:fmt(spezF,1)+' l/kW'},
+            {label:'maßgebende Kesselleistung', value:fmt(Qf,0)+' kW'}
+          ],
+          note: (okF ? 'Das Trinkwasser kann unaufbereitet eingefüllt werden. ' : 'Füllwasser enthärten bzw. entsalzen (Kartusche/Mischbett) oder aufbereitetes Wasser einfüllen. ')
+            + 'Vereinfachte Prüfung nach VDI 2035: Grenzwert je nach kleinster Einzel-Kesselleistung; bei über 20 l/kW spezifischem Volumen gilt die nächst strengere Stufe, bei über 50 l/kW salzarmes/vollentsalztes Wasser. Füll- und Nachfüllmengen im Anlagenbuch dokumentieren; pH-Wert nach 8–12 Wochen prüfen (8,2–10,0; Aluminium max. 8,5).' };
+      }
+      case 'aufheiz': {
+        var Va=P(ev.vol), t1a=P(ev.tstart), t2a=P(ev.tziel), Qa=P(ev.leistung);
+        var dta = t2a-t1a;
+        var Ea = Va*dta*1.163/1000;                 // kWh
+        var th = (Qa>0 && dta>0) ? Ea/Qa : NaN;     // h
+        return { main:{label:'Aufheizzeit', value:fmt(th*60,0), unit:'min'},
+          subs:[
+            {label:'Aufheizzeit', value:fmt(th,2)+' h'},
+            {label:'Energiebedarf', value:fmt(Ea,1)+' kWh'},
+            {label:'Temperaturhub', value:fmt(dta,0)+' K'},
+            {label:'Ladeleistung', value:fmt(Qa,1)+' kW'}
+          ],
+          note: (dta<=0 ? 'Zieltemperatur muss über der Starttemperatur liegen. ' : '')
+            + 'E = V × Δt × 1,163 / 1000; Zeit = E / Ladeleistung — ohne Speicher- und Übertragungsverluste, real etwa 10–20 % länger. Bei Wärmepumpen die tatsächliche Ladeleistung bei Speichertemperatur ansetzen (sinkt mit steigender Temperatur).' };
+      }
+      case 'mischwasser': {
+        var Vspm=P(ev.vsp), tsm=P(ev.tsp), tkm=P(ev.tkalt), tmm=P(ev.tmisch);
+        var validM = tsm>tmm && tmm>tkm;
+        var Vm = validM ? Vspm*(tsm-tkm)/(tmm-tkm) : NaN;
+        return { main:{label:'Verfügbares Mischwasser ('+fmt(tmm,0)+' °C)', value:fmt(Vm,0), unit:'l'},
+          subs:[
+            {label:'Duschzeit (ca. 8 l/min)', value:fmt(Vm/8,0)+' min'},
+            {label:'Wannenfüllungen (ca. 150 l)', value:fmt(Vm/150,1)},
+            {label:'davon Kaltwasser zugemischt', value:fmt(Vm-Vspm,0)+' l'},
+            {label:'Speicher', value:fmt(Vspm,0)+' l bei '+fmt(tsm,0)+' °C'}
+          ],
+          note: (!validM ? 'Eingaben prüfen: Speicher > Misch- > Kaltwassertemperatur. ' : '')
+            + 'V_misch = V_Speicher × (t_Speicher − t_kalt) / (t_misch − t_kalt) — idealisiert (vollständige Durchmischung, ohne Nachheizen). Real liefert der Speicher wegen Schichtung und Restwärmeverlust etwas weniger.' };
+      }
+      case 'ausstoss': {
+        var diA=P(ev.di), LA=P(ev.laenge), qA2=P(ev.durchfluss);
+        var inhaltA = Math.PI*Math.pow(diA/2000,2)*1000*LA;      // l
+        var sekA = qA2>0 ? inhaltA/(qA2/60) : NaN;
+        return { main:{label:'Wartezeit bis warm', value:fmt(sekA,0), unit:'s'},
+          subs:[
+            {label:'Leitungsinhalt', value:fmt(inhaltA,2)+' l'},
+            {label:'Zapfdurchfluss', value:fmt(qA2,1)+' l/min'},
+            {label:'Leitung', value:'Ø '+fmt(diA,1)+' mm × '+fmt(LA,1)+' m'}
+          ],
+          note: (inhaltA>3 ? 'Leitungsinhalt über 3 Liter: In Großanlagen ist dann nach DVGW W 551 eine Zirkulation bzw. Begleitheizung erforderlich; auch im EFH ein deutliches Komfort- und Hygienethema. ' : '')
+            + 'Zeit = Leitungsinhalt / Zapfdurchfluss (zusätzlich Auskühlzeit der Rohrwand, real etwas länger). Komfortrichtwert: max. ~10 s bzw. 3 l bis zur Entnahmestelle.' };
+      }
+      case 'spitzenvs': {
+        var gS = SPITZEN_TYP[ev.typ] || SPITZEN_TYP.wohn;
+        var sSum=P(ev.summe);
+        var vsS;
+        if (sSum<=0) vsS = NaN;
+        else if (sSum<=0.2) vsS = sSum;                           // unterhalb Gültigkeit: keine Reduktion
+        else { vsS = gS.a*Math.pow(sSum,gS.b)-gS.c; if (vsS>sSum) vsS=sSum; if (vsS<0.07) vsS=0.07; }
+        var gleichz = sSum>0 ? vsS/sSum*100 : NaN;
+        return { main:{label:'Spitzendurchfluss', value:fmt(vsS,2), unit:'l/s'},
+          subs:[
+            {label:'Spitzendurchfluss', value:fmt(vsS*60,1)+' l/min'},
+            {label:'Spitzendurchfluss', value:fmt(vsS*3.6,2)+' m³/h'},
+            {label:'Summendurchfluss ΣVR', value:fmt(sSum,2)+' l/s'},
+            {label:'Gleichzeitigkeit', value:fmt(gleichz,0)+' %'}
+          ],
+          note:'Vereinfacht nach DIN 1988-300: VS = '+fmt(gS.a,2)+' × ΣVR^'+fmt(gS.b,2)+' − '+fmt(gS.c,2)+' ('+gS.label+', gültig ab ΣVR > 0,2 l/s). ΣVR = Summe der Berechnungsdurchflüsse aller Entnahmestellen (Tabelle unten, kalt und warm getrennt betrachten). Für die normgerechte Rohrnetzberechnung Teilstrecken einzeln rechnen.',
+          refTitle:'Berechnungsdurchflüsse [l/s] (kalt / warm)', refs:VR_TABELLE };
+      }
+      case 'druckpruef': {
+        var verf = ev.verfahren;
+        var mainP, subsP=[], noteP;
+        if (verf === 'luftdicht') {
+          var volP = P(ev.vol);
+          var dauer = 120 + Math.max(0, Math.ceil((volP-100)/100))*20;
+          mainP = {label:'Prüfdruck', value:'150', unit:'mbar'};
+          subsP.push({label:'Prüfdauer', value:fmt(dauer,0)+' min'});
+          subsP.push({label:'Leitungsvolumen', value:fmt(volP,0)+' l'});
+          noteP = 'Dichtheitsprüfung mit Luft/inertem Gas: 150 mbar; 120 min bei bis 100 l Leitungsvolumen, je weitere 100 l +20 min. Vorher Temperaturausgleich abwarten. Empfohlen, wenn die Anlage nicht unmittelbar in Betrieb geht (Hygiene, Frost).';
+        } else if (verf === 'luftlast_klein') {
+          mainP = {label:'Prüfdruck', value:'3', unit:'bar'};
+          subsP.push({label:'Prüfdauer', value:'10 min'});
+          subsP.push({label:'Geltungsbereich', value:'bis DN 50'});
+          noteP = 'Belastungsprüfung mit max. 3 bar für Leitungen bis DN 50 — im Anschluss an die Dichtheitsprüfung mit 150 mbar.';
+        } else if (verf === 'luftlast_gross') {
+          mainP = {label:'Prüfdruck', value:'1', unit:'bar'};
+          subsP.push({label:'Prüfdauer', value:'10 min'});
+          subsP.push({label:'Geltungsbereich', value:'über DN 50 bis DN 100'});
+          noteP = 'Belastungsprüfung mit max. 1 bar für Leitungen über DN 50 — im Anschluss an die Dichtheitsprüfung mit 150 mbar.';
+        } else {
+          mainP = {label:'Prüfdruck', value:'11', unit:'bar'};
+          subsP.push({label:'Prüfdauer (metallisch)', value:'30 min'});
+          subsP.push({label:'Kunststoff/Verbund', value:'Verfahren n. Hersteller'});
+          noteP = 'Wasser-Druckprüfung nach DIN EN 806-4 / ZVSHK: 1,1 × zulässiger Betriebsdruck = 11 bar (bei PN 10). Nur mit filtriertem Trinkwasser füllen, vollständig entlüften; bei Kunststoff-/Verbundrohren das druckverlaufsgeführte Verfahren des Herstellers bzw. ZVSHK-Merkblatt anwenden. Prüfung protokollieren.';
+        }
+        subsP.push({label:'Grundlage', value:'ZVSHK / DIN EN 806-4'});
+        return { main:mainP, subs:subsP, note:noteP };
+      }
+      case 'lueftung': {
+        var rL = LUFTWECHSEL[ev.raum] || LUFTWECHSEL.wohnen;
+        var AL=P(ev.flaeche), hL=P(ev.hoehe);
+        var raumVol = AL*hL;
+        var VhL = raumVol*rL.n;
+        var dKan = VhL>0 ? Math.sqrt(4*(VhL/3600)/(Math.PI*3))*1000 : NaN;   // Kanal-Ø bei 3 m/s
+        var kanNorm = [80,100,125,160,200,250,315,400];
+        var kSel = isFinite(dKan) ? kanNorm.find(function(k){return k>=dKan;}) : null;
+        return { main:{label:'Erforderlicher Volumenstrom', value:fmt(VhL,0), unit:'m³/h'},
+          subs:[
+            {label:'Volumenstrom', value:fmt(VhL/3.6,1)+' l/s'},
+            {label:'Raumvolumen', value:fmt(raumVol,1)+' m³'},
+            {label:'Luftwechsel ('+rL.label+')', value:fmt(rL.n,1)+' 1/h'},
+            {label:'Kanal-Ø bei 3 m/s', value:fmt(dKan,0)+' mm → DN '+(kSel||'> 400')}
+          ],
+          note:'Volumenstrom = Raumvolumen × Luftwechselrate (Richtwerte). Wohnungslüftung genau nach DIN 1946-6 auslegen; innenliegende Bäder/WCs nach DIN 18017-3 (pauschal 40 bzw. 60 m³/h). Kanalgeschwindigkeit in Wohnräumen möglichst ≤ 3 m/s (Geräusch).' };
+      }
+      case 'kaeltemittel': {
+        var kmK = KAELTEMITTEL[ev.mittel] || KAELTEMITTEL.r32;
+        var kgK = P(ev.menge);
+        var teq = kgK*kmK.gwp/1000;                 // t CO₂-Äquivalent
+        var pflicht;
+        if (teq >= 500) pflicht = 'vierteljährlich (mit Leckage-Erkennung: halbjährlich)';
+        else if (teq >= 50) pflicht = 'halbjährlich (mit Leckage-Erkennung: jährlich)';
+        else if (teq >= 5) pflicht = 'jährlich (mit Leckage-Erkennung: alle 2 Jahre)';
+        else pflicht = 'keine regelmäßige Prüfpflicht';
+        return { main:{label:'CO₂-Äquivalent', value:fmt(teq,2), unit:'t'},
+          subs:[
+            {label:'Dichtheitsprüfung', value:pflicht},
+            {label:'GWP ('+kmK.label+')', value:fmt(kmK.gwp,0)},
+            {label:'Füllmenge', value:fmt(kgK,2)+' kg'}
+          ],
+          note:'CO₂-Äquivalent = Füllmenge × GWP. Prüfintervalle nach F-Gase-Verordnung (EU) 2024/573: ab 5 t jährlich, ab 50 t halbjährlich, ab 500 t vierteljährlich; hermetisch geschlossene Systeme erst ab 10 t. Arbeiten am Kältekreis nur mit Sachkundenachweis (Kat. I/II); R290 ist brennbar (A3) — Aufstellvorgaben beachten.' };
+      }
+      default: return { main:null, subs:[], note:'' };
+    }
+  }
+
+  // ---------- DOM-Hilfen ----------
+  function el(tag, attrs, children) {
+    var e = document.createElement(tag);
+    if (attrs) {
+      for (var k in attrs) {
+        if (k === 'style') e.setAttribute('style', attrs[k]);
+        else if (k === 'class') e.className = attrs[k];
+        else if (k === 'text') e.textContent = attrs[k];
+        else if (k.slice(0,2) === 'on' && typeof attrs[k] === 'function') e.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+        else e.setAttribute(k, attrs[k]);
+      }
+    }
+    if (children) {
+      (Array.isArray(children) ? children : [children]).forEach(function(c){
+        if (c == null) return;
+        e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+      });
+    }
+    return e;
+  }
+
+  // ---------- Aktionen ----------
+  function setTheme(t) { themeChosen = true; state.theme = t; persist(); applyTheme(); render(); }
+  function applyTheme() { document.documentElement.setAttribute('data-theme', state.theme); }
+  function open(id) { state.view = id; state.query = ''; render(); window.scrollTo(0,0); }
+  function goHome() { state.view = 'home'; render(); }
+  function toggleGroup(c) { state.collapsed[c] = !state.collapsed[c]; persist(); renderHomeGroups(); }
+  function setField(id, key, val) {
+    if (!state.vals[id]) state.vals[id] = {};
+    state.vals[id][key] = val;
+    persist();
+    renderResult(id); // nur Ergebnis aktualisieren, Fokus bleibt erhalten
+  }
+
+  // ---------- Datensicherung: Export/Import als JSON ----------
+  function exportData() {
+    var data = { app:'shk-rechner', version:1, theme:state.theme, vals:state.vals };
+    var url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type:'application/json' }));
+    var a = el('a', { href:url, download:'shk-rechner-daten.json' });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function importData() {
+    var inp = el('input', { type:'file', accept:'.json,application/json', style:'display:none;' });
+    inp.addEventListener('change', function(){
+      var file = inp.files && inp.files[0];
+      if (!file) return;
+      var rd = new FileReader();
+      rd.onload = function(){
+        try {
+          var d = JSON.parse(rd.result);
+          if (!d || typeof d !== 'object' || d.app !== 'shk-rechner' || typeof d.vals !== 'object') {
+            throw new Error('format');
+          }
+          state.vals = d.vals || {};
+          if (d.theme === 'light' || d.theme === 'dark') { state.theme = d.theme; themeChosen = true; }
+          persist(); applyTheme(); render();
+        } catch (e) {
+          alert('Import fehlgeschlagen: Die Datei ist keine gültige SHK-Rechner-Sicherung.');
+        }
+      };
+      rd.readAsText(file);
+    });
+    document.body.appendChild(inp); inp.click(); document.body.removeChild(inp);
+  }
+
+  // ---------- App-Datei speichern/teilen (für Handy & Tablet) ----------
+  function buildAppHtml() {
+    // Sauberen Klon erzeugen: gerendertes UI und Theme-Attribut entfernen,
+    // damit die gespeicherte Datei frisch startet (Skript baut alles neu auf).
+    var clone = document.documentElement.cloneNode(true);
+    var app = clone.querySelector('#app'); if (app) app.innerHTML = '';
+    clone.removeAttribute('data-theme');
+    return '<!DOCTYPE html>\n' + clone.outerHTML;
+  }
+  function saveApp() {
+    var html = buildAppHtml();
+    var blob = new Blob([html], { type:'text/html' });
+    // Auf Mobilgeräten das Teilen-Menü anbieten (Dateien-App, Drive, Mail …)
+    if (navigator.canShare && window.File) {
+      try {
+        var file = new File([blob], 'SHK Rechner.html', { type:'text/html' });
+        if (navigator.canShare({ files:[file] })) {
+          navigator.share({ files:[file], title:'SHK Rechner' }).catch(function(){ /* vom Nutzer abgebrochen */ });
+          return;
+        }
+      } catch (e) { /* Fallback unten */ }
+    }
+    // Fallback: normaler Download
+    var url = URL.createObjectURL(blob);
+    var a = el('a', { href:url, download:'SHK Rechner.html' });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- PDF-Export (eigener, abhängigkeitsfreier Generator, Helvetica/WinAnsi) ----------
+  function pdfText(s) {
+    var rep = {'Δ':'d','π':'pi','√':'sqrt','₀':'0','₁':'1','₂':'2','₃':'3','ₑ':'e','ⁿ':'n',
+      '→':'->','…':'...','≤':'<=','≥':'>=','„':'"','“':'"','”':'"','‚':"'",'‘':"'",'’':"'",
+      '–':'-','—':'-','−':'-','•':'-','€':'EUR','≈':'~','β':'beta','ρ':'rho'};
+    s = String(s); var out = '';
+    for (var i = 0; i < s.length; i++) {
+      var ch = s[i];
+      if (rep[ch] != null) { out += rep[ch]; continue; }
+      var cc = ch.charCodeAt(0);
+      out += (cc < 0x80 || (cc >= 0xA0 && cc <= 0xFF)) ? ch : '?';
+    }
+    return out;
+  }
+  function pdfEsc(s) { return pdfText(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)'); }
+  function pdfWrap(text, max) {
+    var words = String(text).split(/\s+/), lines = [], cur = '';
+    words.forEach(function(w){ if ((cur+' '+w).trim().length > max) { if (cur) lines.push(cur); cur = w; } else cur = (cur?cur+' ':'')+w; });
+    if (cur) lines.push(cur); return lines;
+  }
+  function buildPdf(doc) {
+    var W = 595.28, H = 841.89, M = 50, y = H - 60, c = '';
+    function gray(g){ c += g+' '+g+' '+g+' rg\n'; }
+    function t(x, yy, sz, f, str){ c += 'BT /'+f+' '+sz+' Tf 1 0 0 1 '+x.toFixed(2)+' '+yy.toFixed(2)+' Tm ('+pdfEsc(str)+') Tj ET\n'; }
+    gray(0); t(M, y, 18, 'F2', doc.title); y -= 22;
+    if (doc.subtitle) { gray(0.45); t(M, y, 10, 'F1', doc.subtitle); y -= 20; }
+    doc.rows.forEach(function(r){
+      if (r.sep) { gray(0.8); c += M.toFixed(2)+' '+(y+6).toFixed(2)+' m '+(W-M).toFixed(2)+' '+(y+6).toFixed(2)+' l 0.5 w S\n'; y -= 10; return; }
+      if (r.head) { gray(0.45); t(M, y, 9, 'F2', String(r.head).toUpperCase()); y -= 16; return; }
+      if (r.main) { gray(0); t(M, y, 14, 'F2', r.label); t(W-M-170, y, 14, 'F2', r.value); y -= 22; return; }
+      gray(0.3); t(M, y, 11, 'F1', r.label); gray(0); t(W-M-190, y, 11, 'F1', r.value); y -= 16;
+    });
+    if (doc.note) { y -= 6; gray(0.45); pdfWrap(doc.note, 95).forEach(function(ln){ t(M, y, 9, 'F1', ln); y -= 12; }); }
+    var stream = c, objs = [];
+    objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+    objs.push('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W.toFixed(2)+' '+H.toFixed(2)+'] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>');
+    objs.push('<< /Length '+stream.length+' >>\nstream\n'+stream+'\nendstream');
+    objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    var pdf = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n', offs = [];
+    objs.forEach(function(o, i){ offs.push(pdf.length); pdf += (i+1)+' 0 obj\n'+o+'\nendobj\n'; });
+    var xref = pdf.length;
+    pdf += 'xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n';
+    offs.forEach(function(o){ pdf += ('0000000000'+o).slice(-10)+' 00000 n \n'; });
+    pdf += 'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
+    return pdf;
+  }
+  function downloadPdf(name, bytes) {
+    var arr = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i) & 0xff;
+    var url = URL.createObjectURL(new Blob([arr], { type:'application/pdf' }));
+    var a = el('a', { href:url, download:name });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function buildToolPdfDoc(id) {
+    var tool = TOOLS.find(function(t){ return t.id === id; });
+    var ev = effVals(id);
+    if (id === 'einheiten') {
+      var list = ev.kategorie==='temperatur' ? ['°C','°F','K'] : (UNITS[ev.kategorie]?UNITS[ev.kategorie].units.map(function(u){return u[0];}):[]);
+      if (list.indexOf(ev.einheit) < 0) ev.einheit = list[0];
+    }
+    var rows = [{ head:'Eingaben' }];
+    if (id === 'rohrvol') {
+      rohrSections().forEach(function(s, i){
+        rows.push({ label:'Abschnitt '+(i+1)+' (Innen-Ø)', value: fmt(P(s.di),1)+' mm × '+fmt(P(s.len),2)+' m' });
+      });
+    } else if (id === 'heizlast') {
+      var h = ensureHeizlast();
+      var std = STANDARDS.find(function(s){ return s.id === h.standard; });
+      rows.push({ label:'Baujahr / Standard', value: std ? std.label : String(h.standard) });
+      rows.push({ label:'Raumhöhe', value: fmt(P(h.hoehe),2)+' m' });
+      h.rooms.forEach(function(r, i){ rows.push({ label:(r.name||('Raum '+(i+1))), value: fmt(P(r.flaeche),1)+' m²' }); });
+    } else {
+      fieldDefs(id, ev).forEach(function(f){
+        var val = ev[f.key];
+        if (f.type === 'select' && f.options) {
+          var opt = f.options.find(function(o){ return String(Array.isArray(o)?o[0]:o) === String(val); });
+          if (opt) val = Array.isArray(opt) ? opt[1] : opt;
+        }
+        rows.push({ label:f.label, value: String(val)+(f.unit?' '+f.unit:'') });
+      });
+    }
+    rows.push({ sep:true }, { head:'Ergebnis' });
+    var res = computeFor(id, ev);
+    if (res.main) rows.push({ main:true, label:res.main.label, value:res.main.value+' '+res.main.unit });
+    (res.subs || []).forEach(function(r){ rows.push({ label:r.label, value:r.value }); });
+    if (res.refs && res.refs.length) {
+      rows.push({ head: res.refTitle || 'Richtwerte' });
+      res.refs.forEach(function(r){ rows.push({ label:r.label, value:r.value }); });
+    }
+    return {
+      title: tool.name,
+      subtitle: cats[tool.cat].label + ' · SHK Rechner · ' + new Date().toLocaleDateString('de-DE'),
+      rows: rows,
+      note: res.note || ''
+    };
+  }
+  function downloadCurrentPdf() {
+    if (state.view === 'home') return;
+    var tool = TOOLS.find(function(t){ return t.id === state.view; });
+    var name = ('SHK ' + tool.name).replace(/[\\/:*?"<>|]+/g, '-') + '.pdf';
+    downloadPdf(name, buildPdf(buildToolPdfDoc(state.view)));
+  }
+
+  // ---------- Render: Header ----------
+  function renderHeader() {
+    var logo = el('button', { class:'logo', onClick:goHome, 'aria-label':'Zur Übersicht' }, [
+      el('span', { class:'logo-dot' }),
+      el('span', { class:'logo-text' })
+    ]);
+    logo.lastChild.innerHTML = 'SHK&nbsp;Rechner';
+
+    var hell = el('button', { class:'seg-btn' + (state.theme==='light'?' active':''), text:'Hell', onClick:function(){ setTheme('light'); }, 'aria-pressed': state.theme==='light' });
+    var dunkel = el('button', { class:'seg-btn' + (state.theme==='dark'?' active':''), text:'Dunkel', onClick:function(){ setTheme('dark'); }, 'aria-pressed': state.theme==='dark' });
+    var seg = el('div', { class:'seg' }, [hell, dunkel]);
+
+    var rightItems = [];
+    if (state.view !== 'home') {
+      rightItems.push(el('button', { class:'icon-btn', text:'Als PDF', title:'Ergebnis als PDF herunterladen', onClick:downloadCurrentPdf }));
+    } else {
+      rightItems.push(el('button', { class:'icon-btn', text:'Sichern', title:'Alle Eingaben als JSON-Datei exportieren', onClick:exportData }));
+      rightItems.push(el('button', { class:'icon-btn', text:'Laden', title:'Gesicherte Eingaben aus JSON-Datei importieren', onClick:importData }));
+    }
+    rightItems.push(seg);
+
+    return el('div', { class:'header' }, [
+      logo,
+      el('div', { class:'header-right' }, rightItems)
+    ]);
+  }
+
+  // ---------- Render: Home ----------
+  function renderHome() {
+    var frag = document.createDocumentFragment();
+    frag.appendChild(el('div', { class:'subtitle', text:'Werkzeuge für Sanitär, Heizung und Klima — komplett offline.' }));
+
+    var input = el('input', { value:state.query, placeholder:'Rechner suchen …', 'aria-label':'Rechner suchen' });
+    input.addEventListener('input', function(e){ state.query = e.target.value; renderHomeGroups(); });
+    var search = el('div', { class:'search' }, [ el('span', { class:'search-ring' }), input ]);
+    frag.appendChild(search);
+
+    frag.appendChild(el('div', { id:'home-groups' }));
+
+    frag.appendChild(el('div', { class:'footer-note', text:'Komplett offline · keine Verbindung erforderlich' }));
+    frag.appendChild(el('div', { class:'app-save-wrap' }, [
+      el('button', { class:'app-save', text:'App auf Gerät speichern / teilen', title:'Die komplette HTML-Datei herunterladen oder teilen — z. B. an Handy oder Tablet', onClick:saveApp })
+    ]));
+    frag.appendChild(renderHomeHint());
+    return frag;
+  }
+
+  // Geräteabhängige Anleitung: App-Symbol auf dem Startbildschirm anlegen
+  function renderHomeHint() {
+    var ua = navigator.userAgent;
+    var isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isAndroid = /Android/.test(ua);
+    var current = isIOS ? 'ios' : (isAndroid ? 'android' : 'desktop');
+    var steps = [
+      { id:'android', title:'Android (Chrome)',      text:'Datei in Chrome öffnen → Menü ⋮ oben rechts → „Zum Startbildschirm hinzufügen". Es entsteht ein App-Symbol, das den Rechner direkt öffnet.' },
+      { id:'ios',     title:'iPhone / iPad (Safari)', text:'Seite in Safari öffnen (aus der Dateien-Vorschau heraus geht es nicht — z. B. über einen Cloud-Link oder eine App wie „Documents") → Teilen-Symbol → „Zum Home-Bildschirm".' },
+      { id:'desktop', title:'PC (Chrome / Edge)',     text:'Browser-Menü → „Speichern und teilen" bzw. „Weitere Tools" → „Verknüpfung erstellen" — oder eine Datei-Verknüpfung auf den Desktop legen.' }
+    ];
+    steps.sort(function(a, b){ return (a.id===current ? -1 : 0) - (b.id===current ? -1 : 0); });
+    var det = el('details', { class:'tool-explain home-hint' });
+    det.appendChild(el('summary', { text:'Zum Startbildschirm anheften — so geht\'s' }));
+    var body = el('div', { class:'tool-explain-body' });
+    steps.forEach(function(s){
+      body.appendChild(el('div', { class:'hint-step' }, [
+        el('strong', { text: s.title + (s.id===current ? ' — dieses Gerät' : '') }),
+        el('div', { text: s.text })
+      ]));
+    });
+    det.appendChild(body);
+    return det;
+  }
+
+  function renderHomeGroups() {
+    var wrap = document.getElementById('home-groups');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    var q = state.query.trim().toLowerCase();
+    var match = function(t) {
+      return !q || t.name.toLowerCase().indexOf(q) >= 0 || t.desc.toLowerCase().indexOf(q) >= 0 || cats[t.cat].label.toLowerCase().indexOf(q) >= 0;
+    };
+    var any = false;
+    ['heizung','wp','solar','sanitaer','allg'].forEach(function(c){
+      var tools = TOOLS.filter(function(t){ return t.cat===c && match(t); });
+      if (!tools.length) return;
+      any = true;
+      // Bei aktiver Suche immer aufgeklappt zeigen
+      var isCollapsed = !q && !!state.collapsed[c];
+      var head = el('button', {
+        class:'group-head' + (isCollapsed ? ' collapsed' : ''),
+        'aria-expanded': String(!isCollapsed),
+        title: isCollapsed ? 'Kategorie aufklappen' : 'Kategorie zuklappen',
+        onClick:function(){ toggleGroup(c); }
+      }, [
+        el('span', { class:'group-dot', style:'background:'+cats[c].dot+';' }),
+        el('span', { class:'group-label', text:cats[c].label }),
+        el('span', { class:'group-count', text:String(tools.length) }),
+        el('span', { class:'group-chev', text:'▾', 'aria-hidden':'true' })
+      ]);
+      var children = [head];
+      if (!isCollapsed) {
+        var grid = el('div', { class:'grid' });
+        tools.forEach(function(t){
+          grid.appendChild(el('button', { class:'card', style:'--cat:'+cats[c].dot+';', onClick:function(){ open(t.id); } }, [
+            el('div', { class:'card-name', text:t.name }),
+            el('div', { class:'card-desc', text:t.desc })
+          ]));
+        });
+        children.push(grid);
+      }
+      wrap.appendChild(el('div', { class:'group' }, children));
+    });
+    if (!any) wrap.appendChild(el('div', { class:'no-results', text:'Kein Rechner gefunden.' }));
+  }
+
+  // ---------- Render: Tool ----------
+  function renderTool(id) {
+    var tool = TOOLS.find(function(t){ return t.id===id; });
+    var frag = document.createDocumentFragment();
+
+    frag.appendChild(el('button', { class:'back', onClick:goHome }, [
+      el('span', { class:'chev', text:'‹' }), el('span', { text:'Alle Rechner' })
+    ]));
+
+    frag.appendChild(el('div', { class:'tool-cat' }, [
+      el('span', { class:'tool-cat-dot', style:'background:'+cats[tool.cat].dot+';' }),
+      el('span', { class:'tool-cat-label', text:cats[tool.cat].label })
+    ]));
+    frag.appendChild(el('div', { class:'tool-name', text:tool.name }));
+    frag.appendChild(el('div', { class:'tool-desc', text:tool.desc }));
+
+    if (EXPLAIN[id]) {
+      var det = el('details', { class:'tool-explain' });
+      det.appendChild(el('summary', { text:'Was berechnet dieser Rechner?' }));
+      det.appendChild(el('div', { class:'tool-explain-body', text:EXPLAIN[id] }));
+      frag.appendChild(det);
+    }
+
+    var fieldsWrap = el('div', { class:'fields', id:'tool-fields' });
+    frag.appendChild(fieldsWrap);
+    buildFields(id, fieldsWrap);
+
+    frag.appendChild(el('div', { class:'result-block', id:'tool-result' }));
+
+    return frag;
+  }
+
+  // ---------- Rohrvolumen: dynamische Abschnitte ----------
+  function rohrSections() {
+    var v = state.vals.rohrvol;
+    if (!v || !Array.isArray(v.sections)) {
+      var seed;
+      if (v && (v.di != null || v.len != null)) {           // Migration alter Einzelwerte
+        seed = [{ di: v.di != null ? v.di : 20, len: v.len != null ? v.len : 10 }];
+      } else {
+        seed = DEFAULTS.rohrvol.sections.map(function(s){ return { di:s.di, len:s.len }; });
+      }
+      state.vals.rohrvol = { sections: seed };
+    }
+    return state.vals.rohrvol.sections;
+  }
+  function setRohrSection(idx, key, val) {
+    var secs = rohrSections();
+    if (secs[idx]) { secs[idx][key] = val; persist(); renderResult('rohrvol'); }
+  }
+  function rebuildRohr() {
+    var wrap = document.getElementById('tool-fields');
+    if (wrap) buildFields('rohrvol', wrap);
+    renderResult('rohrvol');
+  }
+  function addRohrSection() { rohrSections().push({ di:16, len:5 }); persist(); rebuildRohr(); }
+  function removeRohrSection(idx) {
+    var secs = rohrSections();
+    if (secs.length > 1) { secs.splice(idx, 1); persist(); rebuildRohr(); }
+  }
+  function buildRohrvolFields(wrap) {
+    var secs = rohrSections();
+    secs.forEach(function(s, idx){
+      var head = el('div', { class:'rohr-section-head' }, [
+        el('span', { class:'rohr-section-title', text:'Abschnitt ' + (idx+1) }),
+        secs.length > 1 ? el('button', { class:'rohr-remove', text:'Entfernen', onClick:function(){ removeRohrSection(idx); } }) : null
+      ]);
+      var di = el('input', { type:'number', step:'any', inputmode:'decimal', value: s.di != null ? String(s.di) : '', 'aria-label':'Innendurchmesser Abschnitt '+(idx+1)+' in mm' });
+      di.addEventListener('input', function(e){ setRohrSection(idx, 'di', e.target.value); });
+      var len = el('input', { type:'number', step:'any', inputmode:'decimal', value: s.len != null ? String(s.len) : '', 'aria-label':'Länge Abschnitt '+(idx+1)+' in m' });
+      len.addEventListener('input', function(e){ setRohrSection(idx, 'len', e.target.value); });
+      var row = el('div', { class:'rohr-row' }, [
+        el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Innendurchmesser' }), el('span', { class:'field-unit', text:'mm' }) ]), di ]),
+        el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Länge' }), el('span', { class:'field-unit', text:'m' }) ]), len ])
+      ]);
+      wrap.appendChild(el('div', { class:'rohr-section' }, [head, row]));
+    });
+    wrap.appendChild(el('button', { class:'rohr-add', text:'+ Abschnitt hinzufügen', onClick:addRohrSection }));
+  }
+
+  // ---------- Heizlast: gemeinsame Felder + dynamische Räume ----------
+  function ensureHeizlast() {
+    var v = state.vals.heizlast;
+    if (!v || !Array.isArray(v.rooms)) {
+      state.vals.heizlast = {
+        standard: (v && v.standard) || DEFAULTS.heizlast.standard,
+        hoehe: (v && v.hoehe != null) ? v.hoehe : DEFAULTS.heizlast.hoehe,
+        rooms: DEFAULTS.heizlast.rooms.map(function(r){ return { name:r.name, flaeche:r.flaeche }; })
+      };
+    }
+    return state.vals.heizlast;
+  }
+  function setHeizlastShared(key, val) { var h = ensureHeizlast(); h[key] = val; persist(); renderResult('heizlast'); }
+  function setHeizlastRoom(idx, key, val) { var h = ensureHeizlast(); if (h.rooms[idx]) { h.rooms[idx][key] = val; persist(); renderResult('heizlast'); } }
+  function rebuildHeizlast() { var w = document.getElementById('tool-fields'); if (w) buildFields('heizlast', w); renderResult('heizlast'); }
+  function addHeizlastRoom() { ensureHeizlast().rooms.push({ name:'', flaeche:10 }); persist(); rebuildHeizlast(); }
+  function removeHeizlastRoom(idx) { var h = ensureHeizlast(); if (h.rooms.length > 1) { h.rooms.splice(idx, 1); persist(); rebuildHeizlast(); } }
+  function buildHeizlastFields(wrap) {
+    var h = ensureHeizlast();
+    // Gemeinsam: Baujahr/Standard
+    var sel = el('select', { 'aria-label':'Baujahr / Standard' });
+    STANDARDS.forEach(function(s){ var o = el('option', { value:s.id, text:s.label }); if (s.id === h.standard) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener('change', function(e){ setHeizlastShared('standard', e.target.value); });
+    wrap.appendChild(el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Baujahr / Standard' }) ]), sel ]));
+    // Gemeinsam: Raumhöhe
+    var hin = el('input', { type:'number', step:'any', inputmode:'decimal', value: h.hoehe != null ? String(h.hoehe) : '', 'aria-label':'Raumhöhe in m' });
+    hin.addEventListener('input', function(e){ setHeizlastShared('hoehe', e.target.value); });
+    wrap.appendChild(el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Raumhöhe' }), el('span', { class:'field-unit', text:'m' }) ]), hin ]));
+    // Räume
+    h.rooms.forEach(function(r, idx){
+      var head = el('div', { class:'rohr-section-head' }, [
+        el('span', { class:'rohr-section-title', text:'Raum ' + (idx+1) }),
+        h.rooms.length > 1 ? el('button', { class:'rohr-remove', text:'Entfernen', onClick:function(){ removeHeizlastRoom(idx); } }) : null
+      ]);
+      var name = el('input', { type:'text', value: r.name != null ? String(r.name) : '', placeholder:'Bezeichnung', 'aria-label':'Bezeichnung Raum '+(idx+1) });
+      name.addEventListener('input', function(e){ setHeizlastRoom(idx, 'name', e.target.value); });
+      var fl = el('input', { type:'number', step:'any', inputmode:'decimal', value: r.flaeche != null ? String(r.flaeche) : '', 'aria-label':'Fläche Raum '+(idx+1)+' in m²' });
+      fl.addEventListener('input', function(e){ setHeizlastRoom(idx, 'flaeche', e.target.value); });
+      var row = el('div', { class:'hz-row' }, [
+        el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Raum' }) ]), name ]),
+        el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Fläche' }), el('span', { class:'field-unit', text:'m²' }) ]), fl ])
+      ]);
+      wrap.appendChild(el('div', { class:'rohr-section' }, [head, row]));
+    });
+    wrap.appendChild(el('button', { class:'rohr-add', text:'+ Raum hinzufügen', onClick:addHeizlastRoom }));
+  }
+
+  function buildFields(id, wrap) {
+    wrap.innerHTML = '';
+    if (id === 'rohrvol') { buildRohrvolFields(wrap); return; }
+    if (id === 'heizlast') { buildHeizlastFields(wrap); return; }
+    var ev = effVals(id);
+    // Einheiten-Spezialfall: Einheit auf gültigen Wert zwingen
+    if (id === 'einheiten') {
+      var list = ev.kategorie==='temperatur' ? ['°C','°F','K'] : (UNITS[ev.kategorie]?UNITS[ev.kategorie].units.map(function(u){return u[0];}):[]);
+      if (list.indexOf(ev.einheit) < 0) ev.einheit = list[0];
+    }
+    var defs = fieldDefs(id, ev);
+    defs.forEach(function(f){
+      var head = el('div', { class:'field-head' }, [
+        el('span', { class:'field-label', text:f.label }),
+        f.unit ? el('span', { class:'field-unit', text:f.unit }) : null
+      ]);
+      var control;
+      var curVal = ev[f.key] != null ? String(ev[f.key]) : '';
+      if (f.type === 'select') {
+        control = el('select', { 'aria-label':f.label });
+        (f.options || []).forEach(function(o){
+          var val = Array.isArray(o) ? String(o[0]) : String(o);
+          var lab = Array.isArray(o) ? o[1] : String(o);
+          var opt = el('option', { value:val, text:lab });
+          if (val === curVal) opt.selected = true;
+          control.appendChild(opt);
+        });
+        control.addEventListener('change', function(e){
+          setField(id, f.key, e.target.value);
+          // Kategorie-Wechsel verändert die Einheit-Optionen → Felder neu bauen
+          if (id === 'einheiten' && f.key === 'kategorie') buildFields(id, wrap);
+          // Bauart-Wechsel verändert die Eingabefelder → neu bauen
+          if (id === 'hkleistung' && f.key === 'bauart') buildFields(id, wrap);
+          // Heizkörpertyp setzt einen Richtwert für den Exponenten n → Felder neu bauen
+          if (id === 'heizkoerper' && f.key === 'typ' && HKTYP[e.target.value]) {
+            setField(id, 'n', HKTYP[e.target.value].n);
+            buildFields(id, wrap);
+          }
+          // Vergleichsheizung setzt Richtwerte für Preis und Wirkungsgrad (bleiben bearbeitbar)
+          if (id === 'jaz' && f.key === 'vergleich' && VERGLEICH[e.target.value]) {
+            setField(id, 'brennstoff', VERGLEICH[e.target.value].preis);
+            setField(id, 'eta', VERGLEICH[e.target.value].eta);
+            buildFields(id, wrap);
+          }
+          // Heizflächentyp setzt einen Richtwert für den Exponenten n (Heizkurve)
+          if (id === 'heizkurve' && f.key === 'typ' && HKTYP[e.target.value]) {
+            setField(id, 'n', HKTYP[e.target.value].n);
+            buildFields(id, wrap);
+          }
+          // Gebäudetyp wechselt die Eingabefelder (WW-Speicher)
+          if (id === 'wwspeicher' && f.key === 'gebaeude') buildFields(id, wrap);
+          // Prüfverfahren wechselt die Eingabefelder (Dichtheitsprüfung)
+          if (id === 'druckpruef' && f.key === 'verfahren') buildFields(id, wrap);
+        });
+      } else {
+        control = el('input', { type:'number', step:'any', inputmode:'decimal', value:curVal, 'aria-label':f.label + (f.unit ? ' in ' + f.unit : '') });
+        control.addEventListener('input', function(e){ setField(id, f.key, e.target.value); });
+      }
+      wrap.appendChild(el('div', { class:'field' }, [head, control]));
+    });
+  }
+
+  function renderResult(id) {
+    var wrap = document.getElementById('tool-result');
+    if (!wrap) return;
+    var ev = effVals(id);
+    if (id === 'einheiten') {
+      var list = ev.kategorie==='temperatur' ? ['°C','°F','K'] : (UNITS[ev.kategorie]?UNITS[ev.kategorie].units.map(function(u){return u[0];}):[]);
+      if (list.indexOf(ev.einheit) < 0) ev.einheit = list[0];
+    }
+    var res = computeFor(id, ev);
+    wrap.innerHTML = '';
+
+    if (res.main) {
+      wrap.appendChild(el('div', { class:'result-main' }, [
+        el('div', { class:'result-main-label', text:res.main.label }),
+        el('div', { class:'result-main-row' }, [
+          el('span', { class:'result-main-value', text:res.main.value }),
+          el('span', { class:'result-main-unit', text:res.main.unit })
+        ])
+      ]));
+    }
+    if (res.subs && res.subs.length) {
+      var subs = el('div', { class:'result-subs' });
+      res.subs.forEach(function(r){
+        subs.appendChild(el('div', { class:'result-sub' }, [
+          el('span', { class:'result-sub-label', text:r.label }),
+          el('span', { class:'result-sub-value', text:r.value })
+        ]));
+      });
+      wrap.appendChild(subs);
+    }
+    if (res.note) wrap.appendChild(el('div', { class:'result-note', text:res.note }));
+
+    if (res.refs && res.refs.length) {
+      wrap.appendChild(el('div', { class:'result-ref-title', text: res.refTitle || 'Richtwerte' }));
+      var refs = el('div', { class:'result-subs' });
+      res.refs.forEach(function(r){
+        refs.appendChild(el('div', { class:'result-sub' }, [
+          el('span', { class:'result-sub-label', text:r.label }),
+          el('span', { class:'result-sub-value', text:r.value })
+        ]));
+      });
+      wrap.appendChild(refs);
+    }
+  }
+
+  // ---------- Haupt-Render ----------
+  function render() {
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    app.appendChild(renderHeader());
+
+    if (state.view === 'home') {
+      app.appendChild(renderHome());
+      renderHomeGroups();
+    } else {
+      var toolWrap = el('div', { class:'tool-wrap' });
+      toolWrap.appendChild(renderTool(state.view));
+      app.appendChild(toolWrap);
+      renderResult(state.view);
+    }
+  }
+
+  // ---------- Init ----------
+  loadState();
+  applyTheme();
+  render();
+
+  // Systemeinstellung Hell/Dunkel live verfolgen, solange nichts explizit gewählt wurde
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onSchemeChange = function (e) {
+      if (!themeChosen) { state.theme = e.matches ? 'dark' : 'light'; applyTheme(); render(); }
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSchemeChange);
+    else if (mq.addListener) mq.addListener(onSchemeChange);
+  }
+})();
+</script>
+<script>
+// Service Worker registrieren — macht die App nach dem ersten Besuch komplett offline nutzbar
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js'); });
+}
+</script>
+</body>
+</html>
