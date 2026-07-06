@@ -1,6 +1,6 @@
 /* SHK Rechner — Service Worker: macht die App vollständig offline nutzbar.
    Bei jeder neuen Version von index.html die VERSION hochzählen (v1 -> v2 ...). */
-var VERSION = 'shk-v1';
+var VERSION = 'shk-v5';
 var FILES = [
   './',
   './index.html',

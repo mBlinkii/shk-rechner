@@ -237,7 +237,7 @@
     { id:'heizkoerper', cat:'heizung',  name:'Heizkörper-Umrechnung',     desc:'Norm-Leistung auf andere Systemtemperaturen.' },
     { id:'hkleistung',  cat:'heizung',  name:'Heizkörper-Leistung',       desc:'Leistung aus Bauart und Maßen für verschiedene Systemtemperaturen.' },
     { id:'gas',         cat:'heizung',  name:'Gasverbrauch',              desc:'Gasdurchfluss eines Brenners aus Leistung und Heizwert.' },
-    { id:'oelduese',    cat:'heizung',  name:'Öldüsen-Auswahl',           desc:'Düsengröße in gph aus Kesselleistung und Pumpendruck.' },
+    { id:'oelduese',    cat:'heizung',  name:'Öldüsen-Auswahl',           desc:'Düsengröße(n) aus Kesselleistung — für 1- und 2-stufige Brenner.' },
     { id:'abgas',       cat:'heizung',  name:'Abgasverlust',              desc:'Abgasverlust und Wirkungsgrad nach Siegert-Formel.' },
     { id:'oelreich',    cat:'heizung',  name:'Heizöl-Reichweite',         desc:'Ölverbrauch und Tankreichweite aus Düse und Brennerlaufzeit.' },
     { id:'fuellwasser', cat:'heizung',  name:'Füllwasser (VDI 2035)',     desc:'Muss das Heizungsfüllwasser enthärtet werden?' },
@@ -255,7 +255,7 @@
     { id:'sv',          cat:'heizung',  name:'Sicherheitsventil',         desc:'Mindest-Anschlussgröße nach Kesselleistung (DIN EN 12828).' },
     { id:'solarmag',    cat:'solar',    name:'Solar-Ausdehnungsgefäß',    desc:'MAG-Volumen für Solaranlagen inkl. Stagnation auslegen.' },
     { id:'frost',       cat:'solar',    name:'Frostschutz-Mischung',      desc:'Glykolanteil für gewünschten Frostschutz.' },
-    { id:'rohrvol',     cat:'sanitaer', name:'Rohrvolumen',               desc:'Wasserinhalt nach Durchmesser und Länge.' },
+    { id:'rohrvol',     cat:'sanitaer', name:'Rohrvolumen',               desc:'Wasserinhalt nach Rohrdimension (Kupfer, Stahl, C-Stahl, Edelstahl, MSVR) und Länge.' },
     { id:'gefaelle',    cat:'sanitaer', name:'Rohrgefälle',               desc:'Abwassergefälle in % und cm/m.' },
     { id:'twmag',       cat:'sanitaer', name:'Trinkwasser-MAG',           desc:'Ausdehnungsgefäß am Wassererwärmer nach DIN 4807-5.' },
     { id:'wtdurch',     cat:'sanitaer', name:'Wärmetauscher-Durchfluss',  desc:'Durchflussmenge am Wärmetauscher eines Speicherladesystems.' },
@@ -282,14 +282,14 @@
     hkleistung: 'Schätzt die Wärmeleistung eines Heizkörpers aus Bauart und Maßen und zeigt sie für mehrere Systemtemperaturen.',
     gas:        'Berechnet den Gasdurchsatz eines Brenners in l/min und m³/h aus der Leistung und dem regionalen Heizwert.',
     kondensat:  'Schätzt den Kondensatanfall eines Brennwertgeräts pro Stunde — abhängig von Brennstoff, Leistung und Rücklauftemperatur.',
-    oelduese:   'Bestimmt die passende Öldüse für die gewünschte Kesselleistung: aus Leistung und Wirkungsgrad wird der Öldurchsatz berechnet und über den Pumpendruck auf die 7-bar-Nenngröße (Angabe in US-Gallonen/h) umgerechnet. Zusätzlich wird die tatsächliche Leistung mit der gewählten Normdüse angezeigt.',
+    oelduese:   'Bestimmt die passende(n) Öldüse(n) für die gewünschte Kesselleistung: aus Leistung und Wirkungsgrad wird der Öldurchsatz berechnet und über den Pumpendruck auf die 7-bar-Nenngröße (US-Gallonen/h) umgerechnet. Bei 2-stufigen Brennern (Zweidüsenbrenner) wird die Gesamtleistung nach Hersteller-Vorgabe (Buderus/Viessmann) auf Düse 1 und Düse 2 aufgeteilt — Stufe 1 mindestens ca. 60 % der Nennlast. Angezeigt werden die tatsächlichen Leistungen je Stufe mit den gewählten Normdüsen.',
     pumpe:      'Schätzt den Betriebspunkt der Heizkreispumpe (Volumenstrom und Förderhöhe) aus Heizleistung, Heizsystem, Leitungstyp und Rohrlänge — Δt, Rohrreibung und Zuschlag werden automatisch angesetzt.',
     fbhdurch:   'Berechnet die Durchflussmenge einer Fußbodenheizung: aus Fläche und Baualter wird die Heizlast geschätzt und daraus mit der Spreizung Δt der Volumenstrom ermittelt.',
     heizlast:   'Überschlägige Heizlast je Raum und für die ganze Wohnung anhand von Fläche, Raumhöhe und Gebäudestandard (Baualter).',
     sv:         'Bestimmt die Mindest-Anschlussgröße des Heizungs-Sicherheitsventils nach Kesselleistung und kann den Ansprechdruck aus der statischen Höhe berechnen (DIN EN 12828).',
     solarmag:   'Legt das Ausdehnungsgefäß einer Solaranlage aus — inklusive Verdampfungsvolumen bei Kollektor-Stagnation. Der Kollektorinhalt wird aus Fläche und Typ geschätzt.',
     frost:      'Ermittelt den nötigen Glykolanteil für einen gewünschten Frostschutz und die Mengen für das Anlagenvolumen.',
-    rohrvol:    'Berechnet den Wasserinhalt von Rohrleitungen. Mehrere Abschnitte mit Innendurchmesser und Länge werden zum Gesamtvolumen summiert.',
+    rohrvol:    'Berechnet den Wasserinhalt von Rohrleitungen. Je Abschnitt einfach die Rohrdimension wählen (Kupfer, Stahl-Gewinderohr, Mehrschichtverbund, C-Stahl/Prestabo oder Edelstahl) — der Innendurchmesser wird automatisch eingetragen. Sonderfälle über „Manuell". Mehrere Abschnitte werden zum Gesamtvolumen summiert.',
     abgas:      'Berechnet den Abgasverlust nach der Siegert-Formel aus Abgastemperatur, Verbrennungslufttemperatur und gemessenem O₂ — wie bei der Schornsteinfeger-Messung. Zeigt zusätzlich den feuerungstechnischen Wirkungsgrad und den CO₂-Gehalt.',
     oelreich:   'Schätzt den Ölverbrauch aus Düsengröße, Pumpendruck und täglicher Brennerlaufzeit und berechnet daraus, wie lange der Tankvorrat reicht.',
     fuellwasser:'Prüft nach VDI 2035, ob das Trinkwasser als Heizungsfüllwasser aufbereitet (enthärtet) werden muss — aus Kesselleistung, Anlagenvolumen und örtlicher Wasserhärte.',
@@ -325,7 +325,7 @@
     hkleistung:  { bauart:'platte', ptyp:'22', hoehe:600, laenge:1000, tiefe:100 },
     gas:         { leistung:20, region:'hh' },
     kondensat:   { brennstoff:'erdgasH', leistung:20, ruecklauf:30 },
-    oelduese:    { leistung:20, eta:92, druck:10 },
+    oelduese:    { leistung:20, eta:92, druck:10, stufen:'1', teilung:60 },
     abgas:       { brennstoff:'erdgas', ta:160, tl:20, o2:4 },
     oelreich:    { duese:0.5, druck:10, stunden:6, tank:2000 },
     fuellwasser: { leistung:20, vol:200, haerte:15 },
@@ -342,7 +342,7 @@
     sv:          { leistung:25, psv:'auto', hstat:10 },
     solarmag:    { va:50, flaeche:6, kolltyp:'flach', hstat:8, psv:6 },
     frost:       { frost:-15, vol:100 },
-    rohrvol:     { sections:[{di:20, len:10},{di:16, len:8}] },
+    rohrvol:     { sections:[{dim:'0-3', di:20, len:10},{dim:'0-2', di:16, len:8}] },   // Kupfer 22×1 / 18×1
     gefaelle:    { len:5, gef:2 },
     twmag:       { vsp:300, tk:10, tw:60, pa:4.0, psv:6 },
     wtdurch:     { leistung:30, dt:50 },
@@ -463,6 +463,40 @@
     ni_l: { label:'Niedersachsen (Erdgas L)',      hw:9.0 },
     ni_h: { label:'Niedersachsen (Erdgas H)',      hw:10.5 }
   };
+
+  // Gängige Rohrdimensionen → Innendurchmesser [mm] (Dropdown im Rohrvolumen-Rechner)
+  var ROHR_DIMS = [
+    { group:'Kupfer (DIN EN 1057)', short:'Kupfer', items:[
+      ['12 × 1', 10], ['15 × 1', 13], ['18 × 1', 16], ['22 × 1', 20],
+      ['28 × 1,5', 25], ['35 × 1,5', 32], ['42 × 1,5', 39], ['54 × 2', 50]
+    ]},
+    { group:'Stahl-Gewinderohr (DIN EN 10255)', short:'Stahl', items:[
+      ['⅜″ (DN 10)', 12.6], ['½″ (DN 15)', 16.1], ['¾″ (DN 20)', 21.7], ['1″ (DN 25)', 27.3],
+      ['1¼″ (DN 32)', 36.0], ['1½″ (DN 40)', 41.9], ['2″ (DN 50)', 53.1], ['2½″ (DN 65)', 68.9]
+    ]},
+    { group:'Mehrschichtverbundrohr', short:'MSVR', items:[
+      ['14 × 2', 10], ['16 × 2', 12], ['18 × 2', 14], ['20 × 2', 16],
+      ['25 × 2,5', 20], ['26 × 3', 20], ['32 × 3', 26], ['40 × 3,5', 33],
+      ['50 × 4', 42], ['63 × 4,5', 54]
+    ]},
+    { group:'C-Stahl / Prestabo (Pressfitting)', short:'C-Stahl', items:[
+      ['12 × 1,2', 9.6], ['15 × 1,2', 12.6], ['18 × 1,2', 15.6], ['22 × 1,5', 19],
+      ['28 × 1,5', 25], ['35 × 1,5', 32], ['42 × 1,5', 39], ['54 × 1,5', 51],
+      ['64 × 2', 60], ['76,1 × 2', 72.1], ['88,9 × 2', 84.9], ['108 × 2', 104]
+    ]},
+    { group:'Edelstahl (Sanpress / Mapress / Temponox)', short:'Edelstahl', items:[
+      ['15 × 1', 13], ['18 × 1', 16], ['22 × 1,2', 19.6], ['28 × 1,2', 25.6],
+      ['35 × 1,5', 32], ['42 × 1,5', 39], ['54 × 1,5', 51], ['64 × 2', 60],
+      ['76,1 × 2', 72.1], ['88,9 × 2', 84.9], ['108 × 2', 104]
+    ]}
+  ];
+  // Kurzbezeichnung einer gewählten Dimension, z. B. „Kupfer 15 × 1" (null = manuell)
+  function rohrDimLabel(s) {
+    if (!s || !s.dim || s.dim === 'manual') return null;
+    var p = String(s.dim).split('-');
+    var g = ROHR_DIMS[+p[0]], it = g && g.items[+p[1]];
+    return it ? g.short + ' ' + it[0] : null;
+  }
 
   // Siegert-Konstanten und CO₂max je Brennstoff (Richtwerte)
   var ABGAS_FUELS = {
@@ -637,11 +671,18 @@
         {key:'leistung',label:'Feuerungsleistung',unit:'kW'},
         {key:'ruecklauf',label:'Rücklauftemperatur',unit:'°C'}
       ];
-      case 'oelduese': return [
-        {key:'leistung',label:'Kessel-Nennleistung',unit:'kW'},
-        {key:'eta',label:'Kesselwirkungsgrad',unit:'%'},
-        {key:'druck',label:'Pumpendruck',unit:'bar'}
-      ];
+      case 'oelduese': {
+        var base = [
+          {key:'leistung',label:'Kessel-Nennleistung',unit:'kW'},
+          {key:'eta',label:'Kesselwirkungsgrad',unit:'%'},
+          {key:'druck',label:'Pumpendruck',unit:'bar'},
+          {key:'stufen',type:'select',label:'Brenner',options:[['1','1-stufig (eine Düse)'],['2','2-stufig (Zweidüsenbrenner)']]}
+        ];
+        if (ev.stufen === '2') base.push(
+          {key:'teilung',type:'select',label:'Aufteilung Stufe 1 / Stufe 2',options:[[60,'60 / 40 % (Standard Buderus/Viessmann)'],[65,'65 / 35 %'],[70,'70 / 30 %']]}
+        );
+        return base;
+      }
       case 'abgas': return [
         {key:'brennstoff',type:'select',label:'Brennstoff',options:[['erdgas','Erdgas'],['heizoel','Heizöl EL'],['fluessig','Flüssiggas']]},
         {key:'ta',label:'Abgastemperatur',unit:'°C'},
@@ -1062,8 +1103,48 @@
         var gphNenn = (isFinite(facO) && facO>0) ? (lhO/GAL)/facO : NaN;
         // nächstliegende Normgröße wählen (Feinabstimmung über den Pumpendruck)
         var duesen=[0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.75,0.85,1.00,1.10,1.20,1.25,1.35,1.50,1.65,1.75,2.00,2.25,2.50,2.75,3.00,3.50,4.00,4.50,5.00,5.50,6.00];
-        var best=null, bDiff=Infinity;
-        if (isFinite(gphNenn)) duesen.forEach(function(s){ var d=Math.abs(s-gphNenn); if (d<bDiff) { bDiff=d; best=s; } });
+        function nearestDuese(x) {
+          if (!isFinite(x)) return null;
+          var b=null, diff=Infinity;
+          duesen.forEach(function(s){ var d=Math.abs(s-x); if (d<diff) { diff=d; b=s; } });
+          return b;
+        }
+        var noteCommon = 'Öldüsen sind bei 7 bar kalibriert (Angabe in US-Gallonen/h); der Durchsatz steigt mit √(Druck/7 bar). Rechenwerte: Heizöl EL Hi ≈ 11,86 kWh/kg, Dichte ≈ 0,845 kg/l, 1 US-Gallone = 3,785 l. Es wird die nächstliegende Normgröße vorgeschlagen — die Feinabstimmung der Leistung erfolgt über den Pumpendruck. Sprühwinkel und Sprühbild nach Brennkammer und Brenner-Vorgabe wählen; Endkontrolle immer per Abgasmessung (CO₂, Rußzahl) je Stufe und ggf. Ölmengenmessung.';
+
+        // ---------- 2-stufiger Brenner (Zweidüsenbrenner) ----------
+        if (ev.stufen === '2') {
+          var split = P(ev.teilung)/100;
+          if (!(split > 0 && split < 1)) split = 0.6;
+          var g1soll = gphNenn*split, g2soll = gphNenn*(1-split);
+          var d1 = nearestDuese(g1soll), d2 = nearestDuese(g2soll);
+          var kgh1 = d1!=null ? d1*facO*GAL*RHO : NaN;   // Düse 1 allein = Stufe 1
+          var kgh2 = d2!=null ? d2*facO*GAL*RHO : NaN;   // Düse 2 schaltet zu
+          var Pn1 = kgh1*HI*(etaO/100);
+          var PnVoll = (kgh1+kgh2)*HI*(etaO/100);
+          var anteil1 = PnO>0 ? Pn1/PnO*100 : NaN;
+          var teilLow = isFinite(anteil1) && anteil1 < 58;
+          return { main:{label:'Düse 1 + Düse 2 (Stufe 1 / Zuschaltung)', value: (d1!=null&&d2!=null) ? fmt(d1,2)+' + '+fmt(d2,2) : '–', unit:'gph'},
+            subs:[
+              {label:'Rechnerisch Düse 1 / Düse 2 (7-bar-Basis)', value:fmt(g1soll,2)+' / '+fmt(g2soll,2)+' gph'},
+              {label:'Stufe 1 — Kesselleistung (nur Düse 1)', value:fmt(Pn1,1)+' kW ('+fmt(anteil1,0)+' %)'},
+              {label:'Volllast — Kesselleistung (beide Düsen)', value:fmt(PnVoll,1)+' kW'},
+              {label:'Durchsatz Stufe 1 / Volllast bei '+fmt(prO,0)+' bar', value:fmt(kgh1,2)+' / '+fmt(kgh1+kgh2,2)+' kg/h'},
+              {label:'Feuerungsleistung (Soll, Volllast)', value:fmt(QF,1)+' kW'},
+              {label:'Benötigter Öldurchsatz (Volllast)', value:fmt(kgh,2)+' kg/h ('+fmt(lhO,2)+' l/h)'}
+            ],
+            note: (teilLow ? 'Achtung: Stufe 1 liegt unter ca. 60 % der Nennleistung — nach Buderus-/Viessmann-Vorgabe Teillast nicht kleiner wählen (Gefahr zu niedriger Abgastemperatur: Kondensat/Versottung in Kessel und Schornstein). Größere Düse 1 oder Aufteilung 65/35 wählen. ' : '')
+              + 'Zweidüsenbrenner: In Stufe 1 läuft nur Düse 1, bei Volllast laufen beide Düsen zusammen. Aufteilung nach Kesselhersteller-Vorgabe (Buderus/Viessmann: Stufe 1 ≈ 60–70 % der Nennlast, nie unter ~60 %). Verbindlich ist die Düsentabelle in der Brenner-/Kesselanleitung. '
+              + noteCommon,
+            refTitle:'Sprühwinkel & Sprühbild', refs:[
+              {label:'45° — lange, schmale Brennkammer', value:'z. B. Stahlkessel'},
+              {label:'60° — Standard', value:'die meisten Gebläsebrenner'},
+              {label:'80° — kurze, breite Brennkammer', value:'z. B. Gusskessel'},
+              {label:'Sprühbild', value:'H = Hohlkegel · S = Vollkegel · B = universal'}
+            ] };
+        }
+
+        // ---------- 1-stufiger Brenner ----------
+        var best = nearestDuese(gphNenn);
         var tooBig = isFinite(gphNenn) && gphNenn > duesen[duesen.length-1];
         var kghBest = best!=null ? best*facO*GAL*RHO : NaN;   // Durchsatz der gewählten Düse beim eingestellten Druck
         var QFbest = kghBest*HI;
@@ -1079,7 +1160,7 @@
             {label:'Kesselleistung mit gewählter Düse', value:fmt(PnBest,1)+' kW'}
           ],
           note: (tooBig ? 'Über 6,00 gph: Größe außerhalb der üblichen Baureihe — Herstellerprogramm bzw. Zweidüsen-/Zweistoffbrenner prüfen. ' : '')
-            + 'Öldüsen sind bei 7 bar kalibriert (Angabe in US-Gallonen/h); der Durchsatz steigt mit √(Druck/7 bar). Rechenwerte: Heizöl EL Hi ≈ 11,86 kWh/kg, Dichte ≈ 0,845 kg/l, 1 US-Gallone = 3,785 l. Es wird die nächstliegende Normgröße vorgeschlagen — die Feinabstimmung der Leistung erfolgt über den Pumpendruck. Sprühwinkel und Sprühbild nach Brennkammer und Brenner-Vorgabe wählen; Endkontrolle immer per Abgasmessung (CO₂, Rußzahl) und ggf. Ölmengenmessung.',
+            + noteCommon,
           refTitle:'Sprühwinkel & Sprühbild', refs:[
             {label:'45° — lange, schmale Brennkammer', value:'z. B. Stahlkessel'},
             {label:'60° — Standard', value:'die meisten Gebläsebrenner'},
@@ -1138,7 +1219,8 @@
           var perM=Math.PI*Math.pow(di/2000,2)*1000;
           var v=perM*len;
           total+=v; totalLen+=len;
-          subs.push({label:'Abschnitt '+(i+1)+' (Ø '+fmt(di,1)+' mm × '+fmt(len,2)+' m)', value:fmt(v,2)+' l'});
+          var dLab = rohrDimLabel(s);
+          subs.push({label:'Abschnitt '+(i+1)+' ('+(dLab ? dLab+', ' : 'Ø ')+fmt(di,1)+' mm × '+fmt(len,2)+' m)', value:fmt(v,2)+' l'});
         });
         subs.push({label:'Gesamtlänge', value:fmt(totalLen,2)+' m'});
         return { main:{label:'Gesamt-Wasserinhalt', value:fmt(total,2), unit:'l'},
@@ -1724,7 +1806,8 @@
     var rows = [{ head:'Eingaben' }];
     if (id === 'rohrvol') {
       rohrSections().forEach(function(s, i){
-        rows.push({ label:'Abschnitt '+(i+1)+' (Innen-Ø)', value: fmt(P(s.di),1)+' mm × '+fmt(P(s.len),2)+' m' });
+        var dLab = rohrDimLabel(s);
+        rows.push({ label:'Abschnitt '+(i+1)+(dLab ? ' — '+dLab : ' (Innen-Ø)'), value: fmt(P(s.di),1)+' mm × '+fmt(P(s.len),2)+' m' });
       });
     } else if (id === 'heizlast') {
       var h = ensureHeizlast();
@@ -1918,7 +2001,7 @@
       if (v && (v.di != null || v.len != null)) {           // Migration alter Einzelwerte
         seed = [{ di: v.di != null ? v.di : 20, len: v.len != null ? v.len : 10 }];
       } else {
-        seed = DEFAULTS.rohrvol.sections.map(function(s){ return { di:s.di, len:s.len }; });
+        seed = DEFAULTS.rohrvol.sections.map(function(s){ return { dim:s.dim, di:s.di, len:s.len }; });
       }
       state.vals.rohrvol = { sections: seed };
     }
@@ -1945,15 +2028,40 @@
         el('span', { class:'rohr-section-title', text:'Abschnitt ' + (idx+1) }),
         secs.length > 1 ? el('button', { class:'rohr-remove', text:'Entfernen', onClick:function(){ removeRohrSection(idx); } }) : null
       ]);
+      // Dropdown: gängige Dimensionen (trägt den Innendurchmesser automatisch ein)
+      var sel = el('select', { 'aria-label':'Rohrdimension Abschnitt '+(idx+1) });
+      sel.appendChild(el('option', { value:'manual', text:'Manuell — Innen-Ø selbst eingeben' }));
+      ROHR_DIMS.forEach(function(g, gi){
+        var og = el('optgroup', { label:g.group });
+        g.items.forEach(function(it, ii){
+          og.appendChild(el('option', { value:gi+'-'+ii, text:it[0]+' — innen '+String(it[1]).replace('.',',')+' mm' }));
+        });
+        sel.appendChild(og);
+      });
+      sel.value = s.dim || 'manual';
+      sel.addEventListener('change', function(e){
+        var v = e.target.value, sc = rohrSections();
+        if (v === 'manual') { sc[idx].dim = 'manual'; persist(); renderResult('rohrvol'); return; }
+        var p = v.split('-'), it = ROHR_DIMS[+p[0]].items[+p[1]];
+        sc[idx].dim = v; sc[idx].di = it[1];
+        persist(); rebuildRohr();          // di-Feld mit neuem Wert neu aufbauen
+      });
       var di = el('input', { type:'number', step:'any', inputmode:'decimal', value: s.di != null ? String(s.di) : '', 'aria-label':'Innendurchmesser Abschnitt '+(idx+1)+' in mm' });
-      di.addEventListener('input', function(e){ setRohrSection(idx, 'di', e.target.value); });
+      di.addEventListener('input', function(e){
+        // Handeingabe schaltet auf „Manuell" um
+        var sc = rohrSections(); sc[idx].dim = 'manual'; sel.value = 'manual';
+        setRohrSection(idx, 'di', e.target.value);
+      });
       var len = el('input', { type:'number', step:'any', inputmode:'decimal', value: s.len != null ? String(s.len) : '', 'aria-label':'Länge Abschnitt '+(idx+1)+' in m' });
       len.addEventListener('input', function(e){ setRohrSection(idx, 'len', e.target.value); });
+      var dimField = el('div', { class:'field', style:'margin-bottom:12px;' }, [
+        el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Rohrtyp / Dimension' }) ]), sel
+      ]);
       var row = el('div', { class:'rohr-row' }, [
         el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Innendurchmesser' }), el('span', { class:'field-unit', text:'mm' }) ]), di ]),
         el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Länge' }), el('span', { class:'field-unit', text:'m' }) ]), len ])
       ]);
-      wrap.appendChild(el('div', { class:'rohr-section' }, [head, row]));
+      wrap.appendChild(el('div', { class:'rohr-section' }, [head, dimField, row]));
     });
     wrap.appendChild(el('button', { class:'rohr-add', text:'+ Abschnitt hinzufügen', onClick:addRohrSection }));
   }
@@ -2058,6 +2166,8 @@
           if (id === 'wwspeicher' && f.key === 'gebaeude') buildFields(id, wrap);
           // Prüfverfahren wechselt die Eingabefelder (Dichtheitsprüfung)
           if (id === 'druckpruef' && f.key === 'verfahren') buildFields(id, wrap);
+          // Brennerstufen wechseln die Eingabefelder (Öldüsen: Aufteilung nur bei 2-stufig)
+          if (id === 'oelduese' && f.key === 'stufen') buildFields(id, wrap);
         });
       } else {
         control = el('input', { type:'number', step:'any', inputmode:'decimal', value:curVal, 'aria-label':f.label + (f.unit ? ' in ' + f.unit : '') });
