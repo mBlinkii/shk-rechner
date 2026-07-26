@@ -23,27 +23,38 @@
 
   /* ---------- Theme-Variablen (Hell als Standard) ---------- */
   :root {
-    --bg:#f7f6f3; --bgT:rgba(247,246,243,.82); --surface:#ffffff; --text:#1b1a18; --muted:#6e6a64;
-    --border:#e7e3dd; --field:#ffffff; --fieldBorder:#d9d5ce;
-    --chip:#edeae5; --chipActive:#ffffff; --result:#f2f0ec;
-    --accent:oklch(0.55 0.13 245); --accent2:oklch(0.47 0.13 252);
-    --accentSoft:oklch(0.55 0.13 245 / .13); --accentBorder:oklch(0.78 0.07 245);
-    --ring:0 0 0 3px oklch(0.55 0.13 245 / .20);
-    --shadow-sm:0 1px 2px rgba(30,26,20,.05), 0 1px 5px rgba(30,26,20,.04);
-    --shadow:0 12px 32px rgba(30,26,20,.10), 0 3px 9px rgba(30,26,20,.05);
-    --shadow-accent:0 10px 26px oklch(0.55 0.13 245 / .28);
+    --bg:#f4f3f0; --bgT:rgba(244,243,240,.72); --surface:#ffffff; --text:#15141a; --muted:#6b6875;
+    --border:#e5e1db; --field:#ffffff; --fieldBorder:#d8d4cd;
+    --chip:#eae7e1; --chipActive:#ffffff; --result:#f2f0ec;
+    --accent:oklch(0.55 0.16 258); --accent2:oklch(0.5 0.19 296);
+    --accentSoft:oklch(0.55 0.16 258 / .12); --accentBorder:oklch(0.75 0.09 258);
+    --ring:0 0 0 3px oklch(0.55 0.16 258 / .22);
+    --shadow-sm:0 1px 2px rgba(25,20,40,.05), 0 1px 5px rgba(25,20,40,.04);
+    --shadow:0 14px 38px rgba(25,20,40,.11), 0 3px 10px rgba(25,20,40,.05);
+    --shadow-lg:0 26px 60px rgba(25,20,40,.16), 0 6px 16px rgba(25,20,40,.07);
+    --shadow-accent:0 14px 34px oklch(0.55 0.16 258 / .32);
+    /* Kategoriefarben */
+    --c-heizung:oklch(0.62 0.18 38); --c-wp:oklch(0.58 0.17 300); --c-solar:oklch(0.72 0.16 78);
+    --c-sanitaer:oklch(0.58 0.15 236); --c-allg:oklch(0.6 0.11 178); --c-fav:oklch(0.68 0.16 68);
+    --tintA:.09; --tintB:.03;   /* Deckkraft der Farbfläche auf Karten */
+    --glass:rgba(255,255,255,.62);
   }
   /* Dunkel via [data-theme="dark"] */
   [data-theme="dark"] {
-    --bg:#141417; --bgT:rgba(20,20,23,.78); --surface:#1d1d22; --text:#eeedf0; --muted:#9c9ba4;
-    --border:#2a2a31; --field:#202027; --fieldBorder:#35353e;
-    --chip:#242429; --chipActive:#3b3b45; --result:#202027;
-    --accent:oklch(0.66 0.13 245); --accent2:oklch(0.56 0.13 252);
-    --accentSoft:oklch(0.66 0.13 245 / .18); --accentBorder:oklch(0.5 0.08 245);
-    --ring:0 0 0 3px oklch(0.66 0.13 245 / .28);
-    --shadow-sm:0 1px 2px rgba(0,0,0,.25);
-    --shadow:0 12px 32px rgba(0,0,0,.45), 0 3px 9px rgba(0,0,0,.3);
-    --shadow-accent:0 10px 26px oklch(0.66 0.13 245 / .22);
+    --bg:#0f0f13; --bgT:rgba(15,15,19,.7); --surface:#191920; --text:#f0eff4; --muted:#9e9caa;
+    --border:#2a2a34; --field:#1f1f28; --fieldBorder:#343440;
+    --chip:#222229; --chipActive:#393945; --result:#1f1f28;
+    --accent:oklch(0.7 0.15 258); --accent2:oklch(0.63 0.18 296);
+    --accentSoft:oklch(0.7 0.15 258 / .18); --accentBorder:oklch(0.5 0.1 258);
+    --ring:0 0 0 3px oklch(0.7 0.15 258 / .3);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+    --shadow:0 14px 38px rgba(0,0,0,.5), 0 3px 10px rgba(0,0,0,.35);
+    --shadow-lg:0 26px 60px rgba(0,0,0,.6), 0 6px 16px rgba(0,0,0,.4);
+    --shadow-accent:0 14px 34px oklch(0.7 0.15 258 / .26);
+    --c-heizung:oklch(0.7 0.17 38); --c-wp:oklch(0.68 0.16 300); --c-solar:oklch(0.79 0.15 78);
+    --c-sanitaer:oklch(0.68 0.14 236); --c-allg:oklch(0.7 0.1 178); --c-fav:oklch(0.78 0.15 68);
+    --tintA:.16; --tintB:.05;
+    --glass:rgba(255,255,255,.05);
   }
 
   body {
@@ -52,8 +63,26 @@
     -webkit-font-smoothing:antialiased; line-height:1.45;
     transition:background .25s,color .25s;
   }
-  .wrap { max-width:840px; margin:0 auto; padding:0 24px 70px 24px; }
-  .tool-wrap { max-width:560px; margin:26px auto 0 auto; }
+  /* Weiche Farbschleier im Hintergrund — rein dekorativ, kostet nichts */
+  body::before {
+    content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(58vw 42vw at 8% -8%,  oklch(0.55 0.16 258 / .16), transparent 62%),
+      radial-gradient(52vw 40vw at 96% 4%,  oklch(0.62 0.18 38 / .13),  transparent 62%),
+      radial-gradient(46vw 38vw at 52% 100%,oklch(0.5 0.19 296 / .11),  transparent 66%);
+  }
+  [data-theme="dark"] body::before {
+    background:
+      radial-gradient(58vw 42vw at 8% -8%,  oklch(0.7 0.15 258 / .17), transparent 62%),
+      radial-gradient(52vw 40vw at 96% 4%,  oklch(0.7 0.17 38 / .12),  transparent 62%),
+      radial-gradient(46vw 38vw at 52% 100%,oklch(0.63 0.18 296 / .13),transparent 66%);
+  }
+  .wrap { max-width:900px; margin:0 auto; padding:0 24px 70px 24px; }
+  .tool-wrap { max-width:580px; margin:26px auto 0 auto; }
+
+  /* Sanftes Einblenden beim Wechsel der Ansicht */
+  @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  .anim-rise { animation:rise .34s cubic-bezier(.2,.7,.3,1) both; }
 
   /* Sichtbarer Tastatur-Fokus */
   :where(button, summary):focus-visible { outline:none; box-shadow:var(--ring); border-radius:9px; }
@@ -65,75 +94,179 @@
   /* ---------- Header (schwebend) ---------- */
   .header {
     display:flex; justify-content:space-between; align-items:center; gap:12px;
-    position:sticky; top:0; z-index:10; padding:20px 8px 14px 8px; margin:0 -8px;
-    background:var(--bgT); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    position:sticky; top:0; z-index:10; padding:18px 8px 14px 8px; margin:0 -8px;
+    background:var(--bgT); backdrop-filter:blur(18px) saturate(180%); -webkit-backdrop-filter:blur(18px) saturate(180%);
+    border-bottom:1px solid transparent; transition:border-color .2s;
   }
-  .logo { cursor:pointer; display:flex; align-items:baseline; gap:11px; background:none; border:none; padding:0; }
-  .logo-dot { width:11px; height:11px; border-radius:3.5px; background:var(--accent); display:inline-block; box-shadow:0 0 0 4px var(--accentSoft); }
-  .logo-text { font-size:21px; font-weight:700; letter-spacing:-0.02em; color:var(--text); }
+  .header.scrolled { border-bottom-color:var(--border); }
+  .logo { cursor:pointer; display:flex; align-items:center; gap:11px; background:none; border:none; padding:0; }
+  .logo-dot {
+    width:26px; height:26px; border-radius:9px; display:grid; place-items:center; flex-shrink:0;
+    background:linear-gradient(140deg, var(--accent), var(--accent2));
+    box-shadow:0 4px 12px oklch(0.55 0.16 258 / .38); transition:transform .2s ease;
+  }
+  .logo-dot svg { width:15px; height:15px; stroke:#fff; }
+  .logo:hover .logo-dot { transform:rotate(-8deg) scale(1.06); }
+  .logo-text { font-size:20px; font-weight:750; letter-spacing:-0.025em; color:var(--text); }
   .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
-  .seg { display:flex; background:var(--chip); border-radius:999px; padding:3px; box-shadow:inset 0 1px 2px rgba(0,0,0,.04); }
+  .seg { display:flex; background:var(--chip); border-radius:999px; padding:3px; box-shadow:inset 0 1px 3px rgba(0,0,0,.06); }
   .seg-btn {
-    font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px;
-    cursor:pointer; transition:all .18s ease; border:none; background:transparent; color:var(--muted);
+    font-size:13px; font-weight:650; padding:7px 15px; border-radius:999px;
+    cursor:pointer; transition:all .2s cubic-bezier(.2,.7,.3,1); border:none; background:transparent; color:var(--muted);
   }
   .seg-btn:focus-visible { border-radius:999px; }
-  .seg-btn.active { color:var(--text); background:var(--chipActive); box-shadow:0 1px 3px rgba(0,0,0,.10); }
+  .seg-btn.active { color:var(--text); background:var(--chipActive); box-shadow:0 2px 7px rgba(0,0,0,.13); }
   [data-theme="dark"] .seg-btn.active { color:#fff; }
 
   .icon-btn {
-    border:1px solid var(--border); background:var(--surface); color:var(--muted);
-    border-radius:999px; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer;
-    transition:all .18s ease; box-shadow:var(--shadow-sm);
+    border:1px solid var(--border); background:var(--glass); color:var(--muted);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-radius:999px; padding:7px 14px; font-size:13px; font-weight:650; cursor:pointer;
+    transition:all .2s cubic-bezier(.2,.7,.3,1); box-shadow:var(--shadow-sm);
   }
-  .icon-btn:hover { color:var(--text); border-color:var(--accentBorder); transform:translateY(-1px); }
+  .icon-btn:hover { color:var(--accent); border-color:var(--accentBorder); transform:translateY(-1px); box-shadow:var(--shadow); }
   .icon-btn:focus-visible { border-radius:999px; }
 
   /* ---------- Home ---------- */
-  .subtitle { font-size:15px; color:var(--muted); margin-top:14px; }
-  .search {
-    display:flex; align-items:center; gap:12px; margin-top:22px;
-    background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:13px 20px;
-    box-shadow:var(--shadow-sm); transition:border-color .18s, box-shadow .18s;
+  .hero { margin-top:26px; }
+  .hero-title {
+    font-size:clamp(30px, 6.2vw, 44px); font-weight:800; letter-spacing:-0.035em; line-height:1.06; margin:0;
+    background:linear-gradient(120deg, var(--text) 12%, var(--accent) 58%, var(--accent2) 96%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
   }
-  .search:focus-within { border-color:var(--accent); box-shadow:var(--ring); }
+  .subtitle { font-size:16px; color:var(--muted); margin-top:12px; max-width:44ch; }
+  .search {
+    display:flex; align-items:center; gap:12px; margin-top:24px;
+    background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:15px 20px;
+    box-shadow:var(--shadow-sm); transition:border-color .18s, box-shadow .18s, transform .18s;
+  }
+  .search:focus-within { border-color:var(--accent); box-shadow:var(--ring), var(--shadow); transform:translateY(-1px); }
   .search-ring { position:relative; width:13px; height:13px; border:2px solid var(--muted); border-radius:50%; flex-shrink:0; }
   .search-ring::after { content:''; position:absolute; width:2px; height:6px; background:var(--muted); border-radius:2px; transform:rotate(-45deg); right:-3px; bottom:-5px; }
   .search input { border:none; outline:none; background:transparent; font-size:15px; color:var(--text); width:100%; font-family:inherit; }
 
-  .group { margin-top:30px; }
+  .group { margin-top:34px; }
   .group-head {
-    display:flex; align-items:center; gap:10px; margin-bottom:14px; margin-left:-8px;
-    width:calc(100% + 16px); padding:6px 8px; background:none; border:none; cursor:pointer;
-    text-align:left; border-radius:10px; transition:background .15s ease;
+    display:flex; align-items:center; gap:11px; margin-bottom:16px; margin-left:-10px;
+    width:calc(100% + 20px); padding:8px 10px; background:none; border:none; cursor:pointer;
+    text-align:left; border-radius:12px; transition:background .15s ease;
   }
   .group-head:hover { background:var(--chip); }
   .group-head:hover .group-label { color:var(--text); }
-  .group-head:focus-visible { border-radius:10px; }
+  .group-head:focus-visible { border-radius:12px; }
   .group-head.collapsed { margin-bottom:2px; }
-  .group-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-  .group-label { font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); transition:color .15s; }
-  .group-count { font-size:11px; font-weight:650; color:var(--muted); background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:1px 8px; font-variant-numeric:tabular-nums; }
+  /* Farbiges Icon-Plättchen statt einfachem Punkt */
+  .group-dot {
+    width:28px; height:28px; border-radius:9px; flex-shrink:0; display:grid; place-items:center;
+    background:color-mix(in oklab, var(--cat) 16%, transparent);
+    border:1px solid color-mix(in oklab, var(--cat) 32%, transparent);
+    transition:transform .18s ease;
+  }
+  .group-dot svg { width:15px; height:15px; stroke:var(--cat); }
+  .group-head:hover .group-dot { transform:scale(1.08) rotate(-5deg); }
+  .group-label { font-size:13px; font-weight:750; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); transition:color .15s; }
+  .group-count { font-size:11px; font-weight:700; color:var(--muted); background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:2px 9px; font-variant-numeric:tabular-nums; }
   .group-head:hover .group-count { background:var(--surface); }
   .group-chev { margin-left:auto; color:var(--muted); font-size:13px; line-height:1; transition:transform .18s ease; }
   .group-head.collapsed .group-chev { transform:rotate(-90deg); }
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  @media (max-width:560px){ .grid { grid-template-columns:1fr; } }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+  @media (max-width:600px){ .grid { grid-template-columns:1fr; } }
+
+  /* ---------- Karten ---------- */
   .card {
-    position:relative; overflow:hidden;
-    background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:19px 20px 17px 20px;
-    cursor:pointer; text-align:left; box-shadow:var(--shadow-sm);
-    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    position:relative; overflow:hidden; isolation:isolate;
+    background:var(--surface); border:1px solid var(--border); border-radius:18px;
+    padding:18px 54px 17px 18px; box-shadow:var(--shadow-sm);
+    transition:transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s ease, border-color .2s ease;
   }
+  /* Farbfläche der Kategorie — beim Hover kräftiger */
   .card::before {
-    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
-    background:var(--cat, var(--accent)); opacity:0; transition:opacity .16s ease;
+    content:''; position:absolute; inset:0; z-index:-1; opacity:.55; transition:opacity .22s ease;
+    background:linear-gradient(150deg,
+      color-mix(in oklab, var(--cat) calc(var(--tintA) * 100%), transparent) 0%,
+      color-mix(in oklab, var(--cat) calc(var(--tintB) * 100%), transparent) 46%,
+      transparent 78%);
   }
-  .card:hover, .card:focus-visible { box-shadow:var(--shadow); transform:translateY(-2px); border-color:var(--accentBorder); }
-  .card:hover::before, .card:focus-visible::before { opacity:1; }
-  .card:focus-visible { border-radius:14px; box-shadow:var(--shadow), var(--ring); }
-  .card-name { font-size:16.5px; font-weight:650; letter-spacing:-0.01em; color:var(--text); }
-  .card-desc { font-size:13.5px; color:var(--muted); margin-top:5px; line-height:1.5; }
+  /* Weicher Lichtschein oben rechts */
+  .card::after {
+    content:''; position:absolute; z-index:-1; top:-46px; right:-46px; width:126px; height:126px; border-radius:50%;
+    background:radial-gradient(circle, color-mix(in oklab, var(--cat) 34%, transparent), transparent 68%);
+    opacity:0; transition:opacity .28s ease, transform .28s ease; transform:scale(.75);
+  }
+  .card:hover, .card:focus-within { box-shadow:var(--shadow); transform:translateY(-3px); border-color:color-mix(in oklab, var(--cat) 42%, var(--border)); }
+  .card:hover::before, .card:focus-within::before { opacity:1; }
+  .card:hover::after, .card:focus-within::after { opacity:.85; transform:scale(1); }
+  /* Ganzflächig klickbarer Bereich (Stern liegt darüber) */
+  .card-hit {
+    position:absolute; inset:0; z-index:1; border:none; background:none; cursor:pointer;
+    border-radius:18px; padding:0; -webkit-tap-highlight-color:transparent;
+  }
+  .card-hit:focus-visible { box-shadow:var(--ring); }
+  .card-body { position:relative; pointer-events:none; }
+  .card-top { display:flex; align-items:center; gap:9px; }
+  .card-icon {
+    width:24px; height:24px; border-radius:7px; flex-shrink:0; display:grid; place-items:center;
+    background:color-mix(in oklab, var(--cat) 18%, transparent);
+  }
+  .card-icon svg { width:13px; height:13px; stroke:var(--cat); }
+  .card-name { font-size:16px; font-weight:700; letter-spacing:-0.015em; color:var(--text); }
+  .card-desc { font-size:13.5px; color:var(--muted); margin-top:7px; line-height:1.5; }
+  /* In der Favoriten-Gruppe zusätzlich die Herkunftskategorie zeigen */
+  .card-cat { font-size:11px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--cat); margin-top:9px; }
+
+  /* ---------- Favoriten-Stern ---------- */
+  .fav-btn {
+    position:absolute; top:10px; right:10px; z-index:2;
+    width:34px; height:34px; border-radius:11px; display:grid; place-items:center;
+    border:1px solid var(--border); background:var(--chip); cursor:pointer; padding:0;
+    color:var(--muted); box-shadow:var(--shadow-sm);
+    transition:background .18s ease, border-color .18s ease, box-shadow .18s ease,
+               transform .18s cubic-bezier(.2,.7,.3,1), color .18s ease;
+  }
+  .fav-btn svg { width:18px; height:18px; stroke-width:1.8; }
+  /* Beim Überfahren der Karte hebt sich die Schaltfläche deutlich ab */
+  .card:hover .fav-btn, .card:focus-within .fav-btn {
+    background:var(--surface); border-color:var(--fieldBorder); color:var(--text); box-shadow:var(--shadow-sm);
+  }
+  /* Direkt auf dem Stern: klar in Favoritenfarbe */
+  .fav-btn:hover, .card:hover .fav-btn:hover {
+    color:#fff; transform:scale(1.1);
+    background:linear-gradient(140deg, var(--c-fav), color-mix(in oklab, var(--c-fav) 62%, var(--accent)));
+    border-color:transparent; box-shadow:0 5px 14px color-mix(in oklab, var(--c-fav) 45%, transparent);
+  }
+  .fav-btn:hover svg { fill:rgba(255,255,255,.34); }
+  .fav-btn:focus-visible { border-radius:11px; box-shadow:var(--ring); }
+  /* Gesetzter Favorit: dauerhaft farbig, unabhängig vom Hover */
+  .fav-btn.on, .card:hover .fav-btn.on, .card:focus-within .fav-btn.on {
+    color:var(--c-fav);
+    background:color-mix(in oklab, var(--c-fav) 15%, var(--surface));
+    border-color:color-mix(in oklab, var(--c-fav) 42%, transparent);
+  }
+  .fav-btn.on svg { fill:var(--c-fav); }
+  .fav-btn.on:hover { color:#fff; }
+  .fav-btn.on:hover svg { fill:rgba(255,255,255,.4); }
+  /* Touch-Geräte kennen kein Hover — dort ist die Schaltfläche immer voll sichtbar */
+  @media (hover: none) {
+    .fav-btn { background:var(--surface); border-color:var(--fieldBorder); color:var(--muted); }
+    .fav-btn:active { transform:scale(.92); }
+  }
+  @keyframes pop { 0%{transform:scale(1);} 40%{transform:scale(1.34) rotate(11deg);} 100%{transform:scale(1);} }
+  .fav-btn.just { animation:pop .34s cubic-bezier(.3,1.4,.5,1); }
+  /* Stern in der Werkzeug-Ansicht */
+  .fav-tool {
+    display:inline-flex; align-items:center; gap:7px; border:1px solid var(--border); background:var(--surface);
+    color:var(--muted); border-radius:999px; padding:7px 14px 7px 11px; font-size:13px; font-weight:650;
+    cursor:pointer; box-shadow:var(--shadow-sm); transition:all .18s ease;
+  }
+  .fav-tool svg { width:15px; height:15px; }
+  .fav-tool:hover { color:var(--c-fav); border-color:color-mix(in oklab, var(--c-fav) 45%, var(--border)); transform:translateY(-1px); }
+  .fav-tool.on { color:var(--c-fav); border-color:color-mix(in oklab, var(--c-fav) 45%, var(--border)); background:color-mix(in oklab, var(--c-fav) 11%, var(--surface)); }
+  .fav-tool.on svg { fill:var(--c-fav); }
+  .fav-tool:focus-visible { border-radius:999px; }
+  .fav-empty {
+    grid-column:1/-1; border:1.5px dashed var(--fieldBorder); border-radius:16px; padding:22px;
+    text-align:center; color:var(--muted); font-size:13.5px; line-height:1.6;
+  }
   .no-results { margin-top:40px; text-align:center; color:var(--muted); font-size:15px; }
   .footer-note { text-align:center; font-size:12px; color:var(--muted); margin-top:52px; opacity:.8; }
   .app-save-wrap { text-align:center; margin-top:14px; }
@@ -155,13 +288,21 @@
   .back .chev { font-size:17px; line-height:1; transition:transform .15s ease; }
   .back:hover .chev { transform:translateX(-2px); }
   .tool-top { display:flex; justify-content:space-between; align-items:center; gap:12px; }
-  .tool-cat { display:flex; align-items:center; gap:9px; margin-top:20px; }
-  .tool-cat-dot { width:9px; height:9px; border-radius:50%; }
-  .tool-cat-label { font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
-  .tool-name { font-size:29px; font-weight:700; letter-spacing:-0.02em; color:var(--text); margin-top:9px; line-height:1.15; }
-  .tool-desc { font-size:15px; color:var(--muted); margin-top:7px; line-height:1.55; }
-  .tool-explain { margin-top:18px; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:var(--shadow-sm); }
-  .tool-explain summary { cursor:pointer; padding:12px 16px; font-size:13.5px; font-weight:600; color:var(--text); list-style:none; user-select:none; border-radius:12px; }
+  .tool-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-top:20px; }
+  .tool-cat { display:inline-flex; align-items:center; gap:8px; padding:5px 12px 5px 8px; border-radius:999px;
+    background:color-mix(in oklab, var(--cat) 13%, transparent);
+    border:1px solid color-mix(in oklab, var(--cat) 28%, transparent); }
+  .tool-cat-dot { width:17px; height:17px; display:grid; place-items:center; flex-shrink:0; }
+  .tool-cat-dot svg { width:14px; height:14px; stroke:var(--cat); }
+  .tool-cat-label { font-size:11.5px; font-weight:750; letter-spacing:0.08em; text-transform:uppercase; color:var(--cat); }
+  .tool-name {
+    font-size:clamp(27px, 5.6vw, 34px); font-weight:800; letter-spacing:-0.032em; margin-top:14px; line-height:1.1;
+    background:linear-gradient(115deg, var(--text) 22%, var(--cat) 128%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .tool-desc { font-size:15px; color:var(--muted); margin-top:9px; line-height:1.55; }
+  .tool-explain { margin-top:18px; border:1px solid var(--border); border-radius:14px; background:var(--surface); box-shadow:var(--shadow-sm); }
+  .tool-explain summary { cursor:pointer; padding:13px 16px; font-size:13.5px; font-weight:650; color:var(--text); list-style:none; user-select:none; border-radius:14px; }
   .tool-explain summary::-webkit-details-marker { display:none; }
   .tool-explain summary::before { content:'▸'; display:inline-block; margin-right:9px; color:var(--accent); transition:transform .18s ease; }
   .tool-explain[open] summary::before { transform:rotate(90deg); }
@@ -192,21 +333,29 @@
   .rohr-add { width:100%; padding:13px; border:1.5px dashed var(--fieldBorder); border-radius:12px; background:transparent; color:var(--muted); font-size:14.5px; font-weight:600; cursor:pointer; transition:all .18s ease; }
   .rohr-add:hover { border-color:var(--accent); color:var(--accent); background:var(--accentSoft); }
 
-  .result-block { margin-top:30px; }
+  .result-block { margin-top:32px; }
   .result-main {
-    background:linear-gradient(135deg, var(--accent), var(--accent2)); color:#fff;
-    border-radius:16px; padding:22px 24px; box-shadow:var(--shadow-accent);
+    position:relative; overflow:hidden; color:#fff;
+    background:linear-gradient(135deg, var(--cat, var(--accent)) 0%, var(--accent) 52%, var(--accent2) 100%);
+    border-radius:20px; padding:24px 26px; box-shadow:var(--shadow-accent);
   }
-  .result-main-label { font-size:13px; font-weight:600; opacity:.9; letter-spacing:0.01em; }
-  .result-main-row { display:flex; align-items:baseline; gap:9px; margin-top:8px; flex-wrap:wrap; }
-  .result-main-value { font-size:40px; font-weight:700; letter-spacing:-0.02em; line-height:1.05; font-variant-numeric:tabular-nums; }
-  .result-main-unit { font-size:19px; font-weight:600; opacity:.85; }
-  .result-subs { display:flex; flex-direction:column; gap:1px; margin-top:16px; border-radius:13px; overflow:hidden; border:1px solid var(--border); background:var(--border); box-shadow:var(--shadow-sm); }
-  .result-sub { display:flex; justify-content:space-between; align-items:baseline; gap:14px; background:var(--surface); padding:13px 18px; }
+  /* Lichtreflex auf der Ergebniskachel */
+  .result-main::before {
+    content:''; position:absolute; top:-58%; right:-14%; width:66%; height:210%; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,.24), transparent 66%); pointer-events:none;
+  }
+  .result-main > * { position:relative; }
+  .result-main-label { font-size:13px; font-weight:650; opacity:.92; letter-spacing:0.015em; }
+  .result-main-row { display:flex; align-items:baseline; gap:10px; margin-top:9px; flex-wrap:wrap; }
+  .result-main-value { font-size:clamp(38px, 9vw, 46px); font-weight:800; letter-spacing:-0.035em; line-height:1.02; font-variant-numeric:tabular-nums; }
+  .result-main-unit { font-size:20px; font-weight:650; opacity:.88; }
+  .result-subs { display:flex; flex-direction:column; gap:1px; margin-top:17px; border-radius:16px; overflow:hidden; border:1px solid var(--border); background:var(--border); box-shadow:var(--shadow-sm); }
+  .result-sub { display:flex; justify-content:space-between; align-items:baseline; gap:14px; background:var(--surface); padding:13px 18px; transition:background .15s; }
+  .result-sub:hover { background:color-mix(in oklab, var(--cat, var(--accent)) 5%, var(--surface)); }
   .result-sub-label { font-size:14px; color:var(--muted); }
-  .result-sub-value { font-size:15.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--text); text-align:right; }
-  .result-note { font-size:13px; color:var(--muted); margin-top:16px; line-height:1.65; padding:0 2px; }
-  .result-ref-title { font-size:11.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:26px; margin-bottom:10px; padding-left:2px; }
+  .result-sub-value { font-size:15.5px; font-weight:650; font-variant-numeric:tabular-nums; color:var(--text); text-align:right; }
+  .result-note { font-size:13px; color:var(--muted); margin-top:17px; line-height:1.65; padding:0 2px; }
+  .result-ref-title { font-size:11.5px; font-weight:750; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:28px; margin-bottom:10px; padding-left:2px; }
 </style>
 </head>
 <body>
@@ -220,14 +369,45 @@
      Reines Vanilla-JS. Persistenz über localStorage (+ JSON-Export/-Import).
      ========================================================= */
 
-  // ---------- Kategorien ----------
-  var cats = {
-    heizung:  { label: 'Heizung',           dot: 'oklch(0.62 0.15 40)' },
-    wp:       { label: 'Wärmepumpe',        dot: 'oklch(0.6 0.13 300)' },
-    solar:    { label: 'Solar',             dot: 'oklch(0.78 0.15 85)' },
-    sanitaer: { label: 'Sanitär',           dot: 'oklch(0.6 0.11 235)' },
-    allg:     { label: 'Klima & Allgemein', dot: 'oklch(0.62 0.08 175)' }
+  // ---------- Icons (Inline-SVG, damit nichts nachgeladen werden muss) ----------
+  // Jeder Eintrag ist eine Liste von <path>-Daten; Strichzeichnung im Stil von 24×24-Icons.
+  var ICONS = {
+    heizung:  ['M8.5 21c-2.5-1.5-3.5-4-3.5-6.5C5 10 9 8 9.5 3c3 2 6 5.5 6 9.5 0 1 .5 2 1.5 2s1.5-1 1.5-2.5c1.5 2 2.5 4 2.5 5.5 0 2.5-1.5 4.5-4 6'],
+    wp:       ['M12 3v18M3 12h18', 'M12 12l5.5-5.5M12 12L6.5 6.5M12 12l5.5 5.5M12 12l-5.5 5.5'],
+    solar:    ['M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z', 'M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4'],
+    sanitaer: ['M12 3s6 6.5 6 10.5A6 6 0 016 13.5C6 9.5 12 3 12 3z'],
+    allg:     ['M4 7h10M18 7h2M4 17h4M12 17h8', 'M16 7a2 2 0 10-4 0 2 2 0 004 0zM10 17a2 2 0 10-4 0 2 2 0 004 0z'],
+    fav:      ['M12 3.4l2.6 5.4 5.9.85-4.3 4.15 1.02 5.85L12 16.9l-5.22 2.75L7.8 13.8 3.5 9.65l5.9-.85L12 3.4z'],
+    logo:     ['M4 18V9M9 18V4M14 18v-6M19 18v-9', 'M3 21h18']
   };
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  // Erzeugt ein <svg>-Element aus ICONS. filled = Fläche gefüllt (für den aktiven Stern).
+  function icon(name) {
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke-width', '1.9');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    (ICONS[name] || []).forEach(function (d) {
+      var p = document.createElementNS(SVGNS, 'path');
+      p.setAttribute('d', d);
+      svg.appendChild(p);
+    });
+    return svg;
+  }
+
+  // ---------- Kategorien ----------
+  // col verweist auf eine CSS-Variable, damit die Farbe dem Hell-/Dunkelmodus folgt.
+  var cats = {
+    heizung:  { label: 'Heizung',           col: 'var(--c-heizung)',  icon: 'heizung' },
+    wp:       { label: 'Wärmepumpe',        col: 'var(--c-wp)',       icon: 'wp' },
+    solar:    { label: 'Solar',             col: 'var(--c-solar)',    icon: 'solar' },
+    sanitaer: { label: 'Sanitär',           col: 'var(--c-sanitaer)', icon: 'sanitaer' },
+    allg:     { label: 'Klima & Allgemein', col: 'var(--c-allg)',     icon: 'allg' }
+  };
+  var CAT_ORDER = ['heizung','wp','solar','sanitaer','allg'];
 
   // ---------- Werkzeuge ----------
   var TOOLS = [
@@ -275,7 +455,7 @@
 
   // ---------- Kurzerklärung je Werkzeug (eingeklappt) ----------
   var EXPLAIN = {
-    mag:        'Berechnet das nötige Volumen des Membran-Ausdehnungsgefäßes (MAG) einer Heizung, damit es die temperaturbedingte Ausdehnung des Heizwassers aufnimmt. Eingaben: Wasserinhalt, max. Vorlauftemperatur, statische Höhe und Ansprechdruck des Sicherheitsventils.',
+    mag:        'Berechnet das nötige Volumen des Membran-Ausdehnungsgefäßes (MAG) einer Heizung, damit es die temperaturbedingte Ausdehnung des Heizwassers aufnimmt. Eingaben: Wasserinhalt, max. Vorlauftemperatur, statische Höhe, Mindest-Systemdruck (Standard 0,8 bar) und Ansprechdruck des Sicherheitsventils.',
     leistung:   'Rechnet Heizleistung (kW) und Spreizung Δt in den nötigen Volumenstrom um. Grundlage: V = Q × 860 / Δt.',
     leistungaus:'Umkehrung: ermittelt aus gemessenem Volumenstrom und der Spreizung Δt die übertragene Leistung in kW.',
     heizkoerper:'Rechnet die Norm-Heizleistung eines Heizkörpers (Bezug 75/65/20) auf andere Systemtemperaturen um — z. B. für niedrigere Vorlauftemperaturen bei Wärmepumpen.',
@@ -286,8 +466,8 @@
     pumpe:      'Schätzt den Betriebspunkt der Heizkreispumpe (Volumenstrom und Förderhöhe) aus Heizleistung, Heizsystem, Leitungstyp und Rohrlänge — Δt, Rohrreibung und Zuschlag werden automatisch angesetzt.',
     fbhdurch:   'Berechnet die Durchflussmenge einer Fußbodenheizung: aus Fläche und Baualter wird die Heizlast geschätzt und daraus mit der Spreizung Δt der Volumenstrom ermittelt.',
     heizlast:   'Überschlägige Heizlast je Raum und für die ganze Wohnung anhand von Fläche, Raumhöhe und Gebäudestandard (Baualter).',
-    sv:         'Bestimmt die Mindest-Anschlussgröße des Heizungs-Sicherheitsventils nach Kesselleistung und kann den Ansprechdruck aus der statischen Höhe berechnen (DIN EN 12828).',
-    solarmag:   'Legt das Ausdehnungsgefäß einer Solaranlage aus — inklusive Verdampfungsvolumen bei Kollektor-Stagnation. Der Kollektorinhalt wird aus Fläche und Typ geschätzt.',
+    sv:         'Bestimmt die Mindest-Anschlussgröße des Heizungs-Sicherheitsventils nach Kesselleistung und Ansprechdruck und kann den Ansprechdruck aus der statischen Höhe berechnen (DIN EN 12828). Die abgesicherte Leistung steigt mit dem Ansprechdruck und wird entsprechend berücksichtigt.',
+    solarmag:   'Legt das Ausdehnungsgefäß einer Solaranlage aus — inklusive Verdampfungsvolumen bei Kollektor-Stagnation. Der Kollektorinhalt wird aus Fläche und Typ geschätzt, der Mindest-Systemdruck ist mit 4,0 bar vorbelegt.',
     frost:      'Ermittelt den nötigen Glykolanteil für einen gewünschten Frostschutz und die Mengen für das Anlagenvolumen.',
     rohrvol:    'Berechnet den Wasserinhalt von Rohrleitungen. Je Abschnitt einfach die Rohrdimension wählen (Kupfer, Stahl-Gewinderohr, Mehrschichtverbund, C-Stahl/Prestabo oder Edelstahl) — der Innendurchmesser wird automatisch eingetragen. Sonderfälle über „Manuell". Mehrere Abschnitte werden zum Gesamtvolumen summiert.',
     abgas:      'Berechnet den Abgasverlust nach der Siegert-Formel aus Abgastemperatur, Verbrennungslufttemperatur und gemessenem O₂ — wie bei der Schornsteinfeger-Messung. Zeigt zusätzlich den feuerungstechnischen Wirkungsgrad und den CO₂-Gehalt.',
@@ -318,7 +498,7 @@
 
   // ---------- Standardwerte je Werkzeug ----------
   var DEFAULTS = {
-    mag:         { vol:200, tmax:70, hstat:5, psv:3 },
+    mag:         { vol:200, tmax:70, hstat:5, pmin:0.8, psv:3 },
     leistung:    { leistung:12, dt:20 },
     leistungaus: { vstrom:516, veinheit:'l/h', dt:20 },
     heizkoerper: { typ:'platte', pnorm:1500, vl:55, rl:45, tr:20, n:1.30 },
@@ -340,7 +520,7 @@
     fbhdurch:    { flaeche:20, standard:'enev09', dt:7 },
     heizlast:    { standard:'b1984', hoehe:2.5, rooms:[{name:'Wohnzimmer', flaeche:25},{name:'Schlafzimmer', flaeche:15}] },
     sv:          { leistung:25, psv:'auto', hstat:10 },
-    solarmag:    { va:50, flaeche:6, kolltyp:'flach', hstat:8, psv:6 },
+    solarmag:    { va:50, flaeche:6, kolltyp:'flach', hstat:8, pmin:4.0, psv:6 },
     frost:       { frost:-15, vol:100 },
     rohrvol:     { sections:[{dim:'0-3', di:20, len:10},{dim:'0-2', di:16, len:8}] },   // Kupfer 22×1 / 18×1
     gefaelle:    { len:5, gef:2 },
@@ -552,7 +732,7 @@
   ];
 
   // ---------- Zustand ----------
-  var state = { theme:'light', view:'home', query:'', vals:{}, collapsed:{} };
+  var state = { theme:'light', view:'home', query:'', vals:{}, collapsed:{}, favs:{} };
   var themeChosen = false;   // true, sobald der Nutzer Hell/Dunkel explizit gewählt hat
 
   // ---------- Persistenz ----------
@@ -570,7 +750,15 @@
       if (v) { var p = JSON.parse(v); if (p && typeof p === 'object') state.vals = p; }
       var co = localStorage.getItem('shk.collapsed');
       if (co) { var pc = JSON.parse(co); if (pc && typeof pc === 'object') state.collapsed = pc; }
+      var fv = localStorage.getItem('shk.favs');
+      if (fv) { var pf = JSON.parse(fv); if (pf && typeof pf === 'object') state.favs = sanitizeFavs(pf); }
     } catch (e) {}
+  }
+  // Nur Favoriten übernehmen, zu denen es das Werkzeug wirklich (noch) gibt
+  function sanitizeFavs(obj) {
+    var out = {};
+    TOOLS.forEach(function (t) { if (obj[t.id]) out[t.id] = true; });
+    return out;
   }
   function persist() {
     try {
@@ -578,6 +766,7 @@
       if (themeChosen) localStorage.setItem('shk.theme', state.theme);
       localStorage.setItem('shk.vals', JSON.stringify(state.vals));
       localStorage.setItem('shk.collapsed', JSON.stringify(state.collapsed));
+      localStorage.setItem('shk.favs', JSON.stringify(state.favs));
     } catch (e) {}
   }
 
@@ -628,6 +817,7 @@
         {key:'vol',label:'Anlagenwasserinhalt',unit:'l'},
         {key:'tmax',label:'max. Vorlauftemperatur',unit:'°C'},
         {key:'hstat',label:'statische Höhe',unit:'m'},
+        {key:'pmin',label:'Mindest-Systemdruck (kalt)',unit:'bar'},
         {key:'psv',label:'Ansprechdruck Sicherheitsventil',unit:'bar'}
       ];
       case 'leistung': return [
@@ -756,6 +946,7 @@
         {key:'flaeche',label:'Kollektorfläche',unit:'m²'},
         {key:'kolltyp',type:'select',label:'Kollektortyp',options:[['flach','Flachkollektor'],['roehre','Röhrenkollektor']]},
         {key:'hstat',label:'statische Höhe',unit:'m'},
+        {key:'pmin',label:'Mindest-Systemdruck (kalt)',unit:'bar'},
         {key:'psv',type:'select',label:'Ansprechdruck SV',options:[[6,'6 bar'],[8,'8 bar'],[10,'10 bar']]}
       ];
       case 'frost': return [
@@ -857,12 +1048,17 @@
     switch (id) {
       case 'mag': {
         var vol=P(ev.vol), tmax=P(ev.tmax), hstat=P(ev.hstat), psv=P(ev.psv);
+        var pmin = P(ev.pmin);
         var n = interp(Etable, tmax);
         var Ve = vol*n, Vv = Math.max(vol*0.005, 3);
-        var p0 = hstat/10 + 0.2; if (p0 < 0.5) p0 = 0.5;
-        var pa = p0 + 0.3;                          // empfohlener Anlagenfülldruck (kalt)
+        // Vordruck aus statischer Höhe; der Mindest-Systemdruck hebt bei Bedarf den Fülldruck an
+        var p0h = Math.max(hstat/10 + 0.2, 0.5);
+        var pa = Math.max(p0h + 0.3, pmin);         // Anlagenfülldruck (kalt), mind. Mindest-Systemdruck
+        var p0 = pa - 0.3;                          // MAG-Vordruck
+        var pminAktiv = pmin > p0h + 0.3 + 1e-9;    // Mindestdruck ist maßgebend (nicht die statische Höhe)
         var pe = psv <= 5 ? psv*0.9 : psv-0.5;
         var valid = pe > p0;                        // Enddruck muss über dem Vordruck liegen
+        var eng = valid && (pe - p0) < 1.0;          // sehr kleine Druckdifferenz → großes Gefäß
         var Vn = valid ? (Ve+Vv)*(pe+1)/(pe-p0) : NaN;
         var sizes = [8,12,18,25,35,50,80,100,140,200,250,300,400,500,600,800,1000];
         var size = isFinite(Vn) ? sizes.find(function(s){return s >= Vn;}) : null;
@@ -872,12 +1068,14 @@
             {label:'Ausdehnungsvolumen', value:fmt(Ve,1)+' l'},
             {label:'Wasservorlage', value:fmt(Vv,1)+' l'},
             {label:'Vordruck p₀', value:fmt(p0,2)+' bar'},
-            {label:'Empfohlener Fülldruck p_a', value:fmt(pa,2)+' bar'},
+            {label:'Fülldruck p_a (kalt)'+(pminAktiv?' — durch Mindestdruck bestimmt':''), value:fmt(pa,2)+' bar'},
+            {label:'Mindest-Systemdruck (Vorgabe)', value:fmt(pmin,2)+' bar'},
             {label:'Enddruck pₑ', value:fmt(pe,2)+' bar'}
           ],
-          note: (!valid ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen — Sicherheitsventil mit höherem Ansprechdruck wählen oder statische Höhe prüfen. ' : '')
+          note: (!valid ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen — Sicherheitsventil mit höherem Ansprechdruck wählen, Mindest-Systemdruck senken oder statische Höhe prüfen. ' : '')
+            + (eng ? 'Druckdifferenz pₑ − p₀ liegt unter 1,0 bar — das Gefäß wird dadurch sehr groß und die Auslegung ist knapp. Höheren Ansprechdruck oder eine Druckhaltestation prüfen. ' : '')
             + (isFinite(Vn) && !size ? 'Über 1000 l Nennvolumen: mehrere Gefäße parallel schalten oder eine Druckhaltestation (Kompressor- bzw. Pumpendruckhaltung) vorsehen. ' : '')
-            + 'Orientierungswerte nach DIN EN 12828. Vordruck p₀ = statische Höhe / 10 + 0,2 bar; empfohlener Anlagenfülldruck p_a = p₀ + 0,3 bar (kalt, vor dem Aufheizen).' };
+            + 'Orientierungswerte nach DIN EN 12828. Vordruck p₀ = Fülldruck − 0,3 bar; Fülldruck p_a = statische Höhe / 10 + 0,5 bar, mindestens jedoch der eingetragene Mindest-Systemdruck (Standard 0,8 bar, kalt vor dem Aufheizen).' };
       }
       case 'leistung': {
         var Pk=P(ev.leistung), dt=P(ev.dt);
@@ -911,11 +1109,18 @@
       case 'heizkoerper': {
         var pn=P(ev.pnorm), vl=P(ev.vl), rl=P(ev.rl), tr=P(ev.tr), nn=P(ev.n)||1.3;
         var A=vl-tr, B=rl-tr, dtlog;
-        if (A>0 && B>0 && A!==B) dtlog=(vl-rl)/Math.log(A/B);
-        else if (A>0 && A===B) dtlog=A; else dtlog=NaN;
+        // Plausibilität: Vorlauf > Rücklauf > Raumtemperatur — sonst ist der Fall physikalisch unmöglich
+        var vertauscht = rl > vl;
+        var zuKalt = B <= 0 || A <= 0;
+        if (vertauscht || zuKalt) dtlog = NaN;
+        else if (A !== B) dtlog = (vl-rl)/Math.log(A/B);
+        else dtlog = A;
         var dtnorm=49.83;
         var f = isFinite(dtlog) ? Math.pow(dtlog/dtnorm, nn) : NaN;
         var Pa = pn*f;
+        var hkWarn = vertauscht
+          ? 'Eingaben prüfen: die Rücklauftemperatur ('+fmt(rl,0)+' °C) liegt über der Vorlauftemperatur ('+fmt(vl,0)+' °C) — die Werte sind vermutlich vertauscht. '
+          : (zuKalt ? 'Eingaben prüfen: Vor- und Rücklauf müssen über der Raumtemperatur ('+fmt(tr,0)+' °C) liegen, sonst gibt der Heizkörper keine Wärme ab. ' : '');
         return { main:{label:'Tatsächliche Wärmeleistung', value:fmt(Pa,0), unit:'W'},
           subs:[
             {label:'Korrekturfaktor f', value:fmt(f,3)},
@@ -923,7 +1128,7 @@
             {label:'Norm-Δt (75/65/20)', value:'49,8 K'},
             {label:'Normleistung', value:fmt(pn,0)+' W'}
           ],
-          note:'Der Heizkörper-Exponent n beschreibt, wie stark die Wärmeleistung von der Übertemperatur abhängt: Q = Q_norm × (Δt/Δt_norm)ⁿ. Je größer n, desto stärker fällt die Leistung bei niedriger Vorlauftemperatur. Ermittlung aus dem Datenblatt mit zwei Leistungsangaben bei zwei Spreizungen: n = ln(Q₁/Q₂) / ln(Δt₁/Δt₂). Die Typ-Auswahl oben trägt nur einen Richtwert ein — der exakte Wert steht im Herstellerdatenblatt.',
+          note: hkWarn + 'Der Heizkörper-Exponent n beschreibt, wie stark die Wärmeleistung von der Übertemperatur abhängt: Q = Q_norm × (Δt/Δt_norm)ⁿ. Je größer n, desto stärker fällt die Leistung bei niedriger Vorlauftemperatur. Ermittlung aus dem Datenblatt mit zwei Leistungsangaben bei zwei Spreizungen: n = ln(Q₁/Q₂) / ln(Δt₁/Δt₂). Die Typ-Auswahl oben trägt nur einen Richtwert ein — der exakte Wert steht im Herstellerdatenblatt.',
           refTitle:'Typische Exponenten n', refs:[
             {label:'Plattenheizkörper', value:'1,30'},
             {label:'Stahlradiator',     value:'1,30'},
@@ -984,42 +1189,71 @@
         var auto = ev.psv === 'auto';
         // Druckkette nach DIN EN 12828
         var pstat = hstat/10;
-        var p0 = Math.max(pstat + 0.2, 0.5);        // MAG-Vordruck
-        var pa = p0 + 0.3;                          // Anlagenfülldruck (kalt)
+        var pa = Math.max(pstat + 0.5, 0.8);        // Anlagenfülldruck (kalt), mind. 0,8 bar Systemdruck
+        var p0 = pa - 0.3;                          // MAG-Vordruck
         var peMin = pa + 0.5;                       // erforderlicher Enddruck mit Reserve
         var psvMin = peMin / 0.9;                   // Schließdruckdifferenz 10 %
         var stdP = [2.5,3.0,4.0,5.0,6.0];
         var psvCalc = stdP.find(function(p){ return p >= psvMin; }) || Math.ceil(psvMin*10)/10;
         var psv = auto ? psvCalc : P(ev.psv);
         var pe = psv<=5 ? psv*0.9 : psv-0.5;        // max. Betriebsdruck (Schließdruck)
-        var valves=[
-          {dn:'DN 15', conn:'½" × ¾"',  kw:50},
-          {dn:'DN 20', conn:'¾" × 1"',  kw:100},
-          {dn:'DN 25', conn:'1" × 1¼"', kw:200},
-          {dn:'DN 32', conn:'1¼" × 1½"',kw:350},
-          {dn:'DN 40', conn:'1½" × 2"', kw:600},
-          {dn:'DN 50', conn:'2" × 2½"', kw:900}
+        // Abblaseleistung [kW] je Nennweite — abhängig vom Ansprechdruck (Herstellertabelle
+        // Membran-Sicherheitsventil nach DIN EN 12828). Zwischenwerte werden interpoliert,
+        // unterhalb 1,5 bar wird die 1,5-bar-Spalte verwendet (sichere Seite).
+        var SV_KW = [
+          { p:1.5, kw:[36, 72, 144, 252, 433, 650] },
+          { p:2.0, kw:[43, 86, 172, 302, 518, 778] },
+          { p:2.5, kw:[50,100, 200, 350, 600, 900] },
+          { p:3.0, kw:[56,112, 224, 395, 678,1017] },
+          { p:4.0, kw:[70,140, 280, 490, 840,1260] },
+          { p:5.0, kw:[84,168, 336, 588,1008,1512] }
         ];
+        // Leistungsspalte für den tatsächlichen Ansprechdruck ermitteln (lineare Interpolation)
+        function svKapazitaet(p, i) {
+          if (p <= SV_KW[0].p) return SV_KW[0].kw[i];
+          var last = SV_KW[SV_KW.length-1];
+          if (p >= last.p) return last.kw[i] * Math.sqrt((p+1)/(last.p+1));  // Extrapolation ∝ √(abs. Druck)
+          for (var j=1; j<SV_KW.length; j++) {
+            if (p <= SV_KW[j].p) {
+              var a=SV_KW[j-1], b=SV_KW[j];
+              return a.kw[i] + (b.kw[i]-a.kw[i]) * (p-a.p)/(b.p-a.p);
+            }
+          }
+          return last.kw[i];
+        }
+        var valves=[
+          {dn:'DN 15', conn:'½" × ¾"'},
+          {dn:'DN 20', conn:'¾" × 1"'},
+          {dn:'DN 25', conn:'1" × 1¼"'},
+          {dn:'DN 32', conn:'1¼" × 1½"'},
+          {dn:'DN 40', conn:'1½" × 2"'},
+          {dn:'DN 50', conn:'2" × 2½"'}
+        ].map(function(x, i){ x.kw = svKapazitaet(psv, i); return x; });
         var v = valves.find(function(x){ return x.kw >= Q; });
+        var maxKw = valves[valves.length-1].kw;     // größte abgedeckte Leistung beim gewählten Druck
         var subs=[
           {label:'Ansprechdruck'+(auto?' (berechnet)':''), value:fmt(psv,1)+' bar'},
-          {label:'max. Leistung dieser Größe', value:(v?fmt(v.kw,0):'> 900')+' kW'},
+          {label:'max. Leistung dieser Größe bei '+fmt(psv,1)+' bar', value:(v?fmt(v.kw,0):'> '+fmt(maxKw,0))+' kW'},
           {label:'Kessel-/Wärmeleistung', value:fmt(Q,1)+' kW'},
           {label:'statischer Druck', value:fmt(pstat,2)+' bar'}
         ];
         if (auto) {
           subs.push({label:'MAG-Vordruck p₀', value:fmt(p0,2)+' bar'});
-          subs.push({label:'Anlagenfülldruck p_a', value:fmt(pa,2)+' bar'});
+          subs.push({label:'Anlagenfülldruck p_a (min. 0,8 bar)', value:fmt(pa,2)+' bar'});
           subs.push({label:'max. Enddruck pₑ', value:fmt(pe,2)+' bar'});
           subs.push({label:'rechn. Mindestdruck', value:fmt(psvMin,2)+' bar'});
         }
         var pLow = !auto && hstat>0 && psv < pstat + 0.8;
-        var note = 'Auswahl nach DIN EN 12828: Sicherheitsventil mit „H" gekennzeichnet, nicht absperrbar, mit frostsicherer Abblaseleitung mit Gefälle. Der Ansprechdruck darf den zulässigen Betriebsüberdruck (PS) des Kessels nicht überschreiten; je Wärmeerzeuger ein eigenes Ventil.';
-        if (auto) note = 'Ansprechdruck aus statischer Höhe: p₀ = stat. Druck + 0,2 bar, Fülldruck p_a = p₀ + 0,3 bar, Mindestdruck = (p_a + 0,5) / 0,9 (10 % Schließdruckdifferenz), aufgerundet auf die nächste Normgröße. ' + note;
-        if (Q>900) note = 'Über 900 kW: Sonderberechnung der Abblaseleistung nach DIN EN ISO 4126 / TRD 721 erforderlich. ' + note;
+        var note = 'Wichtig: Die abgesicherte Leistung hängt vom Ansprechdruck ab — die Werte gelten für den oben angezeigten Druck (Tabelle unten). Auswahl nach DIN EN 12828: Sicherheitsventil mit „H" gekennzeichnet, nicht absperrbar, mit frostsicherer Abblaseleitung mit Gefälle. Der Ansprechdruck darf den zulässigen Betriebsüberdruck (PS) des Kessels nicht überschreiten; je Wärmeerzeuger ein eigenes Ventil.';
+        if (auto) note = 'Ansprechdruck aus statischer Höhe: Fülldruck p_a = stat. Druck + 0,5 bar (mind. 0,8 bar Systemdruck), p₀ = p_a − 0,3 bar, Mindestdruck = (p_a + 0,5) / 0,9 (10 % Schließdruckdifferenz), aufgerundet auf die nächste Normgröße. ' + note;
+        if (psv > 3) note = 'Hinweis: In Deutschland sind für übliche geschlossene Warmwasser-Heizungsanlagen Ansprechdrücke bis 3 bar vorgesehen. Über 3 bar Kessel-PS und Zulassung des Ventils prüfen; bei großer statischer Höhe ist meist eine Druckhaltestation die bessere Lösung. ' + note;
+        if (Q > maxKw) note = 'Über '+fmt(maxKw,0)+' kW (Grenze von DN 50 bei '+fmt(psv,1)+' bar): Sonderberechnung der Abblaseleistung nach DIN EN ISO 4126 / TRD 721 erforderlich — oder bis zu drei Ventile je Wärmeerzeuger. ' + note;
         if (pLow) note = 'Hinweis: Ansprechdruck '+fmt(psv,1)+' bar ist für '+fmt(hstat,0)+' m statische Höhe (statisch '+fmt(pstat,2)+' bar) zu knapp — höheren Ansprechdruck wählen oder „automatisch berechnen". ' + note;
         return { main:{label:'Empfohlene Mindest-Anschlussgröße', value: v?v.dn:'> DN 50', unit: v?('· '+v.conn):''},
-          subs:subs, note:note };
+          subs:subs, note:note,
+          refTitle:'Max. Heizleistung [kW] je Ansprechdruck', refs:SV_KW.map(function(row){
+            return { label:fmt(row.p,1)+' bar', value:'DN 15: '+row.kw[0]+' · DN 20: '+row.kw[1]+' · DN 25: '+row.kw[2]+' · DN 32: '+row.kw[3]+' · DN 40: '+row.kw[4]+' · DN 50: '+row.kw[5] };
+          }) };
       }
       case 'fbhdurch': {
         var area=P(ev.flaeche), dtF=P(ev.dt);
@@ -1173,13 +1407,18 @@
         var koll = KOLL[ev.kolltyp] || KOLL.flach;
         var vk = flaeche * koll.lpm2;              // Kollektor-/Stagnationsinhalt aus Fläche × Typ
         var beta=0.085;                            // Ausdehnung Solarmedium (Wasser-Glykol)
-        var p0S = Math.max(hstatS/10 + 0.5, 1.0);  // Vordruck (Solar: min. 1,0 bar)
-        var paS = p0S + 0.3;                        // empfohlener Anlagenfülldruck (kalt)
+        var pminS = P(ev.pmin);
+        // Vordruck aus statischer Höhe; der Mindest-Systemdruck hebt bei Bedarf den Fülldruck an
+        var p0hS = Math.max(hstatS/10 + 0.5, 1.0);
+        var paS = Math.max(p0hS + 0.3, pminS);     // Anlagenfülldruck (kalt), mind. Mindest-Systemdruck
+        var p0S = paS - 0.3;                        // Vordruck
+        var pminSAktiv = pminS > p0hS + 0.3 + 1e-9;
         var peS = psvS<=5 ? psvS*0.9 : psvS-0.5;   // Enddruck (Schließdruck)
         var VeS = va*beta;                         // Ausdehnungsvolumen
         var VvS = Math.max(va*0.005, 3);           // Wasservorlage, min. 3 l
         var VdS = vk;                              // Verdampfungs-/Stagnationsvolumen
         var validS = peS > p0S;
+        var engS = validS && (peS - p0S) < 1.5;     // Solar: kleine Differenz → sehr großes Gefäß
         var VnS = validS ? (VeS+VvS+VdS)*(peS+1)/(peS-p0S) : NaN;
         var sizesS=[12,18,25,35,50,80,100,140,200,250,300,400,500];
         var sizeS = isFinite(VnS) ? sizesS.find(function(s){return s>=VnS;}) : null;
@@ -1191,11 +1430,13 @@
             {label:'Verdampfungsvolumen (Stagnation)', value:fmt(VdS,1)+' l'},
             {label:'Wasservorlage Vv', value:fmt(VvS,1)+' l'},
             {label:'Vordruck p₀', value:fmt(p0S,2)+' bar'},
-            {label:'Empfohlener Fülldruck p_a', value:fmt(paS,2)+' bar'},
+            {label:'Fülldruck p_a (kalt)'+(pminSAktiv?' — durch Mindestdruck bestimmt':''), value:fmt(paS,2)+' bar'},
+            {label:'Mindest-Systemdruck (Vorgabe)', value:fmt(pminS,2)+' bar'},
             {label:'Enddruck pₑ', value:fmt(peS,2)+' bar'}
           ],
-          note: (!validS ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen (höheres Sicherheitsventil oder geringere statische Höhe). ' : '')
-            + 'Auslegung für Solaranlagen (VDI 6002 / Herstellerregeln): aufzunehmen sind die Ausdehnung des Solarmediums (β ≈ 8,5 %), die Wasservorlage und das Verdampfungsvolumen der Kollektoren bei Stagnation. Der Kollektorinhalt wird aus Fläche × Typ geschätzt (Flach ≈ 1,0 l/m², Röhre ≈ 1,5 l/m²) — exakter Wert lt. Datenblatt. Vordruck p₀ = statische Höhe / 10 + 0,5 bar (min. 1,0). Bei Rücklauftemperaturen über ~70 °C ein Vorschaltgefäß zum Schutz der Membran vorsehen; nur für Glykol geeignetes Gefäß verwenden.' };
+          note: (!validS ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen — Sicherheitsventil mit höherem Ansprechdruck wählen, Mindest-Systemdruck senken oder statische Höhe prüfen. ' : '')
+            + (engS ? 'Druckdifferenz pₑ − p₀ liegt unter 1,5 bar — das Gefäß wird dadurch sehr groß. Sicherheitsventil mit höherem Ansprechdruck (8 oder 10 bar) prüfen. ' : '')
+            + 'Auslegung für Solaranlagen (VDI 6002 / Herstellerregeln): aufzunehmen sind die Ausdehnung des Solarmediums (β ≈ 8,5 %), die Wasservorlage und das Verdampfungsvolumen der Kollektoren bei Stagnation. Der Kollektorinhalt wird aus Fläche × Typ geschätzt (Flach ≈ 1,0 l/m², Röhre ≈ 1,5 l/m²) — exakter Wert lt. Datenblatt. Fülldruck p_a = statische Höhe / 10 + 0,8 bar, mindestens jedoch der eingetragene Mindest-Systemdruck (Standard 4,0 bar); Vordruck p₀ = p_a − 0,3 bar. Bei Rücklauftemperaturen über ~70 °C ein Vorschaltgefäß zum Schutz der Membran vorsehen; nur für Glykol geeignetes Gefäß verwenden.' };
       }
       case 'frost': {
         var T=P(ev.frost), vol2=P(ev.vol);
@@ -1672,6 +1913,44 @@
   function open(id) { state.view = id; state.query = ''; render(); window.scrollTo(0,0); }
   function goHome() { state.view = 'home'; render(); }
   function toggleGroup(c) { state.collapsed[c] = !state.collapsed[c]; persist(); renderHomeGroups(); }
+
+  // ---------- Favoriten ----------
+  function isFav(id) { return !!state.favs[id]; }
+  function favIds() { return TOOLS.filter(function(t){ return isFav(t.id); }).map(function(t){ return t.id; }); }
+  function toggleFav(id) {
+    if (state.favs[id]) delete state.favs[id]; else state.favs[id] = true;
+    persist();
+    return isFav(id);
+  }
+  // Stern-Schaltfläche; onDone erhält den neuen Zustand (für Neuaufbau der Liste)
+  function favButton(id, cls, withLabel, onDone) {
+    var on = isFav(id);
+    var lab = withLabel ? el('span', { text: on ? 'Favorit' : 'Als Favorit' }) : null;
+    var kids = [icon('fav')];
+    if (lab) kids.push(lab);
+    var b = el('button', {
+      class: cls + (on ? ' on' : ''),
+      type: 'button',
+      title: on ? 'Aus den Favoriten entfernen' : 'Zu den Favoriten hinzufügen',
+      'aria-pressed': String(on),
+      'aria-label': (on ? 'Aus den Favoriten entfernen: ' : 'Zu den Favoriten hinzufügen: ')
+                    + (TOOLS.find(function(t){ return t.id===id; }) || {}).name
+    }, kids);
+    b.addEventListener('click', function (ev) {
+      ev.stopPropagation();      // darf die Karte darunter nicht öffnen
+      ev.preventDefault();
+      var nowOn = toggleFav(id);
+      b.classList.toggle('on', nowOn);
+      b.setAttribute('aria-pressed', String(nowOn));
+      b.setAttribute('title', nowOn ? 'Aus den Favoriten entfernen' : 'Zu den Favoriten hinzufügen');
+      if (lab) lab.textContent = nowOn ? 'Favorit' : 'Als Favorit';
+      b.classList.remove('just');
+      void b.offsetWidth;        // Animation neu starten
+      b.classList.add('just');
+      if (onDone) onDone(nowOn);
+    });
+    return b;
+  }
   function setField(id, key, val) {
     if (!state.vals[id]) state.vals[id] = {};
     state.vals[id][key] = val;
@@ -1681,7 +1960,7 @@
 
   // ---------- Datensicherung: Export/Import als JSON ----------
   function exportData() {
-    var data = { app:'shk-rechner', version:1, theme:state.theme, vals:state.vals };
+    var data = { app:'shk-rechner', version:2, theme:state.theme, vals:state.vals, favs:state.favs };
     var url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type:'application/json' }));
     var a = el('a', { href:url, download:'shk-rechner-daten.json' });
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -1700,6 +1979,8 @@
             throw new Error('format');
           }
           state.vals = d.vals || {};
+          // Favoriten sind optional — ältere Sicherungen (Version 1) haben sie noch nicht
+          if (d.favs && typeof d.favs === 'object') state.favs = sanitizeFavs(d.favs);
           if (d.theme === 'light' || d.theme === 'dark') { state.theme = d.theme; themeChosen = true; }
           persist(); applyTheme(); render();
         } catch (e) {
@@ -1850,7 +2131,7 @@
   // ---------- Render: Header ----------
   function renderHeader() {
     var logo = el('button', { class:'logo', onClick:goHome, 'aria-label':'Zur Übersicht' }, [
-      el('span', { class:'logo-dot' }),
+      el('span', { class:'logo-dot' }, [ icon('logo') ]),
       el('span', { class:'logo-text' })
     ]);
     logo.lastChild.innerHTML = 'SHK&nbsp;Rechner';
@@ -1877,7 +2158,10 @@
   // ---------- Render: Home ----------
   function renderHome() {
     var frag = document.createDocumentFragment();
-    frag.appendChild(el('div', { class:'subtitle', text:'Werkzeuge für Sanitär, Heizung und Klima — komplett offline.' }));
+    frag.appendChild(el('div', { class:'hero anim-rise' }, [
+      el('h1', { class:'hero-title', text:'Rechnen statt schätzen.' }),
+      el('div', { class:'subtitle', text: TOOLS.length + ' Werkzeuge für Sanitär, Heizung, Klima und Wärmepumpe — komplett offline, direkt auf der Baustelle.' })
+    ]));
 
     var input = el('input', { value:state.query, placeholder:'Rechner suchen …', 'aria-label':'Rechner suchen' });
     input.addEventListener('input', function(e){ state.query = e.target.value; renderHomeGroups(); });
@@ -1919,6 +2203,52 @@
     return det;
   }
 
+  // Eine Werkzeug-Karte. showCat = Herkunftskategorie mit anzeigen (in der Favoriten-Gruppe).
+  function toolCard(t, showCat) {
+    var c = cats[t.cat];
+    var body = [
+      el('div', { class:'card-top' }, [
+        el('span', { class:'card-icon' }, [ icon(c.icon) ]),
+        el('div', { class:'card-name', text:t.name })
+      ]),
+      el('div', { class:'card-desc', text:t.desc })
+    ];
+    if (showCat) body.push(el('div', { class:'card-cat', text:c.label }));
+
+    var card = el('div', { class:'card', style:'--cat:'+c.col+';' }, [
+      el('button', { class:'card-hit', type:'button', 'aria-label':t.name+' öffnen', onClick:function(){ open(t.id); } }),
+      // Liste erst nach der Stern-Animation neu aufbauen, damit sie nicht abgeschnitten wird
+      favButton(t.id, 'fav-btn', false, function(){ setTimeout(renderHomeGroups, 340); }),
+      el('div', { class:'card-body' }, body)
+    ]);
+    return card;
+  }
+
+  // Baut eine Gruppe (Kopfzeile + Kartenraster). key steuert das Ein-/Ausklappen.
+  function toolGroup(key, label, col, iconName, tools, forceOpen, showCat, emptyText) {
+    var isCollapsed = !forceOpen && !!state.collapsed[key];
+    var head = el('button', {
+      class:'group-head' + (isCollapsed ? ' collapsed' : ''),
+      style:'--cat:'+col+';',
+      'aria-expanded': String(!isCollapsed),
+      title: isCollapsed ? 'Gruppe aufklappen' : 'Gruppe zuklappen',
+      onClick:function(){ toggleGroup(key); }
+    }, [
+      el('span', { class:'group-dot' }, [ icon(iconName) ]),
+      el('span', { class:'group-label', text:label }),
+      el('span', { class:'group-count', text:String(tools.length) }),
+      el('span', { class:'group-chev', text:'▾', 'aria-hidden':'true' })
+    ]);
+    var children = [head];
+    if (!isCollapsed) {
+      var grid = el('div', { class:'grid' });
+      if (!tools.length && emptyText) grid.appendChild(el('div', { class:'fav-empty', text:emptyText }));
+      tools.forEach(function(t){ grid.appendChild(toolCard(t, showCat)); });
+      children.push(grid);
+    }
+    return el('div', { class:'group' }, children);
+  }
+
   function renderHomeGroups() {
     var wrap = document.getElementById('home-groups');
     if (!wrap) return;
@@ -1928,36 +2258,26 @@
       return !q || t.name.toLowerCase().indexOf(q) >= 0 || t.desc.toLowerCase().indexOf(q) >= 0 || cats[t.cat].label.toLowerCase().indexOf(q) >= 0;
     };
     var any = false;
-    ['heizung','wp','solar','sanitaer','allg'].forEach(function(c){
+
+    // Favoriten immer zuerst — in der Reihenfolge der Werkzeugliste
+    var favs = TOOLS.filter(function(t){ return isFav(t.id) && match(t); });
+    if (favs.length) {
+      any = true;
+      wrap.appendChild(toolGroup('fav', 'Favoriten', 'var(--c-fav)', 'fav', favs, !!q, true, null));
+    } else if (!q) {
+      // Ohne Favoriten einmalig erklären, wie man welche anlegt
+      wrap.appendChild(toolGroup('fav', 'Favoriten', 'var(--c-fav)', 'fav', [], false, true,
+        'Noch keine Favoriten. Tippe auf den Stern einer Karte — die Werkzeuge erscheinen dann hier ganz oben.'));
+    }
+
+    CAT_ORDER.forEach(function(c){
       var tools = TOOLS.filter(function(t){ return t.cat===c && match(t); });
       if (!tools.length) return;
       any = true;
       // Bei aktiver Suche immer aufgeklappt zeigen
-      var isCollapsed = !q && !!state.collapsed[c];
-      var head = el('button', {
-        class:'group-head' + (isCollapsed ? ' collapsed' : ''),
-        'aria-expanded': String(!isCollapsed),
-        title: isCollapsed ? 'Kategorie aufklappen' : 'Kategorie zuklappen',
-        onClick:function(){ toggleGroup(c); }
-      }, [
-        el('span', { class:'group-dot', style:'background:'+cats[c].dot+';' }),
-        el('span', { class:'group-label', text:cats[c].label }),
-        el('span', { class:'group-count', text:String(tools.length) }),
-        el('span', { class:'group-chev', text:'▾', 'aria-hidden':'true' })
-      ]);
-      var children = [head];
-      if (!isCollapsed) {
-        var grid = el('div', { class:'grid' });
-        tools.forEach(function(t){
-          grid.appendChild(el('button', { class:'card', style:'--cat:'+cats[c].dot+';', onClick:function(){ open(t.id); } }, [
-            el('div', { class:'card-name', text:t.name }),
-            el('div', { class:'card-desc', text:t.desc })
-          ]));
-        });
-        children.push(grid);
-      }
-      wrap.appendChild(el('div', { class:'group' }, children));
+      wrap.appendChild(toolGroup(c, cats[c].label, cats[c].col, cats[c].icon, tools, !!q, false, null));
     });
+
     if (!any) wrap.appendChild(el('div', { class:'no-results', text:'Kein Rechner gefunden.' }));
   }
 
@@ -1970,11 +2290,17 @@
       el('span', { class:'chev', text:'‹' }), el('span', { text:'Alle Rechner' })
     ]));
 
-    frag.appendChild(el('div', { class:'tool-cat' }, [
-      el('span', { class:'tool-cat-dot', style:'background:'+cats[tool.cat].dot+';' }),
-      el('span', { class:'tool-cat-label', text:cats[tool.cat].label })
-    ]));
-    frag.appendChild(el('div', { class:'tool-name', text:tool.name }));
+    // Kategoriefarbe für diese Ansicht setzen (Titel, Ergebniskachel, Akzente)
+    var cat = cats[tool.cat];
+    var head = el('div', { class:'tool-head', style:'--cat:'+cat.col+';' }, [
+      el('div', { class:'tool-cat' }, [
+        el('span', { class:'tool-cat-dot' }, [ icon(cat.icon) ]),
+        el('span', { class:'tool-cat-label', text:cat.label })
+      ]),
+      favButton(id, 'fav-tool', true, null)
+    ]);
+    frag.appendChild(head);
+    frag.appendChild(el('div', { class:'tool-name', style:'--cat:'+cat.col+';', text:tool.name }));
     frag.appendChild(el('div', { class:'tool-desc', text:tool.desc }));
 
     if (EXPLAIN[id]) {
@@ -2232,17 +2558,27 @@
       app.appendChild(renderHome());
       renderHomeGroups();
     } else {
-      var toolWrap = el('div', { class:'tool-wrap' });
+      var tl = TOOLS.find(function(t){ return t.id === state.view; });
+      // Kategoriefarbe an die ganze Werkzeug-Ansicht durchreichen (Ergebniskachel, Akzente)
+      var toolWrap = el('div', { class:'tool-wrap anim-rise', style: tl ? '--cat:'+cats[tl.cat].col+';' : '' });
       toolWrap.appendChild(renderTool(state.view));
       app.appendChild(toolWrap);
       renderResult(state.view);
     }
+    updateHeaderShadow();
+  }
+
+  // Trennlinie unter dem Header erst zeigen, wenn gescrollt wurde
+  function updateHeaderShadow() {
+    var h = document.querySelector('.header');
+    if (h) h.classList.toggle('scrolled', window.scrollY > 6);
   }
 
   // ---------- Init ----------
   loadState();
   applyTheme();
   render();
+  window.addEventListener('scroll', updateHeaderShadow, { passive:true });
 
   // Systemeinstellung Hell/Dunkel live verfolgen, solange nichts explizit gewählt wurde
   if (window.matchMedia) {
