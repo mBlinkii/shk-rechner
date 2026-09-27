@@ -567,7 +567,10 @@
   .pdf-btn-ghost { background:var(--surface); color:var(--text); border:1px solid var(--border); }
   .sig-head { flex-wrap:wrap; align-items:center; }
   .sig-btns { display:flex; gap:6px; flex-wrap:wrap; }
-  .pdf-overlay { position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:18px; background:rgba(8,14,20,.62); backdrop-filter:blur(4px); animation:toastIn .2s ease-out both; }
+  .pdf-overlay { position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:18px; background:rgba(8,14,20,.62); backdrop-filter:blur(4px); animation:overlayIn .18s ease-out both; }
+  .pdf-overlay .pdf-dialog { animation:dialogIn .22s cubic-bezier(.2,.7,.3,1) both; }
+  @keyframes overlayIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes dialogIn { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:none; } }
   .pdf-dialog { width:min(920px,100%); height:min(94vh,1200px); display:flex; flex-direction:column; border-radius:18px; overflow:hidden; background:var(--surface); box-shadow:var(--shadow-lg); border:1px solid var(--border); }
   .pdf-bar { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px 10px 16px; border-bottom:1px solid var(--border); font-size:14px; }
   .pdf-bar strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -4468,7 +4471,8 @@
     var inlinePdf=navigator.pdfViewerEnabled!==false && !/iPhone|iPad|iPod|Android/.test(navigator.userAgent);
     if (!inlinePdf) { var w=window.open(url,'_blank'); if (!w) location.href=url; return; }
     var old=document.querySelector('.pdf-overlay'); if (old) old.remove();
-    function close(){ ov.remove(); URL.revokeObjectURL(url); document.removeEventListener('keydown',onKey); }
+    var prevOverflow=document.documentElement.style.overflow;
+    function close(){ ov.remove(); URL.revokeObjectURL(url); document.removeEventListener('keydown',onKey); document.documentElement.style.overflow=prevOverflow; }
     function onKey(e){ if (e.key==='Escape') close(); }
     var ov=el('div',{class:'pdf-overlay',role:'dialog','aria-modal':'true','aria-label':'Protokoll-Vorschau'},[
       el('div',{class:'pdf-dialog'},[
@@ -4484,6 +4488,7 @@
     ]);
     ov.addEventListener('click',function(e){ if (e.target===ov) close(); });
     document.addEventListener('keydown',onKey);
+    document.documentElement.style.overflow='hidden';   // Seite dahinter nicht mitscrollen
     document.body.appendChild(ov);
   }
   function downloadProtocolPdf() {
