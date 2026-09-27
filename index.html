@@ -503,6 +503,66 @@
   .rohr-section { border-radius:15px; box-shadow:none; background:var(--surface2); }
   .toast { animation:toastIn .26s cubic-bezier(.2,.8,.2,1) both; }
 
+  .recent-row { display:flex; align-items:center; gap:8px; margin-top:10px; overflow-x:auto; scrollbar-width:none; padding:2px 1px 4px; }
+  .recent-row::-webkit-scrollbar { display:none; }
+  .recent-label { flex:0 0 auto; font-size:11px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-right:2px; }
+  .recent-chip { flex:0 0 auto; min-height:34px; padding:6px 12px; border-radius:999px; border:1px solid color-mix(in oklab,var(--cat) 30%,var(--border)); background:var(--surface); color:var(--text); font-size:12.5px; font-weight:650; cursor:pointer; transition:transform .16s,border-color .16s; }
+  .recent-chip:hover { transform:translateY(-1px); border-color:color-mix(in oklab,var(--cat) 60%,var(--border)); }
+  .recent-chip:focus-visible { border-radius:999px; }
+  .result-main-value.is-text { font-size:clamp(24px,3.1vw,31px); line-height:1.14; letter-spacing:-.025em; }
+  .result-dock { display:none; }
+  @media (max-width:979px) {
+    .result-dock { position:fixed; z-index:30; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom,0px)); display:flex; align-items:center; gap:10px; padding:11px 14px; border:0; border-radius:16px; color:#fff; font-family:inherit; text-align:left; cursor:pointer; background:linear-gradient(135deg,var(--cat,var(--accent)),var(--accent) 60%,var(--accent2)); box-shadow:var(--shadow-lg); transition:transform .22s cubic-bezier(.2,.7,.3,1),opacity .22s; }
+    .result-dock.hidden { transform:translateY(130%); opacity:0; pointer-events:none; }
+    .result-dock-label { flex:1 1 auto; min-width:0; font-size:12.5px; font-weight:650; opacity:.92; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .result-dock-value { flex:0 1 auto; font-size:19px; font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums; max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .result-dock-arrow { flex:0 0 auto; width:26px; height:26px; display:grid; place-items:center; border-radius:8px; background:rgba(255,255,255,.2); font-size:14px; }
+    .wrap { padding-bottom:110px; }
+  }
+  @media (min-width:980px) { .result-panel { max-height:calc(100vh - 124px); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; } }
+  .field:focus-within { transform:none; }
+
+  /* Prüfprotokoll */
+  .proto-company { border:1px solid var(--border); border-radius:15px; background:var(--surface2); }
+  .proto-company summary { display:flex; justify-content:space-between; align-items:center; gap:10px; cursor:pointer; list-style:none; padding:13px 15px; font-size:14px; font-weight:700; border-radius:15px; }
+  .proto-company summary::-webkit-details-marker { display:none; }
+  .proto-company summary::before { content:'▸'; color:var(--accent); margin-right:4px; transition:transform .18s; }
+  .proto-company[open] summary::before { transform:rotate(90deg); }
+  .proto-company summary > span:first-child { flex:1 1 auto; }
+  .proto-company-state { font-size:12px; font-weight:600; color:var(--muted); max-width:50%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .proto-company-body { display:flex; flex-direction:column; gap:4px; padding:4px 15px 15px; }
+  .logo-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+  .logo-preview { max-width:180px; max-height:70px; border-radius:8px; background:#fff; padding:4px; border:1px solid var(--border); }
+  .logo-placeholder { width:150px; height:58px; display:grid; place-items:center; border:1.5px dashed var(--fieldBorder); border-radius:10px; color:var(--muted); font-size:12.5px; }
+  .logo-btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .mini-btn, .sig-clear { min-height:36px; padding:7px 13px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font-size:13px; font-weight:650; cursor:pointer; }
+  .mini-btn:hover, .sig-clear:hover { border-color:var(--accentBorder); color:var(--accent); }
+  .sig-clear { min-height:30px; padding:4px 10px; font-size:12px; }
+  .proto-hint, .field-hint { font-size:12px; color:var(--muted); line-height:1.5; }
+  .proto-section { display:flex; flex-direction:column; gap:6px; padding:14px 16px 12px; border:1px solid var(--border); border-radius:16px; background:var(--surface2); }
+  .proto-section-title { font-size:11.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:2px; }
+  .proto-section .field { margin:0 -8px; padding:8px; }
+  .field textarea { width:100%; min-height:78px; padding:11px 14px; font:inherit; font-size:16px; border:1px solid var(--fieldBorder); border-radius:12px; background:var(--field); color:var(--text); outline:none; resize:vertical; }
+  .field textarea:focus { border-color:var(--accent); box-shadow:var(--ring); }
+  .field-yn { flex-direction:row !important; align-items:center; justify-content:space-between; gap:12px; }
+  .field-yn .field-label { font-weight:550; font-size:14px; line-height:1.4; }
+  .yn { display:flex; flex:0 0 auto; gap:6px; }
+  .yn-btn { min-width:58px; min-height:40px; padding:6px 12px; border:1px solid var(--fieldBorder); border-radius:11px; background:var(--field); color:var(--muted); font-size:14px; font-weight:700; cursor:pointer; transition:background .15s,color .15s,border-color .15s; }
+  .yn-btn:hover { border-color:var(--accentBorder); color:var(--text); }
+  .yn-btn.yn-ja.on { background:var(--success); border-color:var(--success); color:#fff; }
+  .yn-btn.yn-nein.on { background:#c63d4f; border-color:#c63d4f; color:#fff; }
+  .field.invalid .yn-btn { border-color:#c63d4f; }
+  .sig-canvas { width:100%; aspect-ratio:3 / 1; background:#fff; border:1px solid var(--fieldBorder); border-radius:12px; touch-action:none; cursor:crosshair; }
+  .proto-actions { margin-top:14px; display:flex; flex-direction:column; gap:7px; }
+  .pdf-btn { min-height:50px; border:0; border-radius:14px; background:var(--text); color:var(--bg); font-size:15.5px; font-weight:750; cursor:pointer; box-shadow:var(--shadow-sm); transition:transform .16s,box-shadow .16s; }
+  .pdf-btn:hover { transform:translateY(-1px); box-shadow:var(--shadow); }
+  .pdf-btn:focus-visible { outline:none; box-shadow:var(--ring); }
+  .proto-actions-meta { font-size:12px; color:var(--muted); text-align:center; }
+  @media (max-width:520px) {
+    .field-yn { flex-direction:column !important; align-items:stretch; }
+    .yn-btn { flex:1 1 0; }
+  }
+
   @keyframes heroFloat { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(-20px,18px,0) scale(1.08); } }
   @keyframes statusPulse { 0%,45% { box-shadow:0 0 0 0 color-mix(in oklab,var(--success) 36%,transparent); } 75%,100% { box-shadow:0 0 0 8px transparent; } }
   @keyframes gridReveal { from { opacity:.35; transform:translateY(5px); } to { opacity:1; transform:none; } }
@@ -610,6 +670,7 @@
     { id:'aufheiz',     cat:'sanitaer', name:'Warmwasser & Speicher',     desc:'Aufheizzeit, Mischwassermenge oder Speicher-Richtwert.' },
     { id:'spitzenvs',   cat:'sanitaer', name:'Spitzendurchfluss',         desc:'Spitzenvolumenstrom mit Gleichzeitigkeit (DIN 1988-300).' },
     { id:'druckpruef',  cat:'sanitaer', name:'Druck- & Dichtheitsprüfung',desc:'Prüfabläufe für Trinkwasser- und Gasleitungen.' },
+    { id:'protokoll',   cat:'sanitaer', name:'Prüfprotokoll (PDF)',       desc:'Abdrück- und Gebrauchsfähigkeitsprotokolle mit Firmenlogo ausfüllen, unterschreiben und als PDF speichern.', keys:'abdrückprotokoll abdrücken dichtheitsprotokoll belastungsprüfung gebrauchsfähigkeit trgi unterschrift logo formular' },
     { id:'lueftung',    cat:'allg',     name:'Lüftungs-Volumenstrom',     desc:'Erforderlicher Luftvolumenstrom je Raumtyp.' },
     { id:'kaeltemittel',cat:'allg',     name:'Kältemittel / CO₂-Äquiv.',  desc:'CO₂-Äquivalent und Dichtheitsprüfpflicht (F-Gase).' },
     { id:'pumpe',       cat:'heizung',  name:'Pumpe / Förderhöhe',        desc:'Volumenstrom und Förderhöhe für den Heizkreis abschätzen.' },
@@ -641,7 +702,7 @@
 
   // ---------- Kurzerklärung je Werkzeug (eingeklappt) ----------
   var EXPLAIN = {
-    mag:        'Gemeinsamer MAG-Rechner für Heizungs-, Solar- und Trinkwasseranlagen. Die Anwendungsart bestimmt Formel, Eingaben und Standard-Mindestdruck: Heizung 0,8 bar, Solar 4,0 bar, Trinkwasser 4,0 bar. Der Mindestdruck bleibt immer bearbeitbar; Hersteller- und Anlagenvorgaben haben Vorrang.',
+    mag:        'Gemeinsamer MAG-Rechner für Heizungs-, Solar- und Trinkwasseranlagen. Die Anwendungsart bestimmt Formel, Eingaben und Standard-Mindestdruck: Heizung 0,8 bar, Solar 4,0 bar. Beim Trinkwasser-MAG bestimmt der maximale Eingangsdruck (Druckminderer) den Vordruck. Der Mindestdruck bleibt immer bearbeitbar; Hersteller- und Anlagenvorgaben haben Vorrang.',
     leistung:   'Gemeinsamer Wasser-Hydraulikrechner. Über „Gesuchte Größe“ werden Volumenstrom, übertragene Leistung oder der Durchfluss eines Speicher-Wärmetauschers gewählt.',
     leistungaus:'Umkehrung: ermittelt aus gemessenem Volumenstrom und der Spreizung Δt die übertragene Leistung in kW.',
     heizkoerper:'Gemeinsamer Heizkörperrechner: bekannte Normleistung auf andere Temperaturen umrechnen oder eine grobe Leistung aus Bauart und Abmessungen abschätzen.',
@@ -662,6 +723,7 @@
     mischwasser:'Berechnet, wie viel Mischwasser (z. B. 38 °C zum Duschen) ein Warmwasserspeicher liefert — die klassische Kundenfrage „Wie lange kann ich duschen?".',
     ausstoss:   'Berechnet die Wartezeit, bis warmes Wasser an der Zapfstelle ankommt: Leitungsinhalt aus Innendurchmesser und Länge, geteilt durch den Zapfdurchfluss.',
     spitzenvs:  'Vereinfachte Ermittlung des Spitzenvolumenstroms nach DIN 1988-300: Die Summe aller Berechnungsdurchflüsse ΣVR wird über die Gleichzeitigkeitsformel des Gebäudetyps in den Spitzendurchfluss umgerechnet. Die Berechnungsdurchflüsse je Entnahmestelle stehen unten als Tabelle.',
+    protokoll:  'Erstellt Prüfprotokolle im eigenen Firmenlayout: Gas-Belastungs- und Dichtheitsprüfung (Nieder- und Mitteldruck), Gebrauchsfähigkeitsprüfung sowie Trinkwasser-Druckprüfung mit Wasser oder Luft/Inertgas. Vorgaben für Prüfdruck und Prüfzeiten werden vorbelegt und geprüft, das Ergebnis wird automatisch eingestuft. Firmendaten und Logo bleiben auf dem Gerät gespeichert; Unterschriften werden nur in das PDF übernommen.',
     druckpruef: 'Gemeinsamer Prüfhelfer für Trinkwasser- und Gasleitungen. Für Gasinstallationen werden Belastungsprüfung, Dichtheitsprüfung, kombinierte Mittel­druckprüfung und Gebrauchsfähigkeitsprüfung nach DVGW-TRGI 2018 getrennt. Bei der Gebrauchsfähigkeitsprüfung lassen sich Betriebsdruck oder 50 hPa (50 mbar) als Mess-/Prüfdruck dokumentieren; die bewertete Leckmenge muss auf den Betriebsdruck bezogen sein. Das Ergebnis nennt Prüfdruck, Anpassungs-/Stabilisierungszeit, Prüfdauer und die erforderliche Maßnahme.',
     lueftung:   'Trennt die Auswahl nach DIN 18017-3 für fensterlose Bäder/WCs klar vom freien Luftwechsel-Überschlag anderer Räume.',
     kaeltemittel:'Rechnet die Kältemittel-Füllmenge in das CO₂-Äquivalent um und zeigt, ob und wie oft eine Dichtheitsprüfung nach F-Gase-Verordnung nötig ist.',
@@ -706,6 +768,7 @@
     ausstoss:    { di:13, laenge:10, durchfluss:5 },
     spitzenvs:   { typ:'wohn', summe:1.2 },
     druckpruef:  { anlage:'trinkwasser', verfahren:'wasser', werkstoff:'metall', betriebsdruck:10, vol:100, gasdruckbereich:'niederdruck', gaspruefung:'dichtheit', gasvol:80, druckabfall:'nein', leckrate:0.5, maengel:'keine', gasbetriebsdruck:23, gebrauchsdruck:'betrieb' },
+    protokoll:   { typ:'gas_nd' },
     lueftung:    { modus:'din18017', raum18017:'bad', steuerung:'rpn', raum:'wohnen', flaeche:20, hoehe:2.5 },
     kaeltemittel:{ mittel:'r32', menge:1.2 },
     pumpe:       { leistung:12, sys:'heizkoerper', leitung:'kupfer', laenge:30 },
@@ -962,7 +1025,7 @@
   ];
 
   // ---------- Zustand ----------
-  var state = { theme:'light', view:'home', query:'', vals:{}, collapsed:{}, favs:{} };
+  var state = { theme:'light', view:'home', query:'', vals:{}, collapsed:{}, favs:{}, recent:[], company:{} };
   var themeChosen = false;   // true, sobald der Nutzer Hell/Dunkel explizit gewählt hat
 
   function isPlainObject(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
@@ -1054,6 +1117,10 @@
       if (co) { var pc = JSON.parse(co); if (pc && typeof pc === 'object') state.collapsed = pc; }
       var fv = localStorage.getItem('shk.favs');
       if (fv) { var pf = JSON.parse(fv); if (pf && typeof pf === 'object') state.favs = sanitizeFavs(pf); }
+      var rc = localStorage.getItem('shk.recent');
+      if (rc) { var pr = JSON.parse(rc); if (Array.isArray(pr)) state.recent = pr.filter(function(id){ return TOOLS.some(function(t){ return t.id===id; }); }).slice(0,5); }
+      var cp = localStorage.getItem('shk.company');
+      if (cp) { var pc2 = JSON.parse(cp); if (isPlainObject(pc2)) state.company = sanitizeCompany(pc2); }
     } catch (e) {}
   }
   // Nur Favoriten übernehmen, zu denen es das Werkzeug wirklich (noch) gibt
@@ -1072,6 +1139,7 @@
       localStorage.setItem('shk.vals', JSON.stringify(state.vals));
       localStorage.setItem('shk.collapsed', JSON.stringify(state.collapsed));
       localStorage.setItem('shk.favs', JSON.stringify(state.favs));
+      localStorage.setItem('shk.recent', JSON.stringify(state.recent));
     } catch (e) {}
   }
 
@@ -1299,6 +1367,7 @@
     return r;
   }
   function validateFor(id, ev) {
+    if (id === 'protokoll') return protoValidate(ev);
     var errors=[];
     function add(key,msg){ errors.push({key:key,message:msg}); }
     if (id === 'rohrvol' && (!ev.modus || ev.modus === 'volumen')) {
@@ -1324,7 +1393,7 @@
       if (rule.max != null && n > rule.max) add(f.key,f.label+' darf höchstens '+String(rule.max).replace('.',',')+' betragen.');
     });
     if (id==='mag') {
-      if (N(ev.psv)<=N(ev.pmin)) add('psv','Der Ansprechdruck muss über dem Mindestdruck liegen.');
+      if (ev.art!=='trinkwasser' && N(ev.psv)<=N(ev.pmin)) add('psv','Der Ansprechdruck muss über dem Mindestdruck liegen.');
       if (ev.art==='trinkwasser' && N(ev.tw)<=N(ev.tk)) add('tw','Warmwassertemperatur muss über der Kaltwassertemperatur liegen.');
       if (ev.art==='trinkwasser' && N(ev.psv)<=N(ev.peingang)) add('psv','Der Ansprechdruck muss über dem maximalen Eingangsdruck liegen.');
     }
@@ -1379,6 +1448,7 @@
     sv:{kind:'Produktauswahl nach geprüfter Leistung',basis:'DIN EN 12828 · hinterlegte AFRISO-H-Kennwerte für 2,5/3 bar'},
     fuellwasser:{kind:'Vereinfachte Prüfung',basis:'VDI 2035 Blatt 1:2021 · Herstelleranforderungen zusätzlich beachten'},
     spitzenvs:{kind:'Vereinfachte Fachberechnung',basis:'DIN 1988-300; Teilstrecken normgerecht einzeln berechnen'},
+    protokoll:{kind:'Dokumentationshilfe',basis:'DVGW-TRGI 2018 (G 600) · DIN EN 806-4 · ZVSHK-Merkblatt Dichtheitsprüfung'},
     druckpruef:{kind:'Verfahrens- und Bewertungshilfe',basis:'Trinkwasser: DIN EN 806-4 / ZVSHK · Gas: DVGW-TRGI 2018 (G 600), Abschnitte 5.6.4 ff.'},
     kaeltemittel:{kind:'Rechtsbezogene Berechnung',basis:'EU 2024/573 · EU 2024/2215'},
     lueftung:{kind:'Verfahrensauswahl / Überschlag',basis:'DIN 18017-3:2022-05 oder freie Luftwechsel-Richtwerte'},
@@ -1451,7 +1521,6 @@
           {key:'vol',label:'Speicherinhalt Wassererwärmer',unit:'l'},
           {key:'tk',label:'Kaltwassertemperatur',unit:'°C'},
           {key:'tw',label:'Warmwassertemperatur',unit:'°C'},
-          {key:'pmin',label:'Mindest-Systemdruck',unit:'bar'},
           {key:'peingang',label:'max. Eingangsdruck / Druckminderer',unit:'bar'},
           {key:'psv',type:'select',label:'Ansprechdruck Sicherheitsventil',options:[[6,'6 bar'],[8,'8 bar'],[10,'10 bar']]}
         ];
@@ -1790,7 +1859,7 @@
           var p0hS=Math.max(hstatS/10+0.5,1.0);
           var paS=Math.max(p0hS+0.3,pminS), p0S=paS-0.3;
           var pminSAktiv=pminS>p0hS+0.3+1e-9;
-          var peS=psvS<=5?psvS*0.9:psvS-0.5;
+          var peS=psvS<=5?psvS-0.5:psvS*0.9;
           var validS=peS>p0S, engS=validS&&(peS-p0S)<1.5;
           var VnS=validS?(VeS+VvS+VdS)*(peS+1)/(peS-p0S):NaN;
           var sizesS=[12,18,25,35,50,80,100,140,200,250,300,400,500];
@@ -1828,7 +1897,6 @@
               {label:'Ausdehnungswasser Ve',value:fmt(VeW,2)+' l'},
               {label:'Ausdehnung β',value:fmt(betaW*100,2)+' %'},
               {label:'Gasvordruck p₀',value:fmt(p0W,2)+' bar'},
-              {label:'Mindest-Systemdruck (Vorgabe)',value:fmt(pminW,2)+' bar'},
               {label:'max. Eingangsdruck / Druckminderer',value:fmt(pInW,2)+' bar'},
               {label:'Enddruck pₑ',value:fmt(peW,2)+' bar'}
             ],
@@ -1844,7 +1912,7 @@
         var pa = Math.max(p0h + 0.3, pmin);         // Anlagenfülldruck (kalt), mind. Mindest-Systemdruck
         var p0 = pa - 0.3;                          // MAG-Vordruck
         var pminAktiv = pmin > p0h + 0.3 + 1e-9;    // Mindestdruck ist maßgebend (nicht die statische Höhe)
-        var pe = psv <= 5 ? psv*0.9 : psv-0.5;
+        var pe = psv <= 5 ? psv-0.5 : psv*0.9;   // Schließdruckdifferenz nach DIN EN 12828
         var valid = pe > p0;                        // Enddruck muss über dem Vordruck liegen
         var eng = valid && (pe - p0) < 1.0;          // sehr kleine Druckdifferenz → großes Gefäß
         var Vn = valid ? (Ve+Vv)*(pe+1)/(pe-p0) : NaN;
@@ -1863,7 +1931,7 @@
           note: (!valid ? 'Eingaben prüfen: Enddruck pₑ muss über dem Vordruck p₀ liegen — Sicherheitsventil mit höherem Ansprechdruck wählen, Mindest-Systemdruck senken oder statische Höhe prüfen. ' : '')
             + (eng ? 'Druckdifferenz pₑ − p₀ liegt unter 1,0 bar — das Gefäß wird dadurch sehr groß und die Auslegung ist knapp. Höheren Ansprechdruck oder eine Druckhaltestation prüfen. ' : '')
             + (isFinite(Vn) && !size ? 'Über 1000 l Nennvolumen: mehrere Gefäße parallel schalten oder eine Druckhaltestation (Kompressor- bzw. Pumpendruckhaltung) vorsehen. ' : '')
-            + 'Orientierungswerte nach DIN EN 12828. Vordruck p₀ = Fülldruck − 0,3 bar; Fülldruck p_a = statische Höhe / 10 + 0,5 bar, mindestens jedoch der eingetragene Mindest-Systemdruck (Standard 0,8 bar, kalt vor dem Aufheizen).' };
+            + 'Orientierungswerte nach DIN EN 12828. Vordruck p₀ = Fülldruck − 0,3 bar; Fülldruck p_a = statische Höhe / 10 + 0,5 bar, mindestens jedoch der eingetragene Mindest-Systemdruck (Standard 0,8 bar, kalt vor dem Aufheizen). Enddruck pₑ = Ansprechdruck − 0,5 bar (bis 5 bar) bzw. 0,9 × Ansprechdruck (über 5 bar).' };
       }
       case 'leistung': {
         if (ev.modus==='leistung') return computeFor('leistungaus',ev);
@@ -1983,11 +2051,11 @@
         var pa = Math.max(pstat + 0.5, 0.8);        // Anlagenfülldruck (kalt), mind. 0,8 bar Systemdruck
         var p0 = pa - 0.3;                          // MAG-Vordruck
         var peMin = pa + 0.5;                       // erforderlicher Enddruck mit Reserve
-        var psvMin = peMin / 0.9;                   // Schließdruckdifferenz 10 %
+        var psvMin = peMin + 0.5 <= 5 ? peMin + 0.5 : peMin / 0.9;   // Schließdruckdifferenz 0,5 bar bzw. 10 % über 5 bar
         var stdP = [2.5,3.0];
         var psvCalc = stdP.find(function(p){ return p >= psvMin; }) || Math.ceil(psvMin*10)/10;
         var psv = auto ? psvCalc : P(ev.psv);
-        var pe = psv<=5 ? psv*0.9 : psv-0.5;        // max. Betriebsdruck (Schließdruck)
+        var pe = psv<=5 ? psv-0.5 : psv*0.9;        // max. Betriebsdruck (Schließdruck)
         // Geprüfte maximale Heizleistungen der hinterlegten AFRISO-H-Baureihe.
         // Für 2,5 und 3 bar gelten dieselben Grenzen; keine Druckinterpolation.
         var approved = Math.abs(psv-2.5)<0.001 || Math.abs(psv-3)<0.001;
@@ -2013,7 +2081,7 @@
         }
         var pLow = !auto && hstat>0 && psv < pstat + 0.8;
         var note = 'Hinterlegte Produktreihe: AFRISO Membran-Sicherheitsventil H, geprüfte Grenzen DN 15/20/25/32/40/50 = 50/100/200/350/600/900 kW bei 2,5 oder 3 bar. Keine Druckinterpolation. Bei einem anderen Fabrikat ausschließlich dessen Zulassung und Datenblatt verwenden. Ventil nicht absperrbar montieren; der Ansprechdruck darf PS des Wärmeerzeugers nicht überschreiten.';
-        if (auto) note = 'Ansprechdruck aus statischer Höhe: Fülldruck p_a = stat. Druck + 0,5 bar (mind. 0,8 bar Systemdruck), p₀ = p_a − 0,3 bar, Mindestdruck = (p_a + 0,5) / 0,9, aufgerundet auf die nächste hinterlegte Größe. ' + note;
+        if (auto) note = 'Ansprechdruck aus statischer Höhe: Fülldruck p_a = stat. Druck + 0,5 bar (mind. 0,8 bar Systemdruck), p₀ = p_a − 0,3 bar, Mindest-Ansprechdruck = p_a + 0,5 bar Reserve + 0,5 bar Schließdruckdifferenz, aufgerundet auf die nächste hinterlegte Größe. ' + note;
         if (!approved) note = 'Für den erforderlichen Ansprechdruck von '+fmt(psv,1)+' bar liegt keine geprüfte Produktkennlinie vor. Keine Nennweite automatisch auswählen; Ventil-/Kesselzulassung oder Druckhaltung fachplanerisch prüfen. ' + note;
         if (Q > maxKw) note = 'Über '+fmt(maxKw,0)+' kW: Sonderberechnung beziehungsweise ein zugelassenes Mehrventilkonzept erforderlich. ' + note;
         if (pLow) note = 'Hinweis: Ansprechdruck '+fmt(psv,1)+' bar ist für '+fmt(hstat,0)+' m statische Höhe (statisch '+fmt(pstat,2)+' bar) zu knapp — höheren Ansprechdruck wählen oder „automatisch berechnen". ' + note;
@@ -2281,8 +2349,8 @@
           {label:'Nettobetrag', value:fmt(n2,2)+' €'},
           {label:'MwSt ('+fmt(mw,0)+' %)', value:fmt(bet,2)+' €'}
         ];
-        if (auf>0) subs.unshift({label:'Aufschlag ('+fmt(auf,0)+' %)', value:'+ '+fmt(n2-netto,2)+' €'});
-        return { main:{label:'Bruttobetrag', value:fmt(br,2), unit:'€'}, subs:subs, note: auf>0?'Aufschlag wird auf den Nettobetrag vor MwSt gerechnet.':'' };
+        if (auf!==0) subs.unshift({label:(auf>0?'Aufschlag':'Nachlass')+' ('+fmt(Math.abs(auf),auf%1?1:0)+' %)', value:(auf>0?'+ ':'− ')+fmt(Math.abs(n2-netto),2)+' €'});
+        return { main:{label:'Bruttobetrag', value:fmt(br,2), unit:'€'}, subs:subs, note: auf!==0?'Aufschlag bzw. Nachlass wird auf den Nettobetrag vor MwSt gerechnet.':'' };
       }
       case 'cop': {
         if (ev.modus==='jaz') return computeFor('jaz',ev);
@@ -2659,6 +2727,7 @@
         subsP.push({label:'Grundlage', value:'ZVSHK / DIN EN 806-4'});
         return { main:mainP, subs:subsP, note:noteP };
       }
+      case 'protokoll': return protoCompute(ev);
       case 'lueftung': {
         if (ev.modus==='din18017') {
           var DIN18017={
@@ -2796,6 +2865,12 @@
     return e;
   }
 
+  // Zahleneingabe: Textfeld mit Dezimaltastatur (Komma und Punkt werden akzeptiert)
+  function numAttrs(a) {
+    a.type='text'; a.inputmode='decimal'; a.autocomplete='off'; a.spellcheck='false'; a.enterkeyhint='next';
+    return a;
+  }
+
   // ---------- Aktionen ----------
   function setTheme(t) { themeChosen = true; state.theme = t; persist(); applyTheme(); render(); }
   function applyTheme() {
@@ -2825,6 +2900,7 @@
         appliedShareHash=r.raw;
       } catch(e) {}
     }
+    if (r.id!=='home') { state.recent=[r.id].concat(state.recent.filter(function(x){ return x!==r.id; })).slice(0,5); persist(); }
     state.view=r.id; state.query=''; render(); window.scrollTo(0,0);
     if (replace && !location.hash) history.replaceState({view:'home'},'',location.pathname+location.search+'#/home');
   }
@@ -2949,6 +3025,18 @@
         if (!out.rohrvol.sections.length) delete out.rohrvol;
         return;
       }
+      if (id==='protokoll') {
+        var pk={}, cnt=0;
+        Object.keys(src).forEach(function(k){
+          if (cnt>=200 || !/^[a-z][a-z0-9_]{0,30}$/.test(k)) return;
+          var val=src[k];
+          if (typeof val==='string') { pk[k]=val.slice(0,2000); cnt++; }
+          else if (typeof val==='number' && isFinite(val)) { pk[k]=val; cnt++; }
+        });
+        if (!PROTO_TYPES.some(function(t){ return t.id===pk.typ; })) pk.typ='gas_nd';
+        out.protokoll=pk;
+        return;
+      }
       if (id==='heizlast') {
         var rooms=Array.isArray(src.rooms)?src.rooms.slice(0,100):[];
         out.heizlast={
@@ -2981,6 +3069,7 @@
       normalizeCombinedState(state.vals,id);
       state.vals[id].profiles[state.vals[id].modus]={};
     } else delete state.vals[id];
+    if (id==='protokoll') protoSigs={pruefer:null,kunde:null};
     persist(); render(); showToast('Standardwerte wiederhergestellt.');
   }
   function resetAllInputs() {
@@ -3006,7 +3095,7 @@
 
   // ---------- Datensicherung: Export/Import als JSON ----------
   function exportData() {
-    var data = { app:'shk-rechner', version:4, exportedAt:new Date().toISOString(), theme:state.theme, vals:state.vals, favs:state.favs };
+    var data = { app:'shk-rechner', version:4, exportedAt:new Date().toISOString(), theme:state.theme, vals:state.vals, favs:state.favs, company:state.company||{} };
     var url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type:'application/json' }));
     var a = el('a', { href:url, download:'shk-rechner-daten.json' });
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -3030,6 +3119,7 @@
           // Favoriten sind optional — ältere Sicherungen (Version 1) haben sie noch nicht
           if (d.favs && typeof d.favs === 'object') state.favs = sanitizeFavs(d.favs);
           if (d.theme === 'light' || d.theme === 'dark') { state.theme = d.theme; themeChosen = true; }
+          if (isPlainObject(d.company)) { state.company = sanitizeCompany(d.company); persistCompany(); }
           applyTheme(); render(); persist(); showToast('Sicherung erfolgreich geladen.');
         } catch (e) {
           state.vals=previous.vals; state.favs=previous.favs; state.theme=previous.theme; themeChosen=previous.themeChosen;
@@ -3125,18 +3215,26 @@
     pages=pages.map(function(stream,i){
       return stream+'0.45 0.45 0.45 rg\nBT /F1 8 Tf 1 0 0 1 '+M.toFixed(2)+' 26 Tm (SHK Rechner) Tj ET\nBT /F1 8 Tf 1 0 0 1 '+(W-M-72).toFixed(2)+' 26 Tm (Seite '+(i+1)+' / '+pages.length+') Tj ET\n';
     });
-    var objs=[];
-    var f1=3+pages.length*2, f2=f1+1;
+    return pdfAssemble(pages, []);
+  }
+  // Setzt Seiten-Streams (und optionale JPEG-Bilder) zu einer PDF-1.4-Datei zusammen.
+  function pdfAssemble(pages, images) {
+    var W=595.28,H=841.89, objs=[];
+    var f1=3+pages.length*2, f2=f1+1, img0=f2+1;
     var kids=[]; pages.forEach(function(_,i){kids.push((3+i*2)+' 0 R');});
+    var xobj=images.length?' /XObject << '+images.map(function(im,i){ return '/'+im.name+' '+(img0+i)+' 0 R'; }).join(' ')+' >>':'';
     objs.push('<< /Type /Catalog /Pages 2 0 R >>');
     objs.push('<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+pages.length+' >>');
     pages.forEach(function(stream,i){
       var contentObj=4+i*2;
-      objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W.toFixed(2)+' '+H.toFixed(2)+'] /Resources << /Font << /F1 '+f1+' 0 R /F2 '+f2+' 0 R >> >> /Contents '+contentObj+' 0 R >>');
+      objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W.toFixed(2)+' '+H.toFixed(2)+'] /Resources << /Font << /F1 '+f1+' 0 R /F2 '+f2+' 0 R >>'+xobj+' >> /Contents '+contentObj+' 0 R >>');
       objs.push('<< /Length '+stream.length+' >>\nstream\n'+stream+'\nendstream');
     });
     objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
     objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    images.forEach(function(im){
+      objs.push('<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bin.length+' >>\nstream\n'+im.bin+'\nendstream');
+    });
     var pdf = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n', offs = [];
     objs.forEach(function(o, i){ offs.push(pdf.length); pdf += (i+1)+' 0 obj\n'+o+'\nendobj\n'; });
     var xref = pdf.length;
@@ -3210,6 +3308,7 @@
   }
   function downloadCurrentPdf() {
     if (state.view === 'home') return;
+    if (state.view === 'protokoll') { downloadProtocolPdf(); return; }
     var check=validateFor(state.view,effVals(state.view));
     if (!check.ok) { alert('PDF-Export nicht möglich: Bitte zuerst die markierten Eingaben korrigieren.'); return; }
     var tool = TOOLS.find(function(t){ return t.id === state.view; });
@@ -3232,7 +3331,7 @@
     var rightItems = [];
     if (state.view !== 'home') {
       rightItems.push(el('button', { class:'icon-btn', text:'PDF', title:'Ergebnis als PDF herunterladen', onClick:downloadCurrentPdf }));
-      rightItems.push(el('button', { class:'icon-btn', text:'Link', title:'Berechnung mit Eingaben teilen', onClick:shareCurrentTool }));
+      if (state.view !== 'protokoll') rightItems.push(el('button', { class:'icon-btn', text:'Link', title:'Berechnung mit Eingaben teilen', onClick:shareCurrentTool }));
       rightItems.push(el('button', { class:'icon-btn', text:'Reset', title:'Eingaben dieses Rechners zurücksetzen', onClick:resetCurrentTool }));
     } else {
       rightItems.push(el('button', { class:'icon-btn', text:'Sichern', title:'Alle Eingaben als JSON-Datei exportieren', onClick:exportData }));
@@ -3273,10 +3372,22 @@
       clear.classList.toggle('hidden', !state.query);
       renderHomeGroups();
     });
+    input.addEventListener('keydown', function(e){
+      if (e.key==='Enter') { var first=document.querySelector('#home-groups .card-hit'); if (first && state.query.trim()) { e.preventDefault(); first.click(); } }
+      if (e.key==='Escape' && state.query) { e.preventDefault(); clear.click(); }
+    });
     clear.addEventListener('click', function(){ state.query=''; input.value=''; clear.classList.add('hidden'); renderHomeGroups(); input.focus(); });
     var search = el('div', { class:'search' }, [ el('span', { class:'search-ring', 'aria-hidden':'true' }), input, clear ]);
     frag.appendChild(search);
     frag.appendChild(renderQuickNav());
+    var recentTools=state.recent.map(function(id){ return TOOLS.find(function(t){ return t.id===id; }); }).filter(Boolean);
+    if (recentTools.length) {
+      var rec=el('div',{class:'recent-row','aria-label':'Zuletzt geöffnet'},[el('span',{class:'recent-label',text:'Zuletzt'})]);
+      recentTools.forEach(function(t){
+        rec.appendChild(el('button',{class:'recent-chip',type:'button',style:'--cat:'+cats[t.cat].col+';',text:t.name,onClick:function(){ open(t.id); }}));
+      });
+      frag.appendChild(rec);
+    }
 
     frag.appendChild(el('div', { id:'home-groups' }));
 
@@ -3407,7 +3518,9 @@
     wrap.innerHTML = '';
     var q = state.query.trim().toLowerCase();
     var match = function(t) {
-      return !q || t.name.toLowerCase().indexOf(q) >= 0 || t.desc.toLowerCase().indexOf(q) >= 0 || cats[t.cat].label.toLowerCase().indexOf(q) >= 0;
+      if (!q) return true;
+      var hay=(t.name+' '+t.desc+' '+cats[t.cat].label+' '+(EXPLAIN[t.id]||'')+' '+(t.keys||'')).toLowerCase();
+      return q.split(/\s+/).every(function(w){ return hay.indexOf(w)>=0; });
     };
     var any = false;
 
@@ -3482,6 +3595,12 @@
       resultWrap
     ]);
     frag.appendChild(el('div',{class:'tool-workspace'},[inputPanel,resultPanel]));
+    var dock=el('button',{class:'result-dock hidden',type:'button',id:'result-dock','aria-label':'Zum Ergebnis springen',onClick:function(){ resultPanel.scrollIntoView({behavior:'smooth',block:'start'}); }},[
+      el('span',{class:'result-dock-label',id:'result-dock-label'}),
+      el('span',{class:'result-dock-value',id:'result-dock-value'}),
+      el('span',{class:'result-dock-arrow',text:'↓','aria-hidden':'true'})
+    ]);
+    frag.appendChild(dock);
     buildFields(id, fieldsWrap);
 
     return frag;
@@ -3543,13 +3662,13 @@
         sc[idx].dim = v; sc[idx].di = it[1];
         persist(); rebuildRohr();          // di-Feld mit neuem Wert neu aufbauen
       });
-      var di = el('input', { type:'number', step:'any', min:'0.000001', inputmode:'decimal', value: s.di != null ? String(s.di) : '', 'data-field-key':'di-'+idx, 'aria-label':'Innendurchmesser Abschnitt '+(idx+1)+' in mm' });
+      var di = el('input', numAttrs({ value: s.di != null ? String(s.di).replace('.',',') : '', 'data-field-key':'di-'+idx, 'aria-label':'Innendurchmesser Abschnitt '+(idx+1)+' in mm' }));
       di.addEventListener('input', function(e){
         // Handeingabe schaltet auf „Manuell" um
         var sc = rohrSections(); sc[idx].dim = 'manual'; sel.value = 'manual';
         setRohrSection(idx, 'di', e.target.value);
       });
-      var len = el('input', { type:'number', step:'any', min:'0.000001', inputmode:'decimal', value: s.len != null ? String(s.len) : '', 'data-field-key':'len-'+idx, 'aria-label':'Länge Abschnitt '+(idx+1)+' in m' });
+      var len = el('input', numAttrs({ value: s.len != null ? String(s.len).replace('.',',') : '', 'data-field-key':'len-'+idx, 'aria-label':'Länge Abschnitt '+(idx+1)+' in m' }));
       len.addEventListener('input', function(e){ setRohrSection(idx, 'len', e.target.value); });
       var dimField = el('div', { class:'field', style:'margin-bottom:12px;' }, [
         el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Rohrtyp / Dimension' }) ]), sel
@@ -3588,7 +3707,7 @@
     sel.addEventListener('change', function(e){ setHeizlastShared('standard', e.target.value); });
     wrap.appendChild(el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Baujahr / Standard' }) ]), sel ]));
     // Gemeinsam: Raumhöhe
-    var hin = el('input', { type:'number', step:'any', min:'0.000001', inputmode:'decimal', value: h.hoehe != null ? String(h.hoehe) : '', 'data-field-key':'hoehe', 'aria-label':'Raumhöhe in m' });
+    var hin = el('input', numAttrs({ value: h.hoehe != null ? String(h.hoehe).replace('.',',') : '', 'data-field-key':'hoehe', 'aria-label':'Raumhöhe in m' }));
     hin.addEventListener('input', function(e){ setHeizlastShared('hoehe', e.target.value); });
     wrap.appendChild(el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Raumhöhe' }), el('span', { class:'field-unit', text:'m' }) ]), hin ]));
     // Räume
@@ -3599,7 +3718,7 @@
       ]);
       var name = el('input', { type:'text', value: r.name != null ? String(r.name) : '', placeholder:'Bezeichnung', 'aria-label':'Bezeichnung Raum '+(idx+1) });
       name.addEventListener('input', function(e){ setHeizlastRoom(idx, 'name', e.target.value); });
-      var fl = el('input', { type:'number', step:'any', min:'0.000001', inputmode:'decimal', value: r.flaeche != null ? String(r.flaeche) : '', 'data-field-key':'flaeche-'+idx, 'aria-label':'Fläche Raum '+(idx+1)+' in m²' });
+      var fl = el('input', numAttrs({ value: r.flaeche != null ? String(r.flaeche).replace('.',',') : '', 'data-field-key':'flaeche-'+idx, 'aria-label':'Fläche Raum '+(idx+1)+' in m²' }));
       fl.addEventListener('input', function(e){ setHeizlastRoom(idx, 'flaeche', e.target.value); });
       var row = el('div', { class:'hz-row' }, [
         el('div', { class:'field' }, [ el('div', { class:'field-head' }, [ el('span', { class:'field-label', text:'Raum' }) ]), name ]),
@@ -3610,8 +3729,571 @@
     wrap.appendChild(el('button', { class:'rohr-add', text:'+ Raum hinzufügen', onClick:addHeizlastRoom }));
   }
 
+  // ---------- Prüfprotokolle (Gas / Trinkwasser) mit Firmenlogo und PDF ----------
+  // Eigenes Layout und eigene Formulierungen; die Prüfparameter folgen den
+  // veröffentlichten Anforderungen (DVGW-TRGI 2018, DIN EN 806-4 / ZVSHK).
+  var PROTO_TYPES = [
+    {id:'gas_nd', label:'Gas · Belastungs- und Dichtheitsprüfung (bis 100 hPa)', title:'Belastungs- und Dichtheitsprüfung', sub:'Gasinstallation · Niederdruck bis 100 hPa', basis:'DVGW-TRGI 2018 (DVGW G 600)'},
+    {id:'gas_md', label:'Gas · kombinierte Prüfung Mitteldruck (über 100 hPa bis 1 bar)', title:'Kombinierte Belastungs- und Dichtheitsprüfung', sub:'Gasinstallation · Mitteldruck über 100 hPa bis 0,1 MPa', basis:'DVGW-TRGI 2018 (DVGW G 600)'},
+    {id:'gas_gf', label:'Gas · Gebrauchsfähigkeitsprüfung (Leitung in Betrieb)', title:'Gebrauchsfähigkeitsprüfung', sub:'Gasleitungsanlage in Betrieb', basis:'DVGW-TRGI 2018 (DVGW G 600)'},
+    {id:'tw_wasser', label:'Trinkwasser · Druckprüfung mit Wasser', title:'Druckprüfung mit Wasser', sub:'Trinkwasserinstallation', basis:'DIN EN 806-4 · ZVSHK-Merkblatt Dichtheitsprüfung'},
+    {id:'tw_luft', label:'Trinkwasser · Dichtheits- und Belastungsprüfung mit Luft/Inertgas', title:'Dichtheits- und Belastungsprüfung mit Luft/Inertgas', sub:'Trinkwasserinstallation', basis:'DIN EN 806-4 · ZVSHK-Merkblatt Dichtheitsprüfung'}
+  ];
+  var PROTO_YN_OPTS = [['ja','Ja'],['nein','Nein']];
+  function protoType(v) { return PROTO_TYPES.find(function(t){ return t.id===v.typ; }) || PROTO_TYPES[0]; }
+  function todayIso() { var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function isoToDe(s) { var m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m?m[3]+'.'+m[2]+'.'+m[1]:String(s||''); }
+  function gasTightTimes(vol) {
+    return vol<100?{a:10,t:10,cls:'< 100 l'}:vol<200?{a:30,t:20,cls:'≥ 100 l und < 200 l'}:{a:60,t:30,cls:'≥ 200 l'};
+  }
+  function twAirTightMinutes(vol) { return 120+Math.max(0,Math.ceil((vol-100)/100))*20; }
+  function protoSections(v) {
+    var typ=protoType(v).id, co=state.company||{};
+    var head={title:'Auftrag', items:[
+      {k:'objekt',t:'area',label:'Bauvorhaben / Anlagenanschrift',ph:'Straße, Hausnummer, PLZ Ort, ggf. Wohnung'},
+      {k:'auftraggeber',t:'text',label:'Auftraggeber, vertreten durch'},
+      {k:'pruefer',t:'text',label:'Prüfer (Auftragnehmer, vertreten durch)',def:co.pruefer||''},
+      {k:'auftragsnr',t:'text',label:'Auftrags-/Protokollnummer',ph:'optional'},
+      {k:'ort',t:'text',label:'Ort der Prüfung'},
+      {k:'datum',t:'date',label:'Prüfdatum',def:todayIso()}
+    ]};
+    var tail={title:'Abschluss', items:[
+      {k:'bemerkung',t:'area',label:'Bemerkungen',ph:'z. B. Prüfabschnitte, Besonderheiten, Folgemaßnahmen'},
+      {k:'kunde_name',t:'text',label:'Name Auftraggeber/Kunde (für Unterschrift)'}
+    ]};
+    var mid=[];
+    if (typ==='gas_nd' || typ==='gas_md') {
+      var p=typ==='gas_nd'?'nd_':'md_';
+      mid.push({title:'Anlage und Prüfumfang', items:[
+        {k:p+'bdruck',t:'num',label:'max. Betriebsdruck',unit:'hPa',def:typ==='gas_nd'?23:1000},
+        {k:p+'umfang',t:'sel',label:'Die Leitung wurde geprüft',opts:[['gesamt','als Gesamtleitung'],['teil','in Teilabschnitten']],def:'gesamt',rebuild:true},
+        v[p+'umfang']==='teil'?{k:p+'teile',t:'num',label:'Anzahl Teilabschnitte',def:2}:null,
+        {k:p+'medium',t:'sel',label:'Prüfmedium',opts:[['luft','Luft'],['stickstoff','Stickstoff'],['sonst','anderes inertes Gas']],def:'luft',rebuild:true},
+        v[p+'medium']==='sonst'?{k:p+'mediumtxt',t:'text',label:'Bezeichnung Prüfmedium'}:null,
+        {k:p+'verschl',t:'yn',label:'Alle Leitungsöffnungen mit metallenen Stopfen, Kappen, Steckscheiben oder Blindflanschen verschlossen'}
+      ]});
+    }
+    if (typ==='gas_nd') {
+      var req=gasTightTimes(P(protoVal(v,{k:'nd_vol',def:50})));
+      mid.push({title:'1. Belastungsprüfung', items:[
+        {k:'nd_arm',t:'sel',label:'Armaturen',opts:[['aus','ausgebaut'],['ein','eingebaut (Nenndruck ≥ Prüfdruck)']],def:'aus'},
+        {k:'nd_bl_p',t:'num',label:'Prüfdruck',unit:'hPa',def:1000,hint:'Vorgabe 1000 hPa (0,1 MPa)'},
+        {k:'nd_bl_t',t:'num',label:'Prüfzeit',unit:'min',def:10,hint:'Vorgabe 10 min'},
+        {k:'nd_bl_ok',t:'yn',label:'Prüfdruck während der Prüfzeit nicht gefallen'}
+      ]});
+      mid.push({title:'2. Dichtheitsprüfung (Armaturen eingebaut)', items:[
+        {k:'nd_vol',t:'num',label:'Leitungsvolumen',unit:'l',def:50,rebuild:true},
+        {k:'nd_dt_p',t:'num',label:'Prüfdruck',unit:'hPa',def:150,hint:'Vorgabe 150 hPa'},
+        {k:'nd_dt_a',t:'num',label:'Anpassungszeit',unit:'min',def:function(){return req.a;},hint:'mindestens '+req.a+' min ('+req.cls+')'},
+        {k:'nd_dt_t',t:'num',label:'Prüfdauer',unit:'min',def:function(){return req.t;},hint:'mindestens '+req.t+' min ('+req.cls+')'},
+        {k:'nd_dt_ok',t:'yn',label:'Prüfdruck während der Prüfzeit nicht gefallen'},
+        {k:'nd_geraet',t:'text',label:'Messgerät (Typ / Nr.)',ph:'optional'}
+      ]});
+    }
+    if (typ==='gas_md') {
+      mid.push({title:'Kombinierte Belastungs- und Dichtheitsprüfung', items:[
+        {k:'md_arm',t:'yn',label:'Armaturen eingebaut, Nenndruck mindestens gleich Prüfdruck'},
+        {k:'md_p',t:'num',label:'Prüfdruck',unit:'bar',def:3,hint:'Vorgabe 3 bar (0,3 MPa)'},
+        {k:'md_ausgl',t:'num',label:'Temperaturausgleich',unit:'h',def:3,hint:'ca. 3 h'},
+        {k:'md_t',t:'num',label:'Prüfzeit',unit:'h',def:2,hint:'mindestens 2 h'},
+        {k:'md_ok',t:'yn',label:'Prüfdruck während der Prüfzeit nicht gefallen'},
+        {k:'md_geraet',t:'text',label:'Messgerät (Typ / Nr.)',ph:'optional'}
+      ]});
+    }
+    if (typ==='gas_gf') {
+      mid.push({title:'Anlage', items:[
+        {k:'gf_nutzer',t:'text',label:'Gebäude-/Wohnungsnutzer'},
+        {k:'gf_gebaeude',t:'sel',label:'Gebäudeart',opts:[['efh','Einfamilienhaus'],['mfh','Mehrfamilienhaus'],['sonst','Sonstige']],def:'efh'},
+        {k:'gf_zstand',t:'num',label:'Zählerstand',unit:'m³',opt:true},
+        {k:'gf_znr',t:'text',label:'Zählernummer'}
+      ]});
+      mid.push({title:'Sichtkontrolle der Leitungsanlage', items:[
+        {k:'gf_r1',t:'yn',label:'Leitungsbefestigungen in Ordnung'},
+        {k:'gf_r2',t:'yn',label:'Leitung ohne unzulässige mechanische oder thermische Beanspruchung'},
+        {k:'gf_r3',t:'yn',label:'Leitung äußerlich ohne Korrosion oder sichtbare Schäden'},
+        {k:'gf_r4',t:'yn',label:'Leitungen in Hohlräumen ausreichend be- und entlüftet'},
+        {k:'gf_r5',t:'yn',label:'Nicht benutzte Leitungsenden ordnungsgemäß verschlossen'},
+        {k:'gf_r6',t:'yn',label:'Gasschlauchleitungen ohne Zug, Knick und Verdrehung'},
+        {k:'gf_r7',t:'yn',label:'Schutzpotentialausgleich vorhanden'},
+        {k:'gf_rbem',t:'text',label:'Bemerkung Leitungsanlage',ph:'optional'}
+      ]});
+      mid.push({title:'Absperreinrichtungen', items:[
+        {k:'gf_a1',t:'yn',label:'Hauptabsperreinrichtung zugänglich'},
+        {k:'gf_a2',t:'yn',label:'Hauptabsperreinrichtung bedienbar'},
+        {k:'gf_a3',t:'yn',label:'Absperreinrichtung vor dem Gaszähler zugänglich'},
+        {k:'gf_a4',t:'yn',label:'Absperreinrichtung vor dem Gaszähler bedienbar'},
+        {k:'gf_a5',t:'yn',label:'Geräteabsperreinrichtung(en) zugänglich'},
+        {k:'gf_a6',t:'yn',label:'Geräteabsperreinrichtung(en) bedienbar'},
+        {k:'gf_abem',t:'text',label:'Bemerkung Absperreinrichtungen',ph:'optional'}
+      ]});
+      mid.push({title:'Leckmengenmessung', items:[
+        {k:'gf_umfang',t:'sel',label:'Die Leitung wurde geprüft',opts:[['gesamt','als Gesamtleitung'],['teil','in Teilen']],def:'gesamt'},
+        {k:'gf_medium',t:'sel',label:'Prüfmedium',opts:[['betriebsgas','Betriebsgas'],['luft','Luft']],def:'betriebsgas'},
+        {k:'gf_gabs',t:'sel',label:'Geräteabsperreinrichtungen während der Messung',opts:[['zu','geschlossen'],['offen','nicht geschlossen']],def:'zu'},
+        {k:'gf_methode',t:'sel',label:'Ermittlung der Leckmenge',opts:[['geraet','Leckmengenmessgerät'],['graphisch','graphisch'],['rechnerisch','rechnerisch']],def:'geraet'},
+        {k:'gf_geraet',t:'text',label:'Messgerät (Typ / Nr.)',ph:'optional'},
+        {k:'gf_bdruck',t:'num',label:'Betriebsdruck',unit:'hPa',def:23},
+        {k:'gf_pdruck',t:'num',label:'Prüfdruck',unit:'hPa',def:23},
+        {k:'gf_leck',t:'num',label:'Ermittelte Leckmenge (bezogen auf Betriebsdruck)',unit:'l/h'},
+        {k:'gf_maengel',t:'area',label:'Weitere Mängel',ph:'leer lassen, wenn keine weiteren Mängel'},
+        {k:'gf_ausdruck',t:'yn',label:'Messprotokoll des Messgeräts an den Kunden übergeben'}
+      ]});
+    }
+    if (typ==='tw_wasser') {
+      var mdp=P(protoVal(v,{k:'tw_mdp',def:10}));
+      mid.push({title:'Anlage', items:[
+        {k:'tw_werkstoff',t:'sel',label:'Rohrwerkstoff',opts:[['metall','metallisch'],['kunststoff','Kunststoff / Mehrschichtverbund'],['kombi','Kombination metallisch / Kunststoff']],def:'metall'},
+        {k:'tw_mdp',t:'num',label:'zulässiger Betriebsdruck (MDP)',unit:'bar',def:10,rebuild:true},
+        {k:'tw_gefuellt',t:'yn',label:'Mit filtriertem Trinkwasser gefüllt und vollständig entlüftet'},
+        {k:'tw_ausgleich',t:'yn',label:'Temperaturausgleich abgewartet'}
+      ]});
+      mid.push({title:'Druckprüfung', items:[
+        {k:'tw_p',t:'num',label:'Prüfdruck',unit:'bar',def:function(){ return Math.round(mdp*1.1*100)/100; },hint:'Vorgabe 1,1 × MDP = '+fmt(mdp*1.1,1)+' bar'},
+        {k:'tw_pa',t:'num',label:'Druck zu Beginn der Prüfzeit',unit:'bar'},
+        {k:'tw_pe',t:'num',label:'Druck am Ende der Prüfzeit',unit:'bar'},
+        {k:'tw_t',t:'num',label:'Prüfzeit',unit:'min',def:30,hint:'Kunststoff: Prüfablauf nach Systemhersteller'},
+        {k:'tw_sicht',t:'yn',label:'Sichtkontrolle aller Verbindungen ohne Befund'},
+        {k:'tw_ok',t:'yn',label:'Kein unzulässiger Druckabfall – Anlage dicht'},
+        {k:'tw_geraet',t:'text',label:'Messgerät (Typ / Nr.)',ph:'optional'}
+      ]});
+    }
+    if (typ==='tw_luft') {
+      var tlVol=P(protoVal(v,{k:'tl_vol',def:50})), tlDn=protoVal(v,{k:'tl_dn',def:'klein'});
+      mid.push({title:'Anlage', items:[
+        {k:'tl_medium',t:'sel',label:'Prüfmedium',opts:[['luft','ölfreie Druckluft'],['stickstoff','Stickstoff'],['co2','Kohlendioxid']],def:'luft'},
+        {k:'tl_vol',t:'num',label:'Leitungsvolumen',unit:'l',def:50,rebuild:true},
+        {k:'tl_dn',t:'sel',label:'Größte Nennweite',opts:[['klein','bis DN 50'],['gross','über DN 50 bis DN 100']],def:'klein',rebuild:true}
+      ]});
+      mid.push({title:'1. Dichtheitsprüfung', items:[
+        {k:'tl_dp',t:'num',label:'Prüfdruck',unit:'hPa',def:150,hint:'Vorgabe 150 hPa'},
+        {k:'tl_dt',t:'num',label:'Prüfzeit',unit:'min',def:function(){ return twAirTightMinutes(tlVol); },hint:'mindestens '+twAirTightMinutes(tlVol)+' min bei '+fmt(tlVol,0)+' l'},
+        {k:'tl_dok',t:'yn',label:'Kein Druckabfall während der Prüfzeit'}
+      ]});
+      mid.push({title:'2. Belastungsprüfung', items:[
+        {k:'tl_bp',t:'num',label:'Prüfdruck',unit:'bar',def:function(){ return tlDn==='gross'?1:3; },hint:tlDn==='gross'?'höchstens 1 bar (über DN 50)':'höchstens 3 bar (bis DN 50)'},
+        {k:'tl_bt',t:'num',label:'Prüfzeit',unit:'min',def:10,hint:'Vorgabe 10 min'},
+        {k:'tl_bok',t:'yn',label:'Kein Druckabfall während der Prüfzeit'},
+        {k:'tl_geraet',t:'text',label:'Messgerät (Typ / Nr.)',ph:'optional'}
+      ]});
+    }
+    return [head].concat(mid,[tail]).map(function(sec){ sec.items=sec.items.filter(Boolean); return sec; });
+  }
+  function protoVal(v, item) {
+    var x=v[item.k];
+    if (x===undefined || x===null) return typeof item.def==='function' ? item.def(v) : (item.def!=null ? item.def : '');
+    return x;
+  }
+  function protoOptLabel(item, val) {
+    var o=(item.opts||[]).find(function(x){ return String(x[0])===String(val); });
+    return o ? o[1] : String(val==null?'':val);
+  }
+  function protoEvaluate(v) {
+    var typ=protoType(v).id, fails=[], warns=[], open=[], lines=[];
+    function g(k,def){ return protoVal(v,{k:k,def:def}); }
+    function num(k,def){ return N(g(k,def)); }
+    function yn(k,label,failText){
+      var x=v[k];
+      if (x!=='ja' && x!=='nein') open.push(label);
+      else if (x==='nein' && failText) fails.push(failText);
+    }
+    if (!String(g('objekt','')).trim()) open.push('Bauvorhaben / Anlagenanschrift');
+    if (typ==='gas_nd') {
+      var r=gasTightTimes(num('nd_vol',50));
+      yn('nd_verschl','Leitungsöffnungen verschlossen','Leitungsöffnungen nicht ordnungsgemäß verschlossen');
+      yn('nd_bl_ok','Ergebnis Belastungsprüfung','Belastungsprüfung: Druck gefallen');
+      yn('nd_dt_ok','Ergebnis Dichtheitsprüfung','Dichtheitsprüfung: Druck gefallen – Leitung undicht');
+      if (num('nd_bdruck',23)>100) warns.push('Betriebsdruck über 100 hPa – Mitteldruck-Protokoll verwenden');
+      if (num('nd_bl_p',1000)<1000) warns.push('Belastungsprüfung unter 1000 hPa Prüfdruck');
+      if (num('nd_bl_t',10)<10) warns.push('Belastungsprüfung kürzer als 10 min');
+      if (num('nd_dt_p',150)<150) warns.push('Dichtheitsprüfung unter 150 hPa Prüfdruck');
+      if (num('nd_dt_a',r.a)<r.a) warns.push('Anpassungszeit unter '+r.a+' min');
+      if (num('nd_dt_t',r.t)<r.t) warns.push('Prüfdauer unter '+r.t+' min');
+      lines.push({label:'Belastungsprüfung (Vorgabe)',value:'1000 hPa · 10 min'},{label:'Dichtheitsprüfung (Vorgabe)',value:'150 hPa · Anpassung '+r.a+' min · Prüfung '+r.t+' min'},{label:'Volumenklasse',value:r.cls});
+    }
+    if (typ==='gas_md') {
+      yn('md_verschl','Leitungsöffnungen verschlossen','Leitungsöffnungen nicht ordnungsgemäß verschlossen');
+      yn('md_arm','Armaturen eingebaut / Nenndruck','Armaturen nicht für den Prüfdruck geeignet');
+      yn('md_ok','Ergebnis der Prüfung','Druck gefallen – Leitung undicht');
+      var mb=num('md_bdruck',1000);
+      if (mb<=100 || mb>1000) warns.push('Betriebsdruck liegt nicht im Mitteldruckbereich (über 100 hPa bis 1000 hPa)');
+      if (num('md_p',3)<3) warns.push('Prüfdruck unter 3 bar');
+      if (num('md_t',2)<2) warns.push('Prüfzeit unter 2 h');
+      lines.push({label:'Vorgabe',value:'3 bar · Temperaturausgleich ca. 3 h · Prüfzeit ≥ 2 h'});
+    }
+    if (typ==='gas_gf') {
+      var leak=N(v.gf_leck), mangel=String(v.gf_maengel||'').trim(), neinCount=0;
+      var unanswered=0;
+      protoSections(v).forEach(function(sec){ sec.items.forEach(function(it){
+        if (it.t!=='yn' || !/^gf_[ra]\d$/.test(it.k)) return;
+        if (v[it.k]!=='ja' && v[it.k]!=='nein') unanswered++;
+        if (v[it.k]==='nein') neinCount++;
+      }); });
+      if (unanswered) open.push(unanswered+' Kontrollpunkt(e) der Sicht- und Absperrkontrolle');
+      if (!isFinite(leak)) open.push('Ermittelte Leckmenge');
+      if (num('gf_bdruck',23)>100) warns.push('Betriebsdruck über 100 hPa – Gebrauchsfähigkeitsprüfung nach diesem Schema nur bis 100 hPa');
+      var title, status;
+      if (isFinite(leak) && leak>=5) { title='Keine Gebrauchsfähigkeit'; status='fail'; fails.push('Leckmenge ≥ 5 l/h: Leitungsanlage unverzüglich außer Betrieb nehmen und instand setzen'); }
+      else if (isFinite(leak) && leak>=1) { title='Verminderte Gebrauchsfähigkeit'; status='warn'; warns.push('Leckmenge ≥ 1 und < 5 l/h: Instandsetzung innerhalb von 4 Wochen'); }
+      else if (isFinite(leak) && (neinCount || mangel)) { title='Leckmenge < 1 l/h – weitere Mängel'; status='warn'; warns.push((neinCount?neinCount+' Kontrollpunkt(e) mit „Nein“':'')+(neinCount&&mangel?' · ':'')+(mangel?'weitere Mängel dokumentiert':'')+' – Mängel beseitigen'); }
+      else if (isFinite(leak)) { title='Unbeschränkte Gebrauchsfähigkeit'; status='ok'; }
+      else { title='Messung ausstehend'; status='open'; }
+      lines.push({label:'Einstufung',value:'< 1 l/h unbeschränkt · 1 bis < 5 l/h vermindert · ≥ 5 l/h keine'});
+      return {status:open.length&&status!=='fail'?'open':status,title:open.length&&status!=='fail'?'Angaben unvollständig':title,classTitle:title,fails:fails,warns:warns,open:open,lines:lines};
+    }
+    if (typ==='tw_wasser') {
+      var mdp=num('tw_mdp',10), pt=num('tw_p',Math.round(mdp*110)/100), pa=N(v.tw_pa), pe=N(v.tw_pe);
+      yn('tw_gefuellt','Füllung / Entlüftung','Anlage nicht ordnungsgemäß gefüllt und entlüftet');
+      yn('tw_ausgleich','Temperaturausgleich',null);
+      yn('tw_sicht','Sichtkontrolle','Undichte Verbindung bei der Sichtkontrolle');
+      yn('tw_ok','Ergebnis der Druckprüfung','Druckabfall – Anlage undicht');
+      if (pt<mdp*1.1-1e-9) warns.push('Prüfdruck unter 1,1 × MDP ('+fmt(mdp*1.1,1)+' bar)');
+      if (!isFinite(pa)) open.push('Druck zu Beginn');
+      if (!isFinite(pe)) open.push('Druck am Ende');
+      if (isFinite(pa)&&isFinite(pe)) lines.push({label:'Druckänderung während der Prüfzeit',value:fmt(pe-pa,2)+' bar'});
+      lines.push({label:'Vorgabe Prüfdruck',value:'1,1 × '+fmt(mdp,1)+' bar = '+fmt(mdp*1.1,1)+' bar'});
+    }
+    if (typ==='tw_luft') {
+      var tv=num('tl_vol',50), tmin=twAirTightMinutes(tv), gross=g('tl_dn','klein')==='gross', bmax=gross?1:3;
+      yn('tl_dok','Ergebnis Dichtheitsprüfung','Dichtheitsprüfung: Druckabfall');
+      yn('tl_bok','Ergebnis Belastungsprüfung','Belastungsprüfung: Druckabfall');
+      if (num('tl_dp',150)<150) warns.push('Dichtheitsprüfung unter 150 hPa');
+      if (num('tl_dt',tmin)<tmin) warns.push('Prüfzeit Dichtheitsprüfung unter '+tmin+' min');
+      if (num('tl_bp',bmax)>bmax+1e-9) warns.push('Belastungsprüfdruck über '+bmax+' bar');
+      if (num('tl_bt',10)<10) warns.push('Belastungsprüfung kürzer als 10 min');
+      lines.push({label:'Dichtheitsprüfung (Vorgabe)',value:'150 hPa · '+tmin+' min'},{label:'Belastungsprüfung (Vorgabe)',value:'max. '+bmax+' bar · 10 min'});
+    }
+    var st=fails.length?'fail':warns.length?'warn':open.length?'open':'ok';
+    var tt=st==='fail'?'Nicht bestanden':st==='warn'?'Prüfbedingungen nicht erfüllt':st==='open'?'Angaben unvollständig':'Bestanden – Anlage dicht';
+    return {status:st,title:tt,fails:fails,warns:warns,open:open,lines:lines};
+  }
+  function protoCompute(v) {
+    var t=protoType(v), ev=protoEvaluate(v), subs=[{label:'Protokoll',value:t.title}];
+    ev.lines.forEach(function(l){ subs.push(l); });
+    ev.fails.forEach(function(f){ subs.push({label:'Mangel',value:f}); });
+    ev.warns.forEach(function(w){ subs.push({label:'Hinweis',value:w}); });
+    return {main:{label:'Prüfergebnis',value:ev.title,unit:''},subs:subs,
+      note:(ev.open.length?'Noch offen: '+ev.open.join(', ')+'. ':'')+'Grundlage: '+t.basis+'. Das Protokoll dokumentiert den Zustand zum Prüfzeitpunkt; Prüfdrücke und Zeiten gegebenenfalls an Hersteller- und Netzbetreibervorgaben anpassen.'};
+  }
+  function protoValidate(v) {
+    var errors=[];
+    protoSections(v).forEach(function(sec){ sec.items.forEach(function(it){
+      if (it.t!=='num') return;
+      var raw=v[it.k];
+      if (raw===undefined || raw===null || String(raw).trim()==='') return;
+      var n=N(raw);
+      if (!isFinite(n)) errors.push({key:it.k,message:it.label+' muss eine Zahl sein.'});
+      else if (n<0) errors.push({key:it.k,message:it.label+' darf nicht negativ sein.'});
+    }); });
+    return {ok:errors.length===0,errors:errors};
+  }
+
+  // Firmendaten liegen getrennt von den Rechnerwerten und bleiben beim Zurücksetzen erhalten.
+  var COMPANY_FIELDS = [
+    ['firma','Firmenname'],['strasse','Straße und Hausnummer'],['plzort','PLZ und Ort'],
+    ['telefon','Telefon'],['email','E-Mail'],['eintrag','Installateurverzeichnis / Eintragungs-Nr.'],['pruefer','Standard-Prüfer']
+  ];
+  function sanitizeCompany(c) {
+    var out={};
+    if (!isPlainObject(c)) return out;
+    COMPANY_FIELDS.forEach(function(f){ if (typeof c[f[0]]==='string') out[f[0]]=c[f[0]].slice(0,200); });
+    var lg=c.logo;
+    if (isPlainObject(lg) && typeof lg.data==='string' && lg.data.indexOf('data:image/jpeg;base64,')===0 && lg.data.length<1500000 && N(lg.w)>0 && N(lg.h)>0)
+      out.logo={data:lg.data,w:Math.round(N(lg.w)),h:Math.round(N(lg.h))};
+    return out;
+  }
+  function persistCompany() {
+    try { localStorage.setItem('shk.company', JSON.stringify(state.company||{})); }
+    catch (e) { showToast('Firmendaten konnten nicht gespeichert werden (Speicher voll?).'); }
+  }
+  // Bild auf weißem Grund als JPEG verkleinern – PDF bindet JPEG direkt ein.
+  function imageToJpeg(src, maxW, maxH, done) {
+    var img=new Image();
+    img.onload=function(){
+      var s=Math.min(1,maxW/img.width,maxH/img.height), w=Math.max(1,Math.round(img.width*s)), h=Math.max(1,Math.round(img.height*s));
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      var cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,w,h); cx.drawImage(img,0,0,w,h);
+      done({data:cv.toDataURL('image/jpeg',0.9),w:w,h:h});
+    };
+    img.onerror=function(){ done(null); };
+    img.src=src;
+  }
+
+  var protoSigs={pruefer:null,kunde:null};   // Unterschriften nur im Speicher (Datenschutz)
+  function protoEnsure() {
+    if (!isPlainObject(state.vals.protokoll)) state.vals.protokoll={typ:'gas_nd'};
+    return state.vals.protokoll;
+  }
+  function setProto(key, val, rebuild) {
+    var v=protoEnsure(); v[key]=val; persist();
+    if (rebuild) rebuildProto(); else renderResult('protokoll');
+  }
+  function rebuildProto() {
+    var w=document.getElementById('tool-fields');
+    if (w) { var y=window.scrollY; buildFields('protokoll',w); window.scrollTo(0,y); }
+    renderResult('protokoll');
+  }
+  function newProtocol() {
+    if (!confirm('Neues Protokoll beginnen? Auftrags- und Messwerte werden geleert; Firmendaten und Protokollart bleiben erhalten.')) return;
+    var v=protoEnsure();
+    state.vals.protokoll={typ:v.typ};
+    protoSigs={pruefer:null,kunde:null};
+    persist(); rebuildProto(); showToast('Neues Protokoll angelegt.');
+  }
+  function signaturePad(key, label) {
+    var cv=el('canvas',{class:'sig-canvas',width:'720',height:'240','aria-label':label+' – mit Finger oder Maus unterschreiben'});
+    var cx=cv.getContext && cv.getContext('2d');
+    function blank(){ if (!cx) return; cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); }
+    blank();
+    if (protoSigs[key] && cx) { var im=new Image(); im.onload=function(){ cx.drawImage(im,0,0,cv.width,cv.height); }; im.src=protoSigs[key]; }
+    var drawing=false, last=null, dirty=false;
+    function pos(e){ var r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height}; }
+    cv.addEventListener('pointerdown',function(e){ if (!cx) return; drawing=true; dirty=true; last=pos(e); try { cv.setPointerCapture(e.pointerId); } catch(x) {} e.preventDefault(); });
+    cv.addEventListener('pointermove',function(e){
+      if (!drawing) return; var p=pos(e);
+      cx.strokeStyle='#10204a'; cx.lineWidth=4.2; cx.lineCap='round'; cx.lineJoin='round';
+      cx.beginPath(); cx.moveTo(last.x,last.y); cx.lineTo(p.x,p.y); cx.stroke(); last=p; e.preventDefault();
+    });
+    function end(){ if (!drawing) return; drawing=false; if (dirty) { protoSigs[key]=cv.toDataURL('image/jpeg',0.85); renderResult('protokoll'); } }
+    cv.addEventListener('pointerup',end); cv.addEventListener('pointercancel',end); cv.addEventListener('pointerleave',end);
+    var clear=el('button',{class:'sig-clear',type:'button',text:'Löschen',onClick:function(){ blank(); dirty=false; protoSigs[key]=null; renderResult('protokoll'); }});
+    return el('div',{class:'field sig-field'},[
+      el('div',{class:'field-head'},[el('span',{class:'field-label',text:label}),clear]),
+      cv
+    ]);
+  }
+  function buildCompanyBox() {
+    var co=state.company||{};
+    var det=el('details',{class:'proto-company'});
+    if (!co.firma) det.setAttribute('open','');
+    det.appendChild(el('summary',{},[
+      el('span',{text:'Firmendaten & Logo'}),
+      el('span',{class:'proto-company-state',text:co.firma?co.firma:'noch nicht hinterlegt'})
+    ]));
+    var body=el('div',{class:'proto-company-body'});
+    var logoWrap=el('div',{class:'logo-row'});
+    function drawLogo(){
+      logoWrap.innerHTML='';
+      var c2=state.company||{};
+      logoWrap.appendChild(c2.logo ? el('img',{class:'logo-preview',src:c2.logo.data,alt:'Firmenlogo'}) : el('div',{class:'logo-placeholder',text:'Kein Logo'}));
+      var fileIn=el('input',{type:'file',accept:'image/png,image/jpeg,image/webp,image/gif,image/svg+xml',style:'display:none;'});
+      fileIn.addEventListener('change',function(){
+        var f=fileIn.files&&fileIn.files[0]; if (!f) return;
+        if (f.size>8*1024*1024) { alert('Das Bild ist größer als 8 MB.'); return; }
+        var rd=new FileReader();
+        rd.onload=function(){ imageToJpeg(rd.result,600,240,function(res){
+          if (!res) { alert('Das Bild konnte nicht gelesen werden.'); return; }
+          state.company=state.company||{}; state.company.logo=res; persistCompany(); drawLogo(); showToast('Logo gespeichert.');
+        }); };
+        rd.readAsDataURL(f);
+      });
+      var btns=el('div',{class:'logo-btns'},[
+        el('button',{class:'mini-btn',type:'button',text:c2.logo?'Logo ersetzen':'Logo hochladen',onClick:function(){ fileIn.click(); }}),
+        c2.logo?el('button',{class:'mini-btn',type:'button',text:'Entfernen',onClick:function(){ delete state.company.logo; persistCompany(); drawLogo(); }}):null,
+        fileIn
+      ]);
+      logoWrap.appendChild(btns);
+    }
+    drawLogo();
+    body.appendChild(logoWrap);
+    COMPANY_FIELDS.forEach(function(f){
+      var inp=el('input',{type:f[0]==='email'?'email':(f[0]==='telefon'?'tel':'text'),value:co[f[0]]||'','aria-label':f[1],autocomplete:'off'});
+      inp.addEventListener('input',function(e){
+        state.company=state.company||{}; state.company[f[0]]=e.target.value.slice(0,200); persistCompany();
+      });
+      inp.addEventListener('change',function(){ if (f[0]==='firma'||f[0]==='pruefer') rebuildProto(); });
+      body.appendChild(el('div',{class:'field'},[el('div',{class:'field-head'},[el('span',{class:'field-label',text:f[1]})]),inp]));
+    });
+    body.appendChild(el('div',{class:'proto-hint',text:'Firmendaten und Logo werden nur auf diesem Gerät gespeichert und bei „Sichern“ mit exportiert.'}));
+    det.appendChild(body);
+    return det;
+  }
+  function buildProtokollFields(wrap) {
+    var v=protoEnsure();
+    wrap.appendChild(buildCompanyBox());
+    var typSel=el('select',{id:'field-protokoll-typ','data-field-key':'typ'});
+    PROTO_TYPES.forEach(function(t){ var o=el('option',{value:t.id,text:t.label}); if (t.id===protoType(v).id) o.selected=true; typSel.appendChild(o); });
+    typSel.addEventListener('change',function(e){ setProto('typ',e.target.value,true); });
+    wrap.appendChild(el('div',{class:'field'},[el('div',{class:'field-head'},[el('label',{class:'field-label',for:'field-protokoll-typ',text:'Protokollart'})]),typSel]));
+    protoSections(v).forEach(function(sec){
+      var box=el('div',{class:'proto-section'},[el('div',{class:'proto-section-title',text:sec.title})]);
+      sec.items.forEach(function(it){
+        var id='field-protokoll-'+it.k, val=protoVal(v,it), control;
+        var head=el('div',{class:'field-head'},[el('label',{class:'field-label',for:id,text:it.label}),it.unit?el('span',{class:'field-unit',text:it.unit}):null]);
+        if (it.t==='yn') {
+          var cur=v[it.k];
+          control=el('div',{class:'yn',role:'group','aria-label':it.label,'data-field-key':it.k});
+          PROTO_YN_OPTS.forEach(function(o){
+            var b=el('button',{type:'button',class:'yn-btn yn-'+o[0]+(cur===o[0]?' on':''),'aria-pressed':String(cur===o[0]),text:o[1]});
+            b.addEventListener('click',function(){
+              var nv=v[it.k]===o[0]?null:o[0];
+              if (nv) v[it.k]=nv; else delete v[it.k];
+              persist();
+              control.querySelectorAll('.yn-btn').forEach(function(x){ var on=x===b&&!!nv; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)); });
+              renderResult('protokoll');
+            });
+            control.appendChild(b);
+          });
+          box.appendChild(el('div',{class:'field field-yn'},[el('span',{class:'field-label',text:it.label}),control]));
+          return;
+        }
+        if (it.t==='sel') {
+          control=el('select',{id:id,'data-field-key':it.k});
+          it.opts.forEach(function(o){ var op=el('option',{value:o[0],text:o[1]}); if (String(o[0])===String(val)) op.selected=true; control.appendChild(op); });
+          control.addEventListener('change',function(e){ setProto(it.k,e.target.value,!!it.rebuild); });
+        } else if (it.t==='area') {
+          control=el('textarea',{id:id,rows:'3','data-field-key':it.k,placeholder:it.ph||'',maxlength:'2000'});
+          control.value=String(val||'');
+          control.addEventListener('input',function(e){ setProto(it.k,e.target.value,false); });
+        } else if (it.t==='date') {
+          control=el('input',{id:id,type:'date',value:String(val||''),'data-field-key':it.k});
+          control.addEventListener('input',function(e){ setProto(it.k,e.target.value,false); });
+        } else if (it.t==='num') {
+          control=el('input',numAttrs({id:id,value:val===''||val==null?'':String(val).replace('.',','),'data-field-key':it.k,placeholder:it.hint||''}));
+          control.addEventListener('input',function(e){ setProto(it.k,e.target.value,false); });
+          if (it.rebuild) control.addEventListener('change',function(){ rebuildProto(); });
+        } else {
+          control=el('input',{id:id,type:'text',value:String(val||''),'data-field-key':it.k,placeholder:it.ph||'',maxlength:'300',autocomplete:'off'});
+          control.addEventListener('input',function(e){ setProto(it.k,e.target.value,false); });
+        }
+        var kids=[head,control];
+        if (it.hint && it.t==='num') kids.push(el('div',{class:'field-hint',text:it.hint}));
+        box.appendChild(el('div',{class:'field'},kids));
+      });
+      if (sec.title==='Abschluss') {
+        box.appendChild(signaturePad('pruefer','Unterschrift Prüfer'));
+        box.appendChild(signaturePad('kunde','Unterschrift Auftraggeber / Kunde'));
+        box.appendChild(el('div',{class:'proto-hint',text:'Unterschriften werden nicht gespeichert und nur in das erzeugte PDF übernommen.'}));
+      }
+      wrap.appendChild(box);
+    });
+    wrap.appendChild(el('button',{class:'rohr-add',type:'button',text:'Neues Protokoll beginnen',onClick:newProtocol}));
+  }
+
+  // PDF: A4 hoch, eigenes Layout mit Logo, Prüfpunkten, Ergebnis und Unterschriften.
+  function dataUrlToBin(d) { return atob(String(d).split(',')[1]||''); }
+  function buildProtocolPdf(v) {
+    var W=595.28,H=841.89,M=46,BOTTOM=60,co=state.company||{},t=protoType(v),res=protoEvaluate(v);
+    var pages=[],c='',y=0,images=[],imgNo=0;
+    function addImg(img){ if (!img||!img.data) return null; imgNo++; var name='Im'+imgNo; images.push({name:name,w:img.w,h:img.h,bin:dataUrlToBin(img.data)}); return name; }
+    var logoName=co.logo?addImg(co.logo):null;
+    function col(r,g,b,stroke){ c+=r.toFixed(3)+' '+g.toFixed(3)+' '+b.toFixed(3)+(stroke?' RG\n':' rg\n'); }
+    function gray(gv){ col(gv,gv,gv); }
+    function txt(x,yy,sz,f,s){ c+='BT /'+f+' '+sz+' Tf 1 0 0 1 '+x.toFixed(2)+' '+yy.toFixed(2)+' Tm ('+pdfEsc(s)+') Tj ET\n'; }
+    function line(x1,y1,x2,y2,w,gv){ col(gv,gv,gv,true); c+=w+' w '+x1.toFixed(2)+' '+y1.toFixed(2)+' m '+x2.toFixed(2)+' '+y2.toFixed(2)+' l S\n'; }
+    function rect(x,yy,w,h,fill){ c+=x.toFixed(2)+' '+yy.toFixed(2)+' '+w.toFixed(2)+' '+h.toFixed(2)+' re '+(fill?'f':'S')+'\n'; }
+    function image(name,x,yy,w,h){ c+='q '+w.toFixed(2)+' 0 0 '+h.toFixed(2)+' '+x.toFixed(2)+' '+yy.toFixed(2)+' cm /'+name+' Do Q\n'; }
+    function box(x,yy,on){ col(0.35,0.35,0.35,true); c+='0.8 w '; rect(x,yy,8,8,false); if (on) { line(x+1.6,yy+1.6,x+6.4,yy+6.4,1.2,0.05); line(x+1.6,yy+6.4,x+6.4,yy+1.6,1.2,0.05); } }
+    var protoNo=String(v.auftragsnr||'').trim();
+    function header(first){
+      c=''; y=H-40;
+      var lh=0;
+      if (logoName) {
+        var s=Math.min(165/co.logo.w,58/co.logo.h), lw=co.logo.w*s; lh=co.logo.h*s;
+        image(logoName,M,y-lh,lw,lh);
+      }
+      var cx0=W-M-205, cy=y-9;
+      gray(0.08); if (co.firma) { txt(cx0,cy,10.5,'F2',co.firma); cy-=13; }
+      gray(0.35);
+      [co.strasse,co.plzort,[co.telefon?'Tel. '+co.telefon:'',co.email].filter(Boolean).join(' · '),co.eintrag?'Installateurverz.: '+co.eintrag:''].forEach(function(l){ if (l) { pdfWrap(l,44).forEach(function(w){ txt(cx0,cy,8.2,'F1',w); cy-=10.5; }); } });
+      y=Math.min(y-Math.max(lh,0)-12, cy-4, H-104);
+      line(M,y,W-M,y,0.7,0.75);
+      y-=first?26:18;
+      gray(0.05); txt(M,y,first?16:12,'F2','Prüfprotokoll · '+t.title+(first?'':' (Fortsetzung)'));
+      y-=first?15:12;
+      gray(0.4); txt(M,y,8.8,'F1',t.sub+' · Grundlage: '+t.basis);
+      y-=first?22:18;
+    }
+    function ensure(space){ if (y-space<BOTTOM) { pages.push(c); header(false); } }
+    function section(title){
+      ensure(34);
+      gray(0.93); rect(M,y-5,W-2*M,17,true);
+      gray(0.15); txt(M+7,y,9.2,'F2',title); y-=22;
+    }
+    function row(label,value){
+      var lw=pdfWrap(label,52), vw=pdfWrap(value==null||value===''?'–':String(value),48), n=Math.max(lw.length,vw.length), need=n*11.5+5;
+      ensure(need);
+      gray(0.35); lw.forEach(function(l,i){ txt(M+7,y-i*11.5,9,'F1',l); });
+      gray(0.05); vw.forEach(function(l,i){ txt(M+262,y-i*11.5,9.2,'F2',l); });
+      y-=need; line(M+7,y+6,W-M,y+6,0.3,0.88);
+    }
+    function ynRow(label,val){
+      var lw=pdfWrap(label,78), need=lw.length*11.5+5;
+      ensure(need);
+      gray(0.2); lw.forEach(function(l,i){ txt(M+7,y-i*11.5,9,'F1',l); });
+      var bx=W-M-92;
+      box(bx,y-1.5,val==='ja'); gray(0.1); txt(bx+12,y,9,'F1','Ja');
+      box(bx+44,y-1.5,val==='nein'); gray(0.1); txt(bx+56,y,9,'F1','Nein');
+      y-=need; line(M+7,y+6,W-M,y+6,0.3,0.88);
+    }
+    header(true);
+    gray(0.3); txt(M,y,8.8,'F1','Protokoll-Nr.: '+(protoNo||'–')+'     Prüfdatum: '+isoToDe(protoVal(v,{k:'datum',def:todayIso()}))+'     Ort: '+(v.ort||'–'));
+    y-=20;
+    protoSections(v).forEach(function(sec){
+      section(sec.title);
+      sec.items.forEach(function(it){
+        if (it.k==='kunde_name') return;
+        var val=protoVal(v,it);
+        if (it.t==='yn') { ynRow(it.label,v[it.k]); return; }
+        if (it.t==='sel') val=protoOptLabel(it,val);
+        else if (it.t==='date') val=isoToDe(val);
+        else if (it.t==='num') val=(val===''||val==null)?'':String(val).replace('.',',')+(it.unit?' '+it.unit:'');
+        if (it.opt && !val) return;
+        if ((it.ph==='optional') && !String(val).trim()) return;
+        row(it.label,val);
+      });
+    });
+    // Ergebnis
+    var stCol=res.status==='ok'?[0.13,0.55,0.33]:res.status==='fail'?[0.75,0.16,0.2]:[0.8,0.52,0.08];
+    var extra=[].concat(res.fails,res.warns,res.open.length?['Offen: '+res.open.join(', ')]:[]);
+    if (t.id==='gas_gf' && res.classTitle && res.classTitle!==res.title) extra.unshift('Einstufung nach Messung: '+res.classTitle);
+    var exLines=[]; extra.forEach(function(e){ pdfWrap('– '+e,92).forEach(function(l){ exLines.push(l); }); });
+    var bh=(exLines.length?37:26)+exLines.length*11;
+    ensure(bh+16); y-=4;
+    gray(0.965); rect(M,y+12-bh,W-2*M,bh,true);
+    col(stCol[0],stCol[1],stCol[2]); rect(M,y+12-bh,4,bh,true);
+    gray(0.4); txt(M+14,y,8.5,'F2','ERGEBNIS');
+    col(stCol[0],stCol[1],stCol[2]); txt(M+14,y-15,12.5,'F2',res.title);
+    gray(0.2); exLines.forEach(function(l,i){ txt(M+14,y-30-i*11,8.8,'F1',l); });
+    y-=bh+12;
+    if (t.id==='gas_gf') {
+      var gfNote=['Unbeschränkte Gebrauchsfähigkeit: Leckmenge < 1 l/h und keine weiteren Mängel.','Verminderte Gebrauchsfähigkeit: Leckmenge ≥ 1 l/h und < 5 l/h – Instandsetzung innerhalb von 4 Wochen.','Keine Gebrauchsfähigkeit: Leckmenge ≥ 5 l/h – unverzüglich außer Betrieb nehmen und instand setzen.'];
+      gfNote.forEach(function(n){ pdfWrap(n,108).forEach(function(l){ ensure(11); gray(0.4); txt(M,y,8,'F1',l); y-=10.5; }); });
+      y-=6;
+    }
+    // Unterschriften
+    ensure(112);
+    var colW=(W-2*M-24)/2, sy=y-62;
+    [['pruefer','Prüfer',protoVal(v,{k:'pruefer',def:co.pruefer||''})],['kunde','Auftraggeber / Kunde',v.kunde_name||'']].forEach(function(s,i){
+      var x=M+i*(colW+24), nm=protoSigs[s[0]]?addImg({data:protoSigs[s[0]],w:720,h:240}):null;
+      if (nm) image(nm,x,sy+4,165,55);
+      line(x,sy,x+colW,sy,0.6,0.35);
+      gray(0.35); txt(x,sy-11,8,'F1',(i===0?(v.ort?v.ort+', ':'')+isoToDe(protoVal(v,{k:'datum',def:todayIso()}))+' · ':'')+'Unterschrift '+s[1]);
+      if (s[2]) { gray(0.1); txt(x,sy-22,8.8,'F2',s[2]); }
+    });
+    y=sy-34;
+    pages.push(c);
+    var total=pages.length;
+    pages=pages.map(function(stream,i){
+      var f='0.45 0.45 0.45 rg\n';
+      f+='BT /F1 7.5 Tf 1 0 0 1 '+M.toFixed(2)+' 30 Tm ('+pdfEsc('Die Prüfung dokumentiert den Zustand der Anlage zum Prüfzeitpunkt. Erstellt mit SHK Rechner.')+') Tj ET\n';
+      f+='BT /F1 7.5 Tf 1 0 0 1 '+(W-M-50).toFixed(2)+' 30 Tm ('+pdfEsc('Seite '+(i+1)+' / '+total)+') Tj ET\n';
+      return stream+f;
+    });
+    return pdfAssemble(pages,images);
+  }
+  function downloadProtocolPdf() {
+    var v=protoEnsure(), check=protoValidate(v);
+    if (!check.ok) { alert('PDF nicht möglich: Bitte zuerst die markierten Eingaben korrigieren.'); return; }
+    var r=protoEvaluate(v);
+    if (r.open.length && !confirm('Es fehlen noch Angaben:\n– '+r.open.join('\n– ')+'\n\nPDF trotzdem erstellen?')) return;
+    var t=protoType(v), who=String(v.objekt||'').split(/\n/)[0].trim();
+    var name=('Pruefprotokoll '+t.title+(who?' - '+who:'')+' '+protoVal(v,{k:'datum',def:todayIso()})).replace(/[\\/:*?"<>|]+/g,'-').slice(0,120)+'.pdf';
+    downloadPdf(name,buildProtocolPdf(v));
+  }
+
   function buildFields(id, wrap) {
     wrap.innerHTML = '';
+    if (id === 'protokoll') { buildProtokollFields(wrap); return; }
     if (id === 'rohrvol') {
       var rv=effVals(id);
       if (rv.modus==='volumen') {
@@ -3696,9 +4378,8 @@
         control.addEventListener('input',function(e){setField(id,f.key,e.target.value);});
       } else {
         var rule = fieldRule(id,f.key,ev);
-        var inputAttrs = { id:inputId, type:'number', step:'any', inputmode:'decimal', value:curVal, 'data-field-key':f.key, 'aria-label':f.label + (f.unit ? ' in ' + f.unit : '') };
-        if (rule.min != null) inputAttrs.min = String(rule.min);
-        if (rule.max != null) inputAttrs.max = String(rule.max);
+        var inputAttrs = numAttrs({ id:inputId, value:curVal.replace('.',','), 'data-field-key':f.key, 'aria-label':f.label + (f.unit ? ' in ' + f.unit : '') });
+        if (rule.min != null && rule.min < 0) inputAttrs.inputmode = 'text';   // Minuszeichen auf Handy-Tastaturen erreichbar
         control = el('input', inputAttrs);
         control.addEventListener('input', function(e){ setField(id, f.key, e.target.value); });
       }
@@ -3734,6 +4415,18 @@
     ]);
   }
 
+  var dockMain=null;
+  // Ergebnis-Leiste nur zeigen, solange das Ergebnisfeld nicht im Bild ist (einspaltiges Layout)
+  function updateDock() {
+    var d=document.getElementById('result-dock'), rp=document.querySelector('.result-panel'); if (!d || !rp) return;
+    var r=rp.getBoundingClientRect(), vh=window.innerHeight||document.documentElement.clientHeight;
+    var visible=r.top < vh-40 && r.bottom > 80;
+    d.classList.toggle('hidden',!(dockMain && !visible));
+    if (dockMain) {
+      document.getElementById('result-dock-label').textContent=dockMain.label;
+      document.getElementById('result-dock-value').textContent=dockMain.value+(dockMain.unit?' '+dockMain.unit:'');
+    }
+  }
   function renderResult(id) {
     var wrap = document.getElementById('tool-result');
     if (!wrap) return;
@@ -3750,17 +4443,26 @@
       validation.errors.forEach(function(er){ ul.appendChild(el('li',{text:er.message})); });
       wrap.appendChild(el('div',{class:'validation-summary',role:'alert'},[el('strong',{text:'Eingaben prüfen'}),ul]));
       wrap.appendChild(methodMetaElement(id));
+      dockMain={label:'Eingaben prüfen',value:String(validation.errors.length)+(validation.errors.length===1?' Hinweis':' Hinweise'),unit:''}; updateDock();
       return;
     }
     var res = computeFor(id, ev);
+    dockMain=res.main||(res.subs&&res.subs[0]?{label:res.subs[0].label,value:res.subs[0].value,unit:''}:null); updateDock();
 
     if (res.main) {
       wrap.appendChild(el('div', { class:'result-main' }, [
         el('div', { class:'result-main-label', text:res.main.label }),
         el('div', { class:'result-main-row' }, [
-          el('span', { class:'result-main-value', text:res.main.value }),
+          el('span', { class:'result-main-value'+(/^[\d\s.,>+−–-]*$/.test(String(res.main.value))||String(res.main.value).length<9?'':' is-text'), text:res.main.value }),
           el('span', { class:'result-main-unit', text:res.main.unit })
         ])
+      ]));
+    }
+    if (id === 'protokoll') {
+      var sigCount=(protoSigs.pruefer?1:0)+(protoSigs.kunde?1:0);
+      wrap.appendChild(el('div',{class:'proto-actions'},[
+        el('button',{class:'pdf-btn',type:'button',onClick:downloadProtocolPdf},[el('span',{text:'PDF-Protokoll erstellen'})]),
+        el('div',{class:'proto-actions-meta',text:((state.company&&state.company.logo)?'mit Firmenlogo':'ohne Logo')+' · '+sigCount+' von 2 Unterschriften'})
       ]));
     }
     if (res.subs && res.subs.length) {
@@ -3804,6 +4506,9 @@
       var toolWrap = el('div', { class:'tool-wrap anim-rise', style: tl ? '--cat:'+cats[tl.cat].col+';' : '' });
       toolWrap.appendChild(renderTool(state.view));
       app.appendChild(toolWrap);
+      // Fixierte Leiste außerhalb des animierten Containers (transform würde position:fixed aufheben)
+      var dockEl = toolWrap.querySelector('.result-dock');
+      if (dockEl) app.appendChild(dockEl);
       renderResult(state.view);
     }
     updateHeaderShadow();
@@ -3819,7 +4524,26 @@
   loadState();
   applyTheme();
   applyRoute(true);
-  window.addEventListener('scroll', updateHeaderShadow, { passive:true });
+  window.addEventListener('scroll', function(){ updateHeaderShadow(); updateDock(); }, { passive:true });
+  window.addEventListener('resize', updateDock, { passive:true });
+  // Eingabefelder: Inhalt beim Antippen markieren, Enter springt zum nächsten Feld
+  document.addEventListener('focusin', function(e){
+    var t=e.target;
+    if (t && t.tagName==='INPUT' && t.getAttribute('inputmode') && t.closest('#tool-fields')) setTimeout(function(){ try { t.select(); } catch(x) {} },0);
+  });
+  document.addEventListener('keydown', function(e){
+    var t=e.target;
+    if (e.key==='/' && state.view==='home' && !(t && /INPUT|TEXTAREA|SELECT/.test(t.tagName))) {
+      var si=document.getElementById('home-search'); if (si) { e.preventDefault(); si.focus(); }
+      return;
+    }
+    if (e.key!=='Enter' || !t || t.tagName!=='INPUT' || !t.closest('#tool-fields')) return;
+    e.preventDefault();
+    var all=Array.prototype.slice.call(document.querySelectorAll('#tool-fields input:not([type=file]), #tool-fields select, #tool-fields textarea'));
+    var next=all[all.indexOf(t)+1];
+    if (next) next.focus();
+    else { t.blur(); var rp=document.querySelector('.result-panel'); if (rp && window.innerWidth<980) rp.scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
   window.addEventListener('popstate', function(){ applyRoute(false); });
   window.addEventListener('hashchange', function(){ applyRoute(false); });
 
@@ -3837,6 +4561,7 @@
     computeFor:computeFor,
     validateFor:validateFor,
     buildPdf:buildPdf,
+    buildProtocolPdf:buildProtocolPdf,
     sanitizeImportedVals:sanitizeImportedVals,
     magDefaults:copyOwn(MAG_DEFAULTS),
     auditDefaults:function(){

@@ -2,7 +2,7 @@
    Der Scope wird Teil des Cache-Namens, damit parallele Installationen sich nicht beeinflussen. */
 var SCOPE_KEY = new URL(self.registration.scope).pathname.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'root';
 var CACHE_PREFIX = 'shk-tools-' + SCOPE_KEY + '-';
-var VERSION = CACHE_PREFIX + 'v15';
+var VERSION = CACHE_PREFIX + 'v16';
 var FILES = [
   './',
   './index.html',

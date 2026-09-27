@@ -14,7 +14,7 @@ if (cut < 0) throw new Error('Init-Marker nicht gefunden.');
 
 const expose = `
   window.SHK_TEST = {
-    computeFor:computeFor, validateFor:validateFor, buildPdf:buildPdf,
+    computeFor:computeFor, validateFor:validateFor, buildPdf:buildPdf, buildProtocolPdf:buildProtocolPdf,
     sanitizeImportedVals:sanitizeImportedVals,
     auditDefaults:function(){
       var saved=state.vals, report=[];
@@ -134,10 +134,33 @@ test('Rohrimport wird auf 100 Abschnitte begrenzt',()=>{
   const x=api.sanitizeImportedVals({rohrvol:{sections:Array.from({length:130},()=>({di:16,len:5}))}});
   return x.rohrvol.profiles.volumen.sections.length===100;
 });
-test('Alle 26 sichtbaren Rechner bestehen mit Standardwerten',()=>{
+test('Alle 27 sichtbaren Rechner bestehen mit Standardwerten',()=>{
   const report=api.auditDefaults(), bad=report.filter(x=>!x.ok);
   if (bad.length) throw new Error(bad.map(x=>x.id+': '+(x.errors[0]&&x.errors[0].message)).join(', '));
-  return report.length===26;
+  return report.length===27;
+});
+test('Heizungs-MAG: Enddruck bis 5 bar = Ansprechdruck − 0,5 bar',()=>api.computeFor('mag',{art:'heizung',vol:200,tmax:70,hstat:5,pmin:0.8,psv:3}).subs.some(x=>x.label==='Enddruck pₑ'&&x.value==='2,50 bar'));
+test('Solar-MAG: Enddruck über 5 bar = 0,9 × Ansprechdruck',()=>api.computeFor('mag',{art:'solar',vol:50,flaeche:6,kolltyp:'flach',rohrdampf:0,beta:13,hstat:8,pmin:4,psv:6}).subs.some(x=>x.label==='Enddruck pₑ'&&x.value==='5,40 bar'));
+test('Sicherheitsventil automatisch: 15 m statische Höhe erfordern 3,0 bar',()=>api.computeFor('sv',{leistung:25,psv:'auto',hstat:15}).subs[0].value==='3,0 bar');
+test('Trinkwasser-MAG prüft keinen ungenutzten Mindestdruck mehr',()=>api.validateFor('mag',{art:'trinkwasser',vol:300,tk:10,tw:60,pmin:8,peingang:4,psv:6}).ok);
+test('MwSt zeigt einen Nachlass als eigene Zeile',()=>api.computeFor('mwst',{netto:1000,mwst:19,aufschlag:-10}).subs[0].value==='− 100,00 €');
+const protoGas={typ:'gas_nd',objekt:'Musterweg 1',nd_verschl:'ja',nd_bl_ok:'ja',nd_dt_ok:'ja',nd_vol:120};
+test('Protokoll Gas-Niederdruck: vollständige Prüfung ist bestanden',()=>api.computeFor('protokoll',protoGas).main.value==='Bestanden – Anlage dicht');
+test('Protokoll Gas-Niederdruck: Druckabfall ergibt „Nicht bestanden“',()=>api.computeFor('protokoll',Object.assign({},protoGas,{nd_dt_ok:'nein'})).main.value==='Nicht bestanden');
+test('Protokoll Gas-Niederdruck: zu kurze Prüfdauer bei 120 l wird bemängelt',()=>{
+  const r=api.computeFor('protokoll',Object.assign({},protoGas,{nd_dt_t:10}));
+  return r.main.value==='Prüfbedingungen nicht erfüllt'&&r.subs.some(x=>x.value==='Prüfdauer unter 20 min');
+});
+test('Protokoll Gebrauchsfähigkeit: 2 l/h ergeben verminderte Gebrauchsfähigkeit',()=>{
+  const v={typ:'gas_gf',objekt:'Musterweg 1',gf_leck:2,gf_ausdruck:'ja'};
+  ['r1','r2','r3','r4','r5','r6','r7','a1','a2','a3','a4','a5','a6'].forEach(k=>v['gf_'+k]='ja');
+  return api.computeFor('protokoll',v).main.value==='Verminderte Gebrauchsfähigkeit';
+});
+test('Protokoll Trinkwasser: Prüfdruck unter 1,1 × MDP wird bemängelt',()=>api.computeFor('protokoll',{typ:'tw_wasser',objekt:'x',tw_mdp:10,tw_p:10,tw_pa:10,tw_pe:10,tw_gefuellt:'ja',tw_ausgleich:'ja',tw_sicht:'ja',tw_ok:'ja'}).main.value==='Prüfbedingungen nicht erfüllt');
+test('Protokoll lehnt negative Messwerte ab',()=>!api.validateFor('protokoll',{typ:'gas_nd',nd_vol:'-5'}).ok);
+test('Protokoll-PDF ist ein gültiges PDF mit Titel',()=>{
+  const pdf=api.buildProtocolPdf(protoGas);
+  return pdf.startsWith('%PDF-1.4')&&pdf.includes('Belastungs- und Dichtheitspr')&&pdf.trim().endsWith('%%EOF');
 });
 test('Modernisierte Oberfläche enthält Schnellnavigation, Arbeitsbereich und reduzierte Bewegung',()=>html.includes('class:\'quick-nav\'')&&html.includes('class:\'tool-workspace\'')&&html.includes('@media (prefers-reduced-motion:reduce)'));
 
