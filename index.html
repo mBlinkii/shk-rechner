@@ -557,6 +557,22 @@
   .pdf-btn { min-height:50px; border:0; border-radius:14px; background:var(--text); color:var(--bg); font-size:15.5px; font-weight:750; cursor:pointer; box-shadow:var(--shadow-sm); transition:transform .16s,box-shadow .16s; }
   .pdf-btn:hover { transform:translateY(-1px); box-shadow:var(--shadow); }
   .pdf-btn:focus-visible { outline:none; box-shadow:var(--ring); }
+  .accent-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .accent-swatch { width:30px; height:30px; border-radius:50%; border:2px solid var(--surface); background:var(--sw); box-shadow:0 0 0 1px var(--border); cursor:pointer; padding:0; transition:transform .15s; }
+  .accent-swatch:hover { transform:scale(1.08); }
+  .accent-swatch.on { box-shadow:0 0 0 2px var(--sw), 0 0 0 4px var(--surface), 0 0 0 5px var(--text); }
+  .accent-picker { width:40px; height:32px; padding:0 2px; border:1px solid var(--border); border-radius:9px; background:var(--surface); cursor:pointer; }
+  .accent-code { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .proto-btn-row { display:grid; grid-template-columns:1fr 1.4fr; gap:8px; }
+  .pdf-btn-ghost { background:var(--surface); color:var(--text); border:1px solid var(--border); }
+  .sig-head { flex-wrap:wrap; align-items:center; }
+  .sig-btns { display:flex; gap:6px; flex-wrap:wrap; }
+  .pdf-overlay { position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:18px; background:rgba(8,14,20,.62); backdrop-filter:blur(4px); animation:toastIn .2s ease-out both; }
+  .pdf-dialog { width:min(920px,100%); height:min(94vh,1200px); display:flex; flex-direction:column; border-radius:18px; overflow:hidden; background:var(--surface); box-shadow:var(--shadow-lg); border:1px solid var(--border); }
+  .pdf-bar { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px 10px 16px; border-bottom:1px solid var(--border); font-size:14px; }
+  .pdf-bar strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pdf-bar-btns { display:flex; gap:8px; flex:0 0 auto; }
+  .pdf-frame { flex:1 1 auto; width:100%; border:0; background:#525659; }
   .proto-actions-meta { font-size:12px; color:var(--muted); text-align:center; }
   @media (max-width:520px) {
     .field-yn { flex-direction:column !important; align-items:stretch; }
@@ -3069,7 +3085,7 @@
       normalizeCombinedState(state.vals,id);
       state.vals[id].profiles[state.vals[id].modus]={};
     } else delete state.vals[id];
-    if (id==='protokoll') protoSigs={pruefer:null,kunde:null};
+    if (id==='protokoll') protoSigs={};
     persist(); render(); showToast('Standardwerte wiederhergestellt.');
   }
   function resetAllInputs() {
@@ -3164,8 +3180,9 @@
   // ---------- PDF-Export (eigener, abhängigkeitsfreier Generator, Helvetica/WinAnsi) ----------
   function pdfText(s) {
     var rep = {'Δ':'d','π':'pi','√':'sqrt','₀':'0','₁':'1','₂':'2','₃':'3','ₑ':'e','ⁿ':'n',
-      '→':'->','…':'...','≤':'<=','≥':'>=','„':'"','“':'"','”':'"','‚':"'",'‘':"'",'’':"'",
-      '–':'-','—':'-','−':'-','•':'-','€':'EUR','≈':'~','β':'beta','ρ':'rho'};
+      '→':'->','≤':'<=','≥':'>=','−':'-','≈':'~','β':'beta','ρ':'rho',
+      // WinAnsiEncoding (Bereich 0x80–0x9F) für typografische Zeichen
+      '€':'\x80','‚':'\x82','„':'\x84','…':'\x85','‘':'\x91','’':'\x92','“':'\x93','”':'\x94','•':'\x95','–':'\x96','—':'\x97'};
     s = String(s); var out = '';
     for (var i = 0; i < s.length; i++) {
       var ch = s[i];
@@ -3243,10 +3260,13 @@
     pdf += 'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
     return pdf;
   }
-  function downloadPdf(name, bytes) {
+  function pdfBlob(bytes) {
     var arr = new Uint8Array(bytes.length);
     for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i) & 0xff;
-    var url = URL.createObjectURL(new Blob([arr], { type:'application/pdf' }));
+    return new Blob([arr], { type:'application/pdf' });
+  }
+  function downloadPdf(name, bytes) {
+    var url = URL.createObjectURL(pdfBlob(bytes));
     var a = el('a', { href:url, download:name });
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
@@ -3932,12 +3952,14 @@
       if (!isFinite(leak)) open.push('Ermittelte Leckmenge');
       if (num('gf_bdruck',23)>100) warns.push('Betriebsdruck über 100 hPa – Gebrauchsfähigkeitsprüfung nach diesem Schema nur bis 100 hPa');
       var title, status;
-      if (isFinite(leak) && leak>=5) { title='Keine Gebrauchsfähigkeit'; status='fail'; fails.push('Leckmenge ≥ 5 l/h: Leitungsanlage unverzüglich außer Betrieb nehmen und instand setzen'); }
-      else if (isFinite(leak) && leak>=1) { title='Verminderte Gebrauchsfähigkeit'; status='warn'; warns.push('Leckmenge ≥ 1 und < 5 l/h: Instandsetzung innerhalb von 4 Wochen'); }
-      else if (isFinite(leak) && (neinCount || mangel)) { title='Leckmenge < 1 l/h – weitere Mängel'; status='warn'; warns.push((neinCount?neinCount+' Kontrollpunkt(e) mit „Nein“':'')+(neinCount&&mangel?' · ':'')+(mangel?'weitere Mängel dokumentiert':'')+' – Mängel beseitigen'); }
+      if (isFinite(leak) && leak>=5) { title='Keine Gebrauchsfähigkeit'; status='fail'; fails.push('Leckmenge ab 5 l/h: Leitungsanlage unverzüglich außer Betrieb nehmen und instand setzen'); }
+      else if (isFinite(leak) && leak>=1) { title='Verminderte Gebrauchsfähigkeit'; status='warn'; warns.push('Leckmenge von 1 bis unter 5 l/h: Instandsetzung innerhalb von 4 Wochen'); }
+      else if (isFinite(leak) && (neinCount || mangel)) { title='Leckmenge unter 1 l/h – weitere Mängel'; status='warn'; }
       else if (isFinite(leak)) { title='Unbeschränkte Gebrauchsfähigkeit'; status='ok'; }
       else { title='Messung ausstehend'; status='open'; }
-      lines.push({label:'Einstufung',value:'< 1 l/h unbeschränkt · 1 bis < 5 l/h vermindert · ≥ 5 l/h keine'});
+      // Weitere Mängel immer mit aufführen, auch wenn die Leckmenge die Einstufung bestimmt
+      if (isFinite(leak) && (neinCount || mangel)) warns.push((neinCount?neinCount+' Kontrollpunkt(e) mit „Nein“':'')+(neinCount&&mangel?' · ':'')+(mangel?'weitere Mängel: '+mangel:'')+' – Mängel beseitigen');
+      lines.push({label:'Einstufung',value:'unter 1 l/h unbeschränkt · 1 bis unter 5 l/h vermindert · ab 5 l/h keine'});
       return {status:open.length&&status!=='fail'?'open':status,title:open.length&&status!=='fail'?'Angaben unvollständig':title,classTitle:title,fails:fails,warns:warns,open:open,lines:lines};
     }
     if (typ==='tw_wasser') {
@@ -3999,6 +4021,8 @@
     var lg=c.logo;
     if (isPlainObject(lg) && typeof lg.data==='string' && lg.data.indexOf('data:image/jpeg;base64,')===0 && lg.data.length<1500000 && N(lg.w)>0 && N(lg.h)>0)
       out.logo={data:lg.data,w:Math.round(N(lg.w)),h:Math.round(N(lg.h))};
+    if (typeof c.akzent==='string' && /^#[0-9a-f]{6}$/i.test(c.akzent)) out.akzent=c.akzent.toLowerCase();
+    if (typeof c.sig==='string' && c.sig.indexOf('data:image/jpeg;base64,')===0 && c.sig.length<800000) out.sig=c.sig;
     return out;
   }
   function persistCompany() {
@@ -4018,7 +4042,7 @@
     img.src=src;
   }
 
-  var protoSigs={pruefer:null,kunde:null};   // Unterschriften nur im Speicher (Datenschutz)
+  var protoSigs={};   // Unterschriften nur im Speicher (Datenschutz)
   function protoEnsure() {
     if (!isPlainObject(state.vals.protokoll)) state.vals.protokoll={typ:'gas_nd'};
     return state.vals.protokoll;
@@ -4036,15 +4060,29 @@
     if (!confirm('Neues Protokoll beginnen? Auftrags- und Messwerte werden geleert; Firmendaten und Protokollart bleiben erhalten.')) return;
     var v=protoEnsure();
     state.vals.protokoll={typ:v.typ};
-    protoSigs={pruefer:null,kunde:null};
+    protoSigs={};
     persist(); rebuildProto(); showToast('Neues Protokoll angelegt.');
   }
   function signaturePad(key, label) {
+    var co=state.company||{};
+    // Prüfer: gespeicherte Standard-Unterschrift vorbelegen, solange nicht ausdrücklich gelöscht
+    if (key==='pruefer' && protoSigs.pruefer===undefined && co.sig) protoSigs.pruefer=co.sig;
     var cv=el('canvas',{class:'sig-canvas',width:'720',height:'240','aria-label':label+' – mit Finger oder Maus unterschreiben'});
     var cx=cv.getContext && cv.getContext('2d');
     function blank(){ if (!cx) return; cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); }
+    function drawImageFit(src, done){
+      var im=new Image();
+      im.onload=function(){
+        blank();
+        var s=Math.min((cv.width-24)/im.width,(cv.height-24)/im.height), w=im.width*s, h=im.height*s;
+        cx.drawImage(im,(cv.width-w)/2,(cv.height-h)/2,w,h);
+        if (done) done();
+      };
+      im.onerror=function(){ alert('Das Bild konnte nicht gelesen werden.'); };
+      im.src=src;
+    }
     blank();
-    if (protoSigs[key] && cx) { var im=new Image(); im.onload=function(){ cx.drawImage(im,0,0,cv.width,cv.height); }; im.src=protoSigs[key]; }
+    if (protoSigs[key] && cx) drawImageFit(protoSigs[key]);
     var drawing=false, last=null, dirty=false;
     function pos(e){ var r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height}; }
     cv.addEventListener('pointerdown',function(e){ if (!cx) return; drawing=true; dirty=true; last=pos(e); try { cv.setPointerCapture(e.pointerId); } catch(x) {} e.preventDefault(); });
@@ -4053,12 +4091,29 @@
       cx.strokeStyle='#10204a'; cx.lineWidth=4.2; cx.lineCap='round'; cx.lineJoin='round';
       cx.beginPath(); cx.moveTo(last.x,last.y); cx.lineTo(p.x,p.y); cx.stroke(); last=p; e.preventDefault();
     });
-    function end(){ if (!drawing) return; drawing=false; if (dirty) { protoSigs[key]=cv.toDataURL('image/jpeg',0.85); renderResult('protokoll'); } }
+    function store(){ protoSigs[key]=cv.toDataURL('image/jpeg',0.9); renderResult('protokoll'); }
+    function end(){ if (!drawing) return; drawing=false; if (dirty) store(); }
     cv.addEventListener('pointerup',end); cv.addEventListener('pointercancel',end); cv.addEventListener('pointerleave',end);
-    var clear=el('button',{class:'sig-clear',type:'button',text:'Löschen',onClick:function(){ blank(); dirty=false; protoSigs[key]=null; renderResult('protokoll'); }});
+    // Unterschrift als Bild (PNG mit transparentem Hintergrund, JPG …) einfügen
+    var fileIn=el('input',{type:'file',accept:'image/png,image/jpeg,image/webp,image/gif,image/svg+xml',style:'display:none;'});
+    fileIn.addEventListener('change',function(){
+      var f=fileIn.files&&fileIn.files[0]; if (!f) return;
+      if (f.size>8*1024*1024) { alert('Das Bild ist größer als 8 MB.'); return; }
+      var rd=new FileReader();
+      rd.onload=function(){ drawImageFit(rd.result,function(){ dirty=true; store(); showToast('Unterschrift eingefügt.'); }); };
+      rd.readAsDataURL(f); fileIn.value='';
+    });
+    var btns=[
+      el('button',{class:'sig-clear',type:'button',text:'Bild einfügen',title:'Unterschrift als PNG oder JPG einfügen',onClick:function(){ fileIn.click(); }}),
+      el('button',{class:'sig-clear',type:'button',text:'Löschen',onClick:function(){ blank(); dirty=false; protoSigs[key]=null; renderResult('protokoll'); }})
+    ];
+    if (key==='pruefer') btns.splice(1,0,el('button',{class:'sig-clear',type:'button',text:'Als Standard merken',title:'Diese Unterschrift für künftige Protokolle auf diesem Gerät speichern',onClick:function(){
+      if (!protoSigs.pruefer) { alert('Bitte zuerst unterschreiben oder ein Bild einfügen.'); return; }
+      state.company=state.company||{}; state.company.sig=protoSigs.pruefer; persistCompany(); showToast('Standard-Unterschrift gespeichert.');
+    }}));
     return el('div',{class:'field sig-field'},[
-      el('div',{class:'field-head'},[el('span',{class:'field-label',text:label}),clear]),
-      cv
+      el('div',{class:'field-head sig-head'},[el('span',{class:'field-label',text:label}),el('span',{class:'sig-btns'},btns)]),
+      cv, fileIn
     ]);
   }
   function buildCompanyBox() {
@@ -4095,6 +4150,22 @@
     }
     drawLogo();
     body.appendChild(logoWrap);
+    // Akzentfarbe des Protokolls: Voreinstellungen oder frei wählbar
+    var accRow=el('div',{class:'accent-row'});
+    function drawAccent(){
+      accRow.innerHTML='';
+      var cur=((state.company||{}).akzent||PROTO_ACCENT_DEFAULT).toLowerCase();
+      function setAcc(val){ state.company=state.company||{}; state.company.akzent=val; persistCompany(); drawAccent(); renderResult('protokoll'); }
+      PROTO_ACCENT_PRESETS.forEach(function(pr){
+        accRow.appendChild(el('button',{type:'button',class:'accent-swatch'+(pr[0]===cur?' on':''),style:'--sw:'+pr[0]+';',title:pr[1],'aria-label':'Akzentfarbe '+pr[1],'aria-pressed':String(pr[0]===cur),onClick:function(){ setAcc(pr[0]); }}));
+      });
+      var pick=el('input',{type:'color',class:'accent-picker',value:cur,'aria-label':'Eigene Akzentfarbe wählen',title:'Eigene Farbe wählen'});
+      pick.addEventListener('change',function(e){ setAcc(e.target.value.toLowerCase()); });
+      accRow.appendChild(pick);
+      accRow.appendChild(el('span',{class:'accent-code',text:cur.toUpperCase()}));
+    }
+    drawAccent();
+    body.appendChild(el('div',{class:'field'},[el('div',{class:'field-head'},[el('span',{class:'field-label',text:'Akzentfarbe im Protokoll'})]),accRow]));
     COMPANY_FIELDS.forEach(function(f){
       var inp=el('input',{type:f[0]==='email'?'email':(f[0]==='telefon'?'tel':'text'),value:co[f[0]]||'','aria-label':f[1],autocomplete:'off'});
       inp.addEventListener('input',function(e){
@@ -4169,117 +4240,251 @@
     wrap.appendChild(el('button',{class:'rohr-add',type:'button',text:'Neues Protokoll beginnen',onClick:newProtocol}));
   }
 
-  // PDF: A4 hoch, eigenes Layout mit Logo, Prüfpunkten, Ergebnis und Unterschriften.
+  // PDF: A4 hoch, Firmenkopf links, Logo rechts, tabellarische Prüfpunkte, Ergebnis und Unterschriften.
+  // Zeichenbreiten der PDF-Standardschriften (Helvetica / Helvetica-Bold, 1/1000 em) für Umbruch und Rechtsbündigkeit.
+  var HELV_W = [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+  var HELVB_W = [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+  function pdfWidth(s, font, size) {
+    var tab=font==='F2'?HELVB_W:HELV_W, str=pdfText(s), w=0;
+    for (var i=0;i<str.length;i++) {
+      var cc=str.charCodeAt(i), base=str[i].normalize ? str[i].normalize('NFD').charCodeAt(0) : cc;
+      if (cc>=32 && cc<=126) w+=tab[cc-32];
+      else if (base>=32 && base<=126) w+=tab[base-32];
+      else if (cc===0x96||cc===0x80) w+=556; else if (cc===0x97||cc===0x85) w+=1000; else if (cc>=0x91&&cc<=0x94||cc===0x82||cc===0x84) w+=(font==='F2'?500:333);
+      else if (cc===0x95) w+=350; else if (cc===0xDF) w+=611; else if (cc===0xB7) w+=278; else if (cc===0xB0) w+=400; else w+=556;
+    }
+    return w*size/1000;
+  }
+  function pdfWrapW(text, maxW, font, size) {
+    var out=[];
+    String(text==null?'':text).split(/\n/).forEach(function(par){
+      var words=par.split(/\s+/).filter(Boolean), cur='';
+      if (!words.length) { out.push(''); return; }
+      words.forEach(function(w){
+        var test=cur?cur+' '+w:w;
+        if (pdfWidth(test,font,size)<=maxW || !cur) cur=test; else { out.push(cur); cur=w; }
+        while (pdfWidth(cur,font,size)>maxW && cur.length>1) {        // überlange Wörter hart trennen
+          var k=cur.length; while (k>1 && pdfWidth(cur.slice(0,k),font,size)>maxW) k--;
+          out.push(cur.slice(0,k)); cur=cur.slice(k);
+        }
+      });
+      if (cur) out.push(cur);
+    });
+    return out.length?out:[''];
+  }
+  var PROTO_ACCENT_DEFAULT='#1b3b6b';
+  var PROTO_ACCENT_PRESETS=[['#1b3b6b','Marineblau'],['#0b6e99','Petrol'],['#1f7a45','Grün'],['#b3261e','Rot'],['#d9661f','Orange'],['#3a3f45','Anthrazit']];
+  // Hex-Farbe → RGB (0–1); zu helle Farben werden für Schrift auf Weiß abgedunkelt.
+  function protoAccent(hex) {
+    var m=String(hex||'').match(/^#?([0-9a-f]{6})$/i); if (!m) m=PROTO_ACCENT_DEFAULT.match(/^#?([0-9a-f]{6})$/i);
+    var n=parseInt(m[1],16), rgb=[(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];
+    var lum=0.2126*rgb[0]+0.7152*rgb[1]+0.0722*rgb[2];
+    if (lum>0.5) { var f=0.5/lum; rgb=rgb.map(function(x){ return x*f; }); }
+    return rgb;
+  }
   function dataUrlToBin(d) { return atob(String(d).split(',')[1]||''); }
   function buildProtocolPdf(v) {
-    var W=595.28,H=841.89,M=46,BOTTOM=60,co=state.company||{},t=protoType(v),res=protoEvaluate(v);
+    var W=595.28,H=841.89,M=42,BOTTOM=50,co=state.company||{},t=protoType(v),res=protoEvaluate(v);
+    var ACC=protoAccent(co.akzent), INK=0.1, MUTED=0.42, RULE=0.86;
     var pages=[],c='',y=0,images=[],imgNo=0;
     function addImg(img){ if (!img||!img.data) return null; imgNo++; var name='Im'+imgNo; images.push({name:name,w:img.w,h:img.h,bin:dataUrlToBin(img.data)}); return name; }
     var logoName=co.logo?addImg(co.logo):null;
-    function col(r,g,b,stroke){ c+=r.toFixed(3)+' '+g.toFixed(3)+' '+b.toFixed(3)+(stroke?' RG\n':' rg\n'); }
-    function gray(gv){ col(gv,gv,gv); }
-    function txt(x,yy,sz,f,s){ c+='BT /'+f+' '+sz+' Tf 1 0 0 1 '+x.toFixed(2)+' '+yy.toFixed(2)+' Tm ('+pdfEsc(s)+') Tj ET\n'; }
-    function line(x1,y1,x2,y2,w,gv){ col(gv,gv,gv,true); c+=w+' w '+x1.toFixed(2)+' '+y1.toFixed(2)+' m '+x2.toFixed(2)+' '+y2.toFixed(2)+' l S\n'; }
-    function rect(x,yy,w,h,fill){ c+=x.toFixed(2)+' '+yy.toFixed(2)+' '+w.toFixed(2)+' '+h.toFixed(2)+' re '+(fill?'f':'S')+'\n'; }
+    var sigNames={};
+    ['pruefer','kunde'].forEach(function(k){ if (protoSigs[k]) sigNames[k]=addImg({data:protoSigs[k],w:720,h:240}); });
+    function col(rgb,stroke){ c+=rgb[0].toFixed(3)+' '+rgb[1].toFixed(3)+' '+rgb[2].toFixed(3)+(stroke?' RG\n':' rg\n'); }
+    function gray(g,stroke){ col([g,g,g],stroke); }
+    function txt(x,yy,sz,f,s,tc){ c+='BT /'+f+' '+sz+' Tf '+(tc||0)+' Tc 1 0 0 1 '+x.toFixed(2)+' '+yy.toFixed(2)+' Tm ('+pdfEsc(s)+') Tj ET\n'; }
+    function txtR(xr,yy,sz,f,s){ txt(xr-pdfWidth(s,f,sz),yy,sz,f,s); }
+    function line(x1,y1,x2,y2,w){ c+=w+' w '+x1.toFixed(2)+' '+y1.toFixed(2)+' m '+x2.toFixed(2)+' '+y2.toFixed(2)+' l S\n'; }
+    function rect(x,yy,w,h,mode){ c+=x.toFixed(2)+' '+yy.toFixed(2)+' '+w.toFixed(2)+' '+h.toFixed(2)+' re '+mode+'\n'; }
     function image(name,x,yy,w,h){ c+='q '+w.toFixed(2)+' 0 0 '+h.toFixed(2)+' '+x.toFixed(2)+' '+yy.toFixed(2)+' cm /'+name+' Do Q\n'; }
-    function box(x,yy,on){ col(0.35,0.35,0.35,true); c+='0.8 w '; rect(x,yy,8,8,false); if (on) { line(x+1.6,yy+1.6,x+6.4,yy+6.4,1.2,0.05); line(x+1.6,yy+6.4,x+6.4,yy+1.6,1.2,0.05); } }
+    function tint(rgb,a){ return [1-(1-rgb[0])*a,1-(1-rgb[1])*a,1-(1-rgb[2])*a]; }
+    function checkbox(x,yy,on){
+      if (on) { col(ACC); rect(x,yy,9,9,'f'); gray(1,true); c+='1.3 w 1 J 1 j '+(x+2).toFixed(2)+' '+(yy+4.6).toFixed(2)+' m '+(x+3.9).toFixed(2)+' '+(yy+2.4).toFixed(2)+' l '+(x+7.2).toFixed(2)+' '+(yy+6.9).toFixed(2)+' l S 0 J 0 j\n'; }
+      else { gray(0.55,true); rect(x,yy,9,9,'S'); }
+    }
+    var dateDe=isoToDe(protoVal(v,{k:'datum',def:todayIso()}));
     var protoNo=String(v.auftragsnr||'').trim();
+    var contact=[co.telefon?'Tel. '+co.telefon:'',co.email||''].filter(Boolean).join('  ·  ');
+
     function header(first){
-      c=''; y=H-40;
-      var lh=0;
+      c=''; var top=H-34, lh=0;
       if (logoName) {
-        var s=Math.min(165/co.logo.w,58/co.logo.h), lw=co.logo.w*s; lh=co.logo.h*s;
-        image(logoName,M,y-lh,lw,lh);
+        var s=Math.min(175/co.logo.w,52/co.logo.h), lw=co.logo.w*s; lh=co.logo.h*s;
+        image(logoName,W-M-lw,top-lh,lw,lh);
       }
-      var cx0=W-M-205, cy=y-9;
-      gray(0.08); if (co.firma) { txt(cx0,cy,10.5,'F2',co.firma); cy-=13; }
-      gray(0.35);
-      [co.strasse,co.plzort,[co.telefon?'Tel. '+co.telefon:'',co.email].filter(Boolean).join(' · '),co.eintrag?'Installateurverz.: '+co.eintrag:''].forEach(function(l){ if (l) { pdfWrap(l,44).forEach(function(w){ txt(cx0,cy,8.2,'F1',w); cy-=10.5; }); } });
-      y=Math.min(y-Math.max(lh,0)-12, cy-4, H-104);
-      line(M,y,W-M,y,0.7,0.75);
-      y-=first?26:18;
-      gray(0.05); txt(M,y,first?16:12,'F2','Prüfprotokoll · '+t.title+(first?'':' (Fortsetzung)'));
-      y-=first?15:12;
-      gray(0.4); txt(M,y,8.8,'F1',t.sub+' · Grundlage: '+t.basis);
-      y-=first?22:18;
+      var ty=top-11, textMax=W-2*M-(logoName?195:0);
+      if (co.firma) { gray(INK); pdfWrapW(co.firma,textMax,'F2',13).forEach(function(l){ txt(M,ty,13,'F2',l); ty-=15; }); ty-=1; }
+      gray(MUTED);
+      [[co.strasse,co.plzort].filter(Boolean).join(', '),contact,co.eintrag?'Installateurverzeichnis: '+co.eintrag:''].forEach(function(l){
+        if (l) pdfWrapW(l,textMax,'F1',8.4).forEach(function(w){ txt(M,ty,8.4,'F1',w); ty-=11; });
+      });
+      y=Math.min(top-lh,ty+4)-10;
+      col(ACC,true); line(M,y,W-M,y,1.6);
+      y-=first?26:22;
+      if (!first) { gray(INK); txt(M,y,10,'F2','Prüfprotokoll · '+t.title); gray(MUTED); txtR(W-M,y,8.4,'F1','Fortsetzung'); y-=24; }
+    }
+    function footer(i,total){
+      var f='';
+      var sv=c; c='';
+      gray(RULE,true); line(M,40,W-M,40,0.5);
+      gray(MUTED);
+      txt(M,30,7.2,'F1',[co.firma||'',contact].filter(Boolean).join('  ·  ')||'Prüfprotokoll');
+      txt(M,21,7.2,'F1','Das Protokoll dokumentiert den Zustand der Anlage zum Prüfzeitpunkt.');
+      txtR(W-M,30,7.2,'F2','Seite '+(i+1)+' von '+total);
+      if (protoNo) txtR(W-M,21,7.2,'F1','Protokoll-Nr. '+protoNo);
+      f=c; c=sv; return f;
     }
     function ensure(space){ if (y-space<BOTTOM) { pages.push(c); header(false); } }
-    function section(title){
-      ensure(34);
-      gray(0.93); rect(M,y-5,W-2*M,17,true);
-      gray(0.15); txt(M+7,y,9.2,'F2',title); y-=22;
+    function ensureRow(space){ if (y-space<BOTTOM) { pages.push(c); header(false); y+=8; gray(RULE,true); line(M,y,W-M,y,0.4); } }
+    var secNo=0;
+    function section(title, hasYn){
+      ensure(46); secNo++;
+      col(ACC); txt(M,y,8.6,'F2',String(secNo).padStart(2,'0'),0.4);
+      txt(M+20,y,8.6,'F2',title.replace(/^\d+\.\s*/,'').toUpperCase(),0.9);
+      if (hasYn) { gray(MUTED); txt(W-M-80,y,7.4,'F2','JA',0.6); txt(W-M-40,y,7.4,'F2','NEIN',0.6); }
+      col(ACC,true); line(M,y-5.5,W-M,y-5.5,0.9);
+      y-=5.5;                     // ab hier: Oberkante der ersten Zeile
     }
+    // Zeilenmaß: Innenabstand oben/unten gleich; Versalhöhe ≈ 0,7 em, Unterlänge ≈ 0,21 em
+    var PADY=4.5, LEAD=11.5, CAP=6.6, DESC=2;
+    function rowHeight(n){ return 2*PADY+CAP+DESC+(n-1)*LEAD; }
+    var LBL=190, VX=M+LBL+10, VW=W-M-VX;
     function row(label,value){
-      var lw=pdfWrap(label,52), vw=pdfWrap(value==null||value===''?'–':String(value),48), n=Math.max(lw.length,vw.length), need=n*11.5+5;
-      ensure(need);
-      gray(0.35); lw.forEach(function(l,i){ txt(M+7,y-i*11.5,9,'F1',l); });
-      gray(0.05); vw.forEach(function(l,i){ txt(M+262,y-i*11.5,9.2,'F2',l); });
-      y-=need; line(M+7,y+6,W-M,y+6,0.3,0.88);
+      var lw=pdfWrapW(label,LBL-6,'F1',8.6), vw=pdfWrapW(value==null||value===''?'—':String(value),VW,'F1',9.4);
+      var n=Math.max(lw.length,vw.length), need=rowHeight(n);
+      ensureRow(need);
+      var b=y-PADY-CAP;
+      gray(MUTED); lw.forEach(function(l,i){ txt(M+2,b-i*LEAD,8.6,'F1',l); });
+      gray(INK); vw.forEach(function(l,i){ txt(VX,b-i*LEAD,9.4,'F1',l); });
+      y-=need; gray(RULE,true); line(M,y,W-M,y,0.4);
     }
     function ynRow(label,val){
-      var lw=pdfWrap(label,78), need=lw.length*11.5+5;
-      ensure(need);
-      gray(0.2); lw.forEach(function(l,i){ txt(M+7,y-i*11.5,9,'F1',l); });
-      var bx=W-M-92;
-      box(bx,y-1.5,val==='ja'); gray(0.1); txt(bx+12,y,9,'F1','Ja');
-      box(bx+44,y-1.5,val==='nein'); gray(0.1); txt(bx+56,y,9,'F1','Nein');
-      y-=need; line(M+7,y+6,W-M,y+6,0.3,0.88);
+      var lw=pdfWrapW(label,W-2*M-110,'F1',9), need=rowHeight(lw.length);
+      ensureRow(need);
+      var b=y-PADY-CAP, mid=y-need/2;
+      gray(INK); lw.forEach(function(l,i){ txt(M+2,b-i*LEAD,9,'F1',l); });
+      checkbox(W-M-78,mid-4.5,val==='ja');
+      checkbox(W-M-34,mid-4.5,val==='nein');
+      y-=need; gray(RULE,true); line(M,y,W-M,y,0.4);
     }
+
+    // ---- Seite 1: Kopf, Titel, Metadaten ----
     header(true);
-    gray(0.3); txt(M,y,8.8,'F1','Protokoll-Nr.: '+(protoNo||'–')+'     Prüfdatum: '+isoToDe(protoVal(v,{k:'datum',def:todayIso()}))+'     Ort: '+(v.ort||'–'));
-    y-=20;
+    var metaW=176, metaX=W-M-metaW, titleW=metaX-M-18, ty0=y;
+    col(ACC); txt(M,y,8.4,'F2','PRÜFPROTOKOLL',1.6); y-=22;
+    gray(INK); pdfWrapW(t.title,titleW,'F2',18).forEach(function(l){ txt(M,y,18,'F2',l); y-=21; });
+    y+=4; gray(MUTED); pdfWrapW(t.sub,titleW,'F1',9.4).forEach(function(l){ txt(M,y,9.4,'F1',l); y-=12; });
+    pdfWrapW('Grundlage: '+t.basis,titleW,'F1',8.4).forEach(function(l){ txt(M,y,8.4,'F1',l); y-=11; });
+    var meta=[['Protokoll-Nr.',protoNo||'—'],['Prüfdatum',dateDe||'—'],['Prüfort',v.ort||'—']];
+    var mh=meta.length*17+12, mTop=ty0+10;
+    gray(0.965); rect(metaX,mTop-mh,metaW,mh,'f');
+    col(ACC); rect(metaX,mTop-mh,2.4,mh,'f');
+    meta.forEach(function(m,i){
+      var yy=mTop-18-i*17;
+      gray(MUTED); txt(metaX+12,yy,7.8,'F1',m[0]);
+      gray(INK); var mv=pdfWrapW(m[1],metaW-86,'F2',9)[0]; txt(metaX+80,yy,9,'F2',mv);
+    });
+    y=Math.min(y,mTop-mh)-14;
+
+    // ---- Prüfpunkte ----
     protoSections(v).forEach(function(sec){
-      section(sec.title);
-      sec.items.forEach(function(it){
-        if (it.k==='kunde_name') return;
+      var items=sec.items.filter(function(it){
+        if (it.k==='bemerkung') return false;
+        if (it.k==='kunde_name' || it.k==='ort' || it.k==='datum' || it.k==='auftragsnr') return false;
+        var val=protoVal(v,it);
+        if ((it.opt || it.ph==='optional') && !String(val==null?'':val).trim()) return false;
+        return true;
+      });
+      if (!items.length) return;
+      section(sec.title, items.some(function(it){ return it.t==='yn'; }));
+      items.forEach(function(it){
         var val=protoVal(v,it);
         if (it.t==='yn') { ynRow(it.label,v[it.k]); return; }
         if (it.t==='sel') val=protoOptLabel(it,val);
         else if (it.t==='date') val=isoToDe(val);
         else if (it.t==='num') val=(val===''||val==null)?'':String(val).replace('.',',')+(it.unit?' '+it.unit:'');
-        if (it.opt && !val) return;
-        if ((it.ph==='optional') && !String(val).trim()) return;
         row(it.label,val);
       });
+      y-=14;                      // Abstand zur nächsten Abschnittsüberschrift (Grundlinie)
     });
-    // Ergebnis
-    var stCol=res.status==='ok'?[0.13,0.55,0.33]:res.status==='fail'?[0.75,0.16,0.2]:[0.8,0.52,0.08];
+
+    // ---- Ergebnis + Unterschriften (möglichst zusammen auf einer Seite) ----
+    var stCol=res.status==='ok'?[0.11,0.52,0.3]:res.status==='fail'?[0.74,0.14,0.2]:[0.78,0.47,0.04];
     var extra=[].concat(res.fails,res.warns,res.open.length?['Offen: '+res.open.join(', ')]:[]);
     if (t.id==='gas_gf' && res.classTitle && res.classTitle!==res.title) extra.unshift('Einstufung nach Messung: '+res.classTitle);
-    var exLines=[]; extra.forEach(function(e){ pdfWrap('– '+e,92).forEach(function(l){ exLines.push(l); }); });
-    var bh=(exLines.length?37:26)+exLines.length*11;
-    ensure(bh+16); y-=4;
-    gray(0.965); rect(M,y+12-bh,W-2*M,bh,true);
-    col(stCol[0],stCol[1],stCol[2]); rect(M,y+12-bh,4,bh,true);
-    gray(0.4); txt(M+14,y,8.5,'F2','ERGEBNIS');
-    col(stCol[0],stCol[1],stCol[2]); txt(M+14,y-15,12.5,'F2',res.title);
-    gray(0.2); exLines.forEach(function(l,i){ txt(M+14,y-30-i*11,8.8,'F1',l); });
-    y-=bh+12;
-    if (t.id==='gas_gf') {
-      var gfNote=['Unbeschränkte Gebrauchsfähigkeit: Leckmenge < 1 l/h und keine weiteren Mängel.','Verminderte Gebrauchsfähigkeit: Leckmenge ≥ 1 l/h und < 5 l/h – Instandsetzung innerhalb von 4 Wochen.','Keine Gebrauchsfähigkeit: Leckmenge ≥ 5 l/h – unverzüglich außer Betrieb nehmen und instand setzen.'];
-      gfNote.forEach(function(n){ pdfWrap(n,108).forEach(function(l){ ensure(11); gray(0.4); txt(M,y,8,'F1',l); y-=10.5; }); });
-      y-=6;
+    var exLines=[]; extra.forEach(function(e){ pdfWrapW('•  '+e,W-2*M-36,'F1',8.8).forEach(function(l){ exLines.push(l); }); });
+    var legend=t.id==='gas_gf'?['Unbeschränkte Gebrauchsfähigkeit: Leckmenge unter 1 l/h und keine weiteren Mängel.','Verminderte Gebrauchsfähigkeit: Leckmenge von 1 bis unter 5 l/h – Instandsetzung innerhalb von 4 Wochen.','Keine Gebrauchsfähigkeit: Leckmenge ab 5 l/h – unverzüglich außer Betrieb nehmen und instand setzen.']:[];
+    var bh=(exLines.length?40:30)+exLines.length*11.5, sigH=104;
+    var remark=String(v.bemerkung||'').trim(), remLines=remark?pdfWrapW(remark,W-2*M-VX+M-2,'F1',9.2):[];
+    ensure(19+bh+legend.length*10.5+(remLines.length?remLines.length*11.5+10:0)+sigH);
+    section('Ergebnis', false);
+    var bt=y-7;                   // Oberkante Ergebniskasten
+    bh=exLines.length ? 2*9+10+9+(exLines.length-1)*11.5+6.2+2 : 2*10+10+0.5;
+    col(tint(stCol,0.08)); rect(M,bt-bh,W-2*M,bh,'f');
+    col(stCol,true); c+='0.9 w '; rect(M,bt-bh,W-2*M,bh,'S');
+    col(stCol); rect(M,bt-bh,4,bh,'f');
+    col(stCol); txt(M+18,exLines.length?bt-9-10:bt-10-10,14,'F2',res.title);
+    gray(0.22); exLines.forEach(function(l,i){ txt(M+18,bt-9-10-9-6.2-i*11.5,8.8,'F1',l); });
+    y=bt-bh-12;
+    legend.forEach(function(n){ pdfWrapW(n,W-2*M,'F1',7.8).forEach(function(l){ gray(MUTED); txt(M+2,y,7.8,'F1',l); y-=10.5; }); });
+    if (remLines.length) {
+      y-=8; gray(MUTED); txt(M+2,y,8.6,'F1','Bemerkungen');
+      gray(INK); remLines.forEach(function(l,i){ txt(VX,y-i*11.5,9.2,'F1',l); });
+      y-=remLines.length*11.5;
     }
-    // Unterschriften
-    ensure(112);
-    var colW=(W-2*M-24)/2, sy=y-62;
-    [['pruefer','Prüfer',protoVal(v,{k:'pruefer',def:co.pruefer||''})],['kunde','Auftraggeber / Kunde',v.kunde_name||'']].forEach(function(s,i){
-      var x=M+i*(colW+24), nm=protoSigs[s[0]]?addImg({data:protoSigs[s[0]],w:720,h:240}):null;
-      if (nm) image(nm,x,sy+4,165,55);
-      line(x,sy,x+colW,sy,0.6,0.35);
-      gray(0.35); txt(x,sy-11,8,'F1',(i===0?(v.ort?v.ort+', ':'')+isoToDe(protoVal(v,{k:'datum',def:todayIso()}))+' · ':'')+'Unterschrift '+s[1]);
-      if (s[2]) { gray(0.1); txt(x,sy-22,8.8,'F2',s[2]); }
+    y-=16;
+
+    var gap=22, colW=(W-2*M-gap)/2, boxH=56;
+    // Ort und Datum einmal für beide Unterschriften
+    var place=(v.ort?v.ort+', ':'')+dateDe;
+    gray(MUTED); txt(M,y,8,'F1','Ort, Datum');
+    gray(INK); txt(M+pdfWidth('Ort, Datum','F1',8)+8,y,9.2,'F1',place);
+    y-=12;
+    [['pruefer','Prüfer / Auftragnehmer',protoVal(v,{k:'pruefer',def:co.pruefer||''})],['kunde','Auftraggeber / Kunde',v.kunde_name||'']].forEach(function(s,i){
+      var x=M+i*(colW+gap), top=y, bottom=y-boxH;
+      gray(1); rect(x,bottom,colW,boxH,'f');
+      gray(0.82,true); c+='0.5 w '; rect(x,bottom,colW,boxH,'S');
+      if (sigNames[s[0]]) { var ih=boxH-12, iw=ih*3; if (iw>colW-12) { iw=colW-12; ih=iw/3; } image(sigNames[s[0]],x+(colW-iw)/2,bottom+(boxH-ih)/2,iw,ih); }
+      gray(MUTED); txt(x,bottom-12,7.6,'F2',('Unterschrift '+s[1]).toUpperCase(),0.5);
+      gray(INK); if (s[2]) txt(x,bottom-24,9.2,'F2',s[2]);
     });
-    y=sy-34;
+    y-=boxH+34;
+
     pages.push(c);
     var total=pages.length;
-    pages=pages.map(function(stream,i){
-      var f='0.45 0.45 0.45 rg\n';
-      f+='BT /F1 7.5 Tf 1 0 0 1 '+M.toFixed(2)+' 30 Tm ('+pdfEsc('Die Prüfung dokumentiert den Zustand der Anlage zum Prüfzeitpunkt. Erstellt mit SHK Rechner.')+') Tj ET\n';
-      f+='BT /F1 7.5 Tf 1 0 0 1 '+(W-M-50).toFixed(2)+' 30 Tm ('+pdfEsc('Seite '+(i+1)+' / '+total)+') Tj ET\n';
-      return stream+f;
-    });
+    pages=pages.map(function(stream,i){ return stream+footer(i,total); });
     return pdfAssemble(pages,images);
+  }
+  function protocolFileName(v) {
+    var t=protoType(v), who=String(v.objekt||'').split(/\n/)[0].trim();
+    return ('Pruefprotokoll '+t.title+(who?' - '+who:'')+' '+protoVal(v,{k:'datum',def:todayIso()})).replace(/[\\/:*?"<>|]+/g,'-').slice(0,120)+'.pdf';
+  }
+  // Vorschau im Overlay; auf Geräten ohne eingebetteten PDF-Viewer öffnet ein neuer Tab.
+  function previewProtocolPdf() {
+    var v=protoEnsure(), check=protoValidate(v);
+    if (!check.ok) { alert('Vorschau nicht möglich: Bitte zuerst die markierten Eingaben korrigieren.'); return; }
+    var url=URL.createObjectURL(pdfBlob(buildProtocolPdf(v)));
+    var inlinePdf=navigator.pdfViewerEnabled!==false && !/iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+    if (!inlinePdf) { var w=window.open(url,'_blank'); if (!w) location.href=url; return; }
+    var old=document.querySelector('.pdf-overlay'); if (old) old.remove();
+    function close(){ ov.remove(); URL.revokeObjectURL(url); document.removeEventListener('keydown',onKey); }
+    function onKey(e){ if (e.key==='Escape') close(); }
+    var ov=el('div',{class:'pdf-overlay',role:'dialog','aria-modal':'true','aria-label':'Protokoll-Vorschau'},[
+      el('div',{class:'pdf-dialog'},[
+        el('div',{class:'pdf-bar'},[
+          el('strong',{text:'Vorschau · '+protoType(v).title}),
+          el('span',{class:'pdf-bar-btns'},[
+            el('button',{class:'mini-btn',type:'button',text:'Herunterladen',onClick:function(){ downloadProtocolPdf(); }}),
+            el('button',{class:'mini-btn',type:'button',text:'Schließen',onClick:close})
+          ])
+        ]),
+        el('iframe',{class:'pdf-frame',src:url,title:'PDF-Vorschau'})
+      ])
+    ]);
+    ov.addEventListener('click',function(e){ if (e.target===ov) close(); });
+    document.addEventListener('keydown',onKey);
+    document.body.appendChild(ov);
   }
   function downloadProtocolPdf() {
     var v=protoEnsure(), check=protoValidate(v);
@@ -4461,7 +4666,10 @@
     if (id === 'protokoll') {
       var sigCount=(protoSigs.pruefer?1:0)+(protoSigs.kunde?1:0);
       wrap.appendChild(el('div',{class:'proto-actions'},[
-        el('button',{class:'pdf-btn',type:'button',onClick:downloadProtocolPdf},[el('span',{text:'PDF-Protokoll erstellen'})]),
+        el('div',{class:'proto-btn-row'},[
+          el('button',{class:'pdf-btn pdf-btn-ghost',type:'button',onClick:previewProtocolPdf},[el('span',{text:'Vorschau'})]),
+          el('button',{class:'pdf-btn',type:'button',onClick:downloadProtocolPdf},[el('span',{text:'PDF herunterladen'})])
+        ]),
         el('div',{class:'proto-actions-meta',text:((state.company&&state.company.logo)?'mit Firmenlogo':'ohne Logo')+' · '+sigCount+' von 2 Unterschriften'})
       ]));
     }
