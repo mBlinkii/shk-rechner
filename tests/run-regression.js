@@ -15,6 +15,7 @@ if (cut < 0) throw new Error('Init-Marker nicht gefunden.');
 const expose = `
   window.SHK_TEST = {
     computeFor:computeFor, validateFor:validateFor, buildPdf:buildPdf, buildProtocolPdf:buildProtocolPdf,
+    setCompany:function(c){ state.company=sanitizeCompany(c); },
     sanitizeImportedVals:sanitizeImportedVals,
     auditDefaults:function(){
       var saved=state.vals, report=[];
@@ -161,6 +162,15 @@ test('Protokoll lehnt negative Messwerte ab',()=>!api.validateFor('protokoll',{t
 test('Protokoll-PDF ist ein gültiges PDF mit Titel',()=>{
   const pdf=api.buildProtocolPdf(protoGas);
   return pdf.startsWith('%PDF-1.4')&&pdf.includes('Belastungs- und Dichtheitspr')&&pdf.trim().endsWith('%%EOF');
+});
+test('Protokoll-PDF: Fußleiste nur bei Aktivierung, 1 cm hoch, in gewählter Farbe',()=>{
+  api.setCompany({firma:'Test GmbH'});
+  const ohne=api.buildProtocolPdf(protoGas);
+  api.setCompany({firma:'Test GmbH',band:true,bandfarbe:'#b3261e'});
+  const mit=api.buildProtocolPdf(protoGas);
+  api.setCompany({});
+  const bar='0.00 0.00 595.28 28.35 re f';
+  return !ohne.includes(bar)&&mit.includes('0.702 0.149 0.118 rg\n'+bar);
 });
 test('Modernisierte Oberfläche enthält Schnellnavigation, Arbeitsbereich und reduzierte Bewegung',()=>html.includes('class:\'quick-nav\'')&&html.includes('class:\'tool-workspace\'')&&html.includes('@media (prefers-reduced-motion:reduce)'));
 

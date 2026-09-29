@@ -562,6 +562,9 @@
   .accent-swatch:hover { transform:scale(1.08); }
   .accent-swatch.on { box-shadow:0 0 0 2px var(--sw), 0 0 0 4px var(--surface), 0 0 0 5px var(--text); }
   .accent-picker { width:40px; height:32px; padding:0 2px; border:1px solid var(--border); border-radius:9px; background:var(--surface); cursor:pointer; }
+  .toggle-row { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:600; cursor:pointer; min-height:36px; }
+  .toggle-row input { width:20px; height:20px; accent-color:var(--accent); cursor:pointer; flex:0 0 auto; }
+  .accent-row[hidden] { display:none; }
   .accent-code { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
   .proto-btn-row { display:grid; grid-template-columns:1fr 1.4fr; gap:8px; }
   .pdf-btn-ghost { background:var(--surface); color:var(--text); border:1px solid var(--border); }
@@ -4025,6 +4028,8 @@
     if (isPlainObject(lg) && typeof lg.data==='string' && lg.data.indexOf('data:image/jpeg;base64,')===0 && lg.data.length<1500000 && N(lg.w)>0 && N(lg.h)>0)
       out.logo={data:lg.data,w:Math.round(N(lg.w)),h:Math.round(N(lg.h))};
     if (typeof c.akzent==='string' && /^#[0-9a-f]{6}$/i.test(c.akzent)) out.akzent=c.akzent.toLowerCase();
+    if (typeof c.bandfarbe==='string' && /^#[0-9a-f]{6}$/i.test(c.bandfarbe)) out.bandfarbe=c.bandfarbe.toLowerCase();
+    if (c.band===true) out.band=true;
     if (typeof c.sig==='string' && c.sig.indexOf('data:image/jpeg;base64,')===0 && c.sig.length<800000) out.sig=c.sig;
     return out;
   }
@@ -4033,6 +4038,29 @@
     catch (e) { showToast('Firmendaten konnten nicht gespeichert werden (Speicher voll?).'); }
   }
   // Bild auf weißem Grund als JPEG verkleinern – PDF bindet JPEG direkt ein.
+  // Liest Raster- oder SVG-Dateien und liefert eine im <img> ladbare Quelle.
+  // SVGs ohne feste Größe (nur viewBox) bekommen eine hohe Auflösung für den Druck.
+  function readImageFile(f, done) {
+    var isSvg=/svg/i.test(f.type) || /\.svg$/i.test(f.name||'');
+    var rd=new FileReader();
+    if (!isSvg) { rd.onload=function(){ done(rd.result); }; rd.onerror=function(){ done(null); }; rd.readAsDataURL(f); return; }
+    rd.onload=function(){
+      try {
+        var doc=new DOMParser().parseFromString(String(rd.result),'image/svg+xml'), svg=doc.documentElement;
+        if (!svg || svg.nodeName.toLowerCase()!=='svg' || doc.getElementsByTagName('parsererror').length) { done(null); return; }
+        var vb=(svg.getAttribute('viewBox')||'').trim().split(/[\s,]+/).map(Number);
+        var w=parseFloat(svg.getAttribute('width')), h=parseFloat(svg.getAttribute('height'));
+        if (!(w>0 && h>0) || /%/.test(svg.getAttribute('width')||'')) { if (vb.length===4 && vb[2]>0 && vb[3]>0) { w=vb[2]; h=vb[3]; } else { w=300; h=150; } }
+        if (!svg.getAttribute('viewBox')) svg.setAttribute('viewBox','0 0 '+w+' '+h);
+        var sc=1600/Math.max(w,h);
+        svg.setAttribute('width',String(Math.round(w*sc))); svg.setAttribute('height',String(Math.round(h*sc)));
+        var url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml;charset=utf-8'}));
+        done(url,function(){ URL.revokeObjectURL(url); });
+      } catch (e) { done(null); }
+    };
+    rd.onerror=function(){ done(null); };
+    rd.readAsText(f);
+  }
   function imageToJpeg(src, maxW, maxH, done) {
     var img=new Image();
     img.onload=function(){
@@ -4102,12 +4130,14 @@
     fileIn.addEventListener('change',function(){
       var f=fileIn.files&&fileIn.files[0]; if (!f) return;
       if (f.size>8*1024*1024) { alert('Das Bild ist größer als 8 MB.'); return; }
-      var rd=new FileReader();
-      rd.onload=function(){ drawImageFit(rd.result,function(){ dirty=true; store(); showToast('Unterschrift eingefügt.'); }); };
-      rd.readAsDataURL(f); fileIn.value='';
+      readImageFile(f,function(src,cleanup){
+        if (!src) { alert('Das Bild konnte nicht gelesen werden.'); return; }
+        drawImageFit(src,function(){ if (cleanup) cleanup(); dirty=true; store(); showToast('Unterschrift eingefügt.'); });
+      });
+      fileIn.value='';
     });
     var btns=[
-      el('button',{class:'sig-clear',type:'button',text:'Bild einfügen',title:'Unterschrift als PNG oder JPG einfügen',onClick:function(){ fileIn.click(); }}),
+      el('button',{class:'sig-clear',type:'button',text:'Bild einfügen',title:'Unterschrift als PNG, JPG oder SVG einfügen',onClick:function(){ fileIn.click(); }}),
       el('button',{class:'sig-clear',type:'button',text:'Löschen',onClick:function(){ blank(); dirty=false; protoSigs[key]=null; renderResult('protokoll'); }})
     ];
     if (key==='pruefer') btns.splice(1,0,el('button',{class:'sig-clear',type:'button',text:'Als Standard merken',title:'Diese Unterschrift für künftige Protokolle auf diesem Gerät speichern',onClick:function(){
@@ -4137,12 +4167,15 @@
       fileIn.addEventListener('change',function(){
         var f=fileIn.files&&fileIn.files[0]; if (!f) return;
         if (f.size>8*1024*1024) { alert('Das Bild ist größer als 8 MB.'); return; }
-        var rd=new FileReader();
-        rd.onload=function(){ imageToJpeg(rd.result,600,240,function(res){
-          if (!res) { alert('Das Bild konnte nicht gelesen werden.'); return; }
-          state.company=state.company||{}; state.company.logo=res; persistCompany(); drawLogo(); showToast('Logo gespeichert.');
-        }); };
-        rd.readAsDataURL(f);
+        readImageFile(f,function(src,cleanup){
+          if (!src) { alert('Das Bild konnte nicht gelesen werden.'); return; }
+          imageToJpeg(src,1000,400,function(res){
+            if (cleanup) cleanup();
+            if (!res) { alert('Das Bild konnte nicht gelesen werden.'); return; }
+            state.company=state.company||{}; state.company.logo=res; persistCompany(); drawLogo(); showToast('Logo gespeichert.');
+          });
+        });
+        fileIn.value='';
       });
       var btns=el('div',{class:'logo-btns'},[
         el('button',{class:'mini-btn',type:'button',text:c2.logo?'Logo ersetzen':'Logo hochladen',onClick:function(){ fileIn.click(); }}),
@@ -4153,22 +4186,37 @@
     }
     drawLogo();
     body.appendChild(logoWrap);
-    // Akzentfarbe des Protokolls: Voreinstellungen oder frei wählbar
-    var accRow=el('div',{class:'accent-row'});
-    function drawAccent(){
-      accRow.innerHTML='';
-      var cur=((state.company||{}).akzent||PROTO_ACCENT_DEFAULT).toLowerCase();
-      function setAcc(val){ state.company=state.company||{}; state.company.akzent=val; persistCompany(); drawAccent(); renderResult('protokoll'); }
-      PROTO_ACCENT_PRESETS.forEach(function(pr){
-        accRow.appendChild(el('button',{type:'button',class:'accent-swatch'+(pr[0]===cur?' on':''),style:'--sw:'+pr[0]+';',title:pr[1],'aria-label':'Akzentfarbe '+pr[1],'aria-pressed':String(pr[0]===cur),onClick:function(){ setAcc(pr[0]); }}));
-      });
-      var pick=el('input',{type:'color',class:'accent-picker',value:cur,'aria-label':'Eigene Akzentfarbe wählen',title:'Eigene Farbe wählen'});
-      pick.addEventListener('change',function(e){ setAcc(e.target.value.toLowerCase()); });
-      accRow.appendChild(pick);
-      accRow.appendChild(el('span',{class:'accent-code',text:cur.toUpperCase()}));
+    // Farbauswahl (Vorschläge + freier Farbwähler) für Akzent und Fußleiste
+    function colorRow(name, getCur, setVal) {
+      var row=el('div',{class:'accent-row'});
+      function draw(){
+        row.innerHTML='';
+        var cur=getCur().toLowerCase();
+        function set(val){ setVal(val); persistCompany(); draw(); renderResult('protokoll'); }
+        PROTO_ACCENT_PRESETS.forEach(function(pr){
+          row.appendChild(el('button',{type:'button',class:'accent-swatch'+(pr[0]===cur?' on':''),style:'--sw:'+pr[0]+';',title:pr[1],'aria-label':name+' '+pr[1],'aria-pressed':String(pr[0]===cur),onClick:function(){ set(pr[0]); }}));
+        });
+        var pick=el('input',{type:'color',class:'accent-picker',value:cur,'aria-label':name+': eigene Farbe wählen',title:'Eigene Farbe wählen'});
+        pick.addEventListener('change',function(e){ set(e.target.value.toLowerCase()); });
+        row.appendChild(pick);
+        row.appendChild(el('span',{class:'accent-code',text:cur.toUpperCase()}));
+      }
+      draw();
+      return row;
     }
-    drawAccent();
-    body.appendChild(el('div',{class:'field'},[el('div',{class:'field-head'},[el('span',{class:'field-label',text:'Akzentfarbe im Protokoll'})]),accRow]));
+    function coSet(k,v){ state.company=state.company||{}; state.company[k]=v; }
+    body.appendChild(el('div',{class:'field'},[el('div',{class:'field-head'},[el('span',{class:'field-label',text:'Akzentfarbe im Protokoll'})]),
+      colorRow('Akzentfarbe',function(){ return (state.company||{}).akzent||PROTO_ACCENT_DEFAULT; },function(v){ coSet('akzent',v); })]));
+    // Farbige Fußleiste (ca. 1 cm) – optional
+    var bandColor=colorRow('Farbe der Fußleiste',function(){ var c3=state.company||{}; return c3.bandfarbe||c3.akzent||PROTO_ACCENT_DEFAULT; },function(v){ coSet('bandfarbe',v); });
+    var bandCheck=el('input',{type:'checkbox',id:'proto-band'});
+    bandCheck.checked=!!co.band;
+    bandColor.hidden=!co.band;
+    bandCheck.addEventListener('change',function(){ coSet('band',bandCheck.checked); if (!bandCheck.checked) delete state.company.band; persistCompany(); bandColor.hidden=!bandCheck.checked; renderResult('protokoll'); });
+    body.appendChild(el('div',{class:'field'},[
+      el('label',{class:'toggle-row',for:'proto-band'},[bandCheck,el('span',{text:'Farbige Fußleiste (ca. 1 cm) am Seitenende'})]),
+      bandColor
+    ]));
     COMPANY_FIELDS.forEach(function(f){
       var inp=el('input',{type:f[0]==='email'?'email':(f[0]==='telefon'?'tel':'text'),value:co[f[0]]||'','aria-label':f[1],autocomplete:'off'});
       inp.addEventListener('input',function(e){
@@ -4278,10 +4326,13 @@
   var PROTO_ACCENT_DEFAULT='#1b3b6b';
   var PROTO_ACCENT_PRESETS=[['#1b3b6b','Marineblau'],['#0b6e99','Petrol'],['#1f7a45','Grün'],['#b3261e','Rot'],['#d9661f','Orange'],['#3a3f45','Anthrazit']];
   // Hex-Farbe → RGB (0–1); zu helle Farben werden für Schrift auf Weiß abgedunkelt.
-  function protoAccent(hex) {
+  function hexRgb(hex) {
     var m=String(hex||'').match(/^#?([0-9a-f]{6})$/i); if (!m) m=PROTO_ACCENT_DEFAULT.match(/^#?([0-9a-f]{6})$/i);
-    var n=parseInt(m[1],16), rgb=[(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];
-    var lum=0.2126*rgb[0]+0.7152*rgb[1]+0.0722*rgb[2];
+    var n=parseInt(m[1],16); return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];
+  }
+  function rgbLum(rgb) { return 0.2126*rgb[0]+0.7152*rgb[1]+0.0722*rgb[2]; }
+  function protoAccent(hex) {
+    var rgb=hexRgb(hex), lum=rgbLum(rgb);
     if (lum>0.5) { var f=0.5/lum; rgb=rgb.map(function(x){ return x*f; }); }
     return rgb;
   }
@@ -4327,15 +4378,25 @@
       y-=first?26:22;
       if (!first) { gray(INK); txt(M,y,10,'F2','Prüfprotokoll · '+t.title); gray(MUTED); txtR(W-M,y,8.4,'F1','Fortsetzung'); y-=24; }
     }
+    var BAND=co.band ? 28.35 : 0;              // 1 cm = 28,35 pt
+    var bandRgb=hexRgb(co.bandfarbe||co.akzent||PROTO_ACCENT_DEFAULT);
     function footer(i,total){
-      var f='';
-      var sv=c; c='';
-      gray(RULE,true); line(M,40,W-M,40,0.5);
-      gray(MUTED);
-      txt(M,30,7.2,'F1',[co.firma||'',contact].filter(Boolean).join('  ·  ')||'Prüfprotokoll');
-      txt(M,21,7.2,'F1','Das Protokoll dokumentiert den Zustand der Anlage zum Prüfzeitpunkt.');
-      txtR(W-M,30,7.2,'F2','Seite '+(i+1)+' von '+total);
-      if (protoNo) txtR(W-M,21,7.2,'F1','Protokoll-Nr. '+protoNo);
+      var f='', sv=c, y1, y2, fg;
+      c='';
+      if (BAND) {
+        // Farbige Leiste über die volle Breite; Text hell oder dunkel je nach Helligkeit
+        col(bandRgb); rect(0,0,W,BAND,'f');
+        fg=rgbLum(bandRgb)<0.6?[1,1,1]:[0.12,0.12,0.12];
+        y1=BAND/2+2.4; y2=BAND/2-6.6;
+      } else {
+        gray(RULE,true); line(M,40,W-M,40,0.5);
+        fg=[MUTED,MUTED,MUTED]; y1=30; y2=21;
+      }
+      col(fg);
+      txt(M,y1,7.2,'F1',[co.firma||'',contact].filter(Boolean).join('  ·  ')||'Prüfprotokoll');
+      txt(M,y2,7.2,'F1','Das Protokoll dokumentiert den Zustand der Anlage zum Prüfzeitpunkt.');
+      txtR(W-M,y1,7.2,'F2','Seite '+(i+1)+' von '+total);
+      if (protoNo) txtR(W-M,y2,7.2,'F1','Protokoll-Nr. '+protoNo);
       f=c; c=sv; return f;
     }
     function ensure(space){ if (y-space<BOTTOM) { pages.push(c); header(false); } }
