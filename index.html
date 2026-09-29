@@ -579,6 +579,8 @@
   .pdf-bar strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pdf-bar-btns { display:flex; gap:8px; flex:0 0 auto; }
   .pdf-frame { flex:1 1 auto; width:100%; border:0; background:#525659; }
+  .blank-btn { min-height:40px; border:1px dashed var(--fieldBorder); border-radius:12px; background:transparent; color:var(--text); font-size:13.5px; font-weight:650; cursor:pointer; }
+  .blank-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accentSoft); }
   .proto-actions-meta { font-size:12px; color:var(--muted); text-align:center; }
   @media (max-width:520px) {
     .field-yn { flex-direction:column !important; align-items:stretch; }
@@ -3810,8 +3812,8 @@
       mid.push({title:'2. Dichtheitsprüfung (Armaturen eingebaut)', items:[
         {k:'nd_vol',t:'num',label:'Leitungsvolumen',unit:'l',def:50,rebuild:true},
         {k:'nd_dt_p',t:'num',label:'Prüfdruck',unit:'hPa',def:150,hint:'Vorgabe 150 hPa'},
-        {k:'nd_dt_a',t:'num',label:'Anpassungszeit',unit:'min',def:function(){return req.a;},hint:'mindestens '+req.a+' min ('+req.cls+')'},
-        {k:'nd_dt_t',t:'num',label:'Prüfdauer',unit:'min',def:function(){return req.t;},hint:'mindestens '+req.t+' min ('+req.cls+')'},
+        {k:'nd_dt_a',t:'num',label:'Anpassungszeit',unit:'min',def:function(){return req.a;},hint:'mindestens '+req.a+' min ('+req.cls+')',blankHint:'< 100 l: 10 · 100–200 l: 30 · ab 200 l: 60 min'},
+        {k:'nd_dt_t',t:'num',label:'Prüfdauer',unit:'min',def:function(){return req.t;},hint:'mindestens '+req.t+' min ('+req.cls+')',blankHint:'< 100 l: 10 · 100–200 l: 20 · ab 200 l: 30 min'},
         {k:'nd_dt_ok',t:'yn',label:'Prüfdruck während der Prüfzeit nicht gefallen'},
         {k:'nd_geraet',t:'text',label:'Messgerät (Typ / Nr.)',ph:'optional'}
       ]});
@@ -3874,7 +3876,7 @@
         {k:'tw_ausgleich',t:'yn',label:'Temperaturausgleich abgewartet'}
       ]});
       mid.push({title:'Druckprüfung', items:[
-        {k:'tw_p',t:'num',label:'Prüfdruck',unit:'bar',def:function(){ return Math.round(mdp*1.1*100)/100; },hint:'Vorgabe 1,1 × MDP = '+fmt(mdp*1.1,1)+' bar'},
+        {k:'tw_p',t:'num',label:'Prüfdruck',unit:'bar',def:function(){ return Math.round(mdp*1.1*100)/100; },hint:'Vorgabe 1,1 × MDP = '+fmt(mdp*1.1,1)+' bar',blankHint:'Vorgabe 1,1 × MDP'},
         {k:'tw_pa',t:'num',label:'Druck zu Beginn der Prüfzeit',unit:'bar'},
         {k:'tw_pe',t:'num',label:'Druck am Ende der Prüfzeit',unit:'bar'},
         {k:'tw_t',t:'num',label:'Prüfzeit',unit:'min',def:30,hint:'Kunststoff: Prüfablauf nach Systemhersteller'},
@@ -3892,11 +3894,11 @@
       ]});
       mid.push({title:'1. Dichtheitsprüfung', items:[
         {k:'tl_dp',t:'num',label:'Prüfdruck',unit:'hPa',def:150,hint:'Vorgabe 150 hPa'},
-        {k:'tl_dt',t:'num',label:'Prüfzeit',unit:'min',def:function(){ return twAirTightMinutes(tlVol); },hint:'mindestens '+twAirTightMinutes(tlVol)+' min bei '+fmt(tlVol,0)+' l'},
+        {k:'tl_dt',t:'num',label:'Prüfzeit',unit:'min',def:function(){ return twAirTightMinutes(tlVol); },hint:'mindestens '+twAirTightMinutes(tlVol)+' min bei '+fmt(tlVol,0)+' l',blankHint:'120 min bis 100 l, je weitere 100 l + 20'},
         {k:'tl_dok',t:'yn',label:'Kein Druckabfall während der Prüfzeit'}
       ]});
       mid.push({title:'2. Belastungsprüfung', items:[
-        {k:'tl_bp',t:'num',label:'Prüfdruck',unit:'bar',def:function(){ return tlDn==='gross'?1:3; },hint:tlDn==='gross'?'höchstens 1 bar (über DN 50)':'höchstens 3 bar (bis DN 50)'},
+        {k:'tl_bp',t:'num',label:'Prüfdruck',unit:'bar',def:function(){ return tlDn==='gross'?1:3; },hint:tlDn==='gross'?'höchstens 1 bar (über DN 50)':'höchstens 3 bar (bis DN 50)',blankHint:'bis DN 50: max. 3 · über DN 50: max. 1 bar'},
         {k:'tl_bt',t:'num',label:'Prüfzeit',unit:'min',def:10,hint:'Vorgabe 10 min'},
         {k:'tl_bok',t:'yn',label:'Kein Druckabfall während der Prüfzeit'},
         {k:'tl_geraet',t:'text',label:'Messgerät (Typ / Nr.)',ph:'optional'}
@@ -4337,14 +4339,16 @@
     return rgb;
   }
   function dataUrlToBin(d) { return atob(String(d).split(',')[1]||''); }
-  function buildProtocolPdf(v) {
+  // blank=true: leeres Formular zum Ausdrucken und Ausfüllen von Hand (nur Firmenkopf, Logo, Prüfpunkte)
+  function buildProtocolPdf(v, blank) {
+    if (blank) v={typ:protoType(v).id};
     var W=595.28,H=841.89,M=42,BOTTOM=50,co=state.company||{},t=protoType(v),res=protoEvaluate(v);
     var ACC=protoAccent(co.akzent), INK=0.1, MUTED=0.42, RULE=0.86;
     var pages=[],c='',y=0,images=[],imgNo=0;
     function addImg(img){ if (!img||!img.data) return null; imgNo++; var name='Im'+imgNo; images.push({name:name,w:img.w,h:img.h,bin:dataUrlToBin(img.data)}); return name; }
     var logoName=co.logo?addImg(co.logo):null;
     var sigNames={};
-    ['pruefer','kunde'].forEach(function(k){ if (protoSigs[k]) sigNames[k]=addImg({data:protoSigs[k],w:720,h:240}); });
+    if (!blank) ['pruefer','kunde'].forEach(function(k){ if (protoSigs[k]) sigNames[k]=addImg({data:protoSigs[k],w:720,h:240}); });
     function col(rgb,stroke){ c+=rgb[0].toFixed(3)+' '+rgb[1].toFixed(3)+' '+rgb[2].toFixed(3)+(stroke?' RG\n':' rg\n'); }
     function gray(g,stroke){ col([g,g,g],stroke); }
     function txt(x,yy,sz,f,s,tc){ c+='BT /'+f+' '+sz+' Tf '+(tc||0)+' Tc 1 0 0 1 '+x.toFixed(2)+' '+yy.toFixed(2)+' Tm ('+pdfEsc(s)+') Tj ET\n'; }
@@ -4357,8 +4361,8 @@
       if (on) { col(ACC); rect(x,yy,9,9,'f'); gray(1,true); c+='1.3 w 1 J 1 j '+(x+2).toFixed(2)+' '+(yy+4.6).toFixed(2)+' m '+(x+3.9).toFixed(2)+' '+(yy+2.4).toFixed(2)+' l '+(x+7.2).toFixed(2)+' '+(yy+6.9).toFixed(2)+' l S 0 J 0 j\n'; }
       else { gray(0.55,true); rect(x,yy,9,9,'S'); }
     }
-    var dateDe=isoToDe(protoVal(v,{k:'datum',def:todayIso()}));
-    var protoNo=String(v.auftragsnr||'').trim();
+    var dateDe=blank?'':isoToDe(protoVal(v,{k:'datum',def:todayIso()}));
+    var protoNo=blank?'':String(v.auftragsnr||'').trim();
     var contact=[co.telefon?'Tel. '+co.telefon:'',co.email||''].filter(Boolean).join('  ·  ');
 
     function header(first){
@@ -4423,6 +4427,28 @@
       gray(INK); vw.forEach(function(l,i){ txt(VX,b-i*LEAD,9.4,'F1',l); });
       y-=need; gray(RULE,true); line(M,y,W-M,y,0.4);
     }
+    function rowBlank(it){
+      var lw=pdfWrapW(it.label,LBL-6,'F1',8.6), hint=it.blankHint||it.hint||'', hw=hint?pdfWrapW(hint,LBL-6,'F1',6.8):[];
+      var lines=[];                             // Auswahlmöglichkeiten zum Ankreuzen, zeilenweise
+      if (it.t==='sel') {
+        var cur=[], curW=0;
+        it.opts.forEach(function(o){
+          var w=13+pdfWidth(o[1],'F1',8.8)+16;
+          if (cur.length && curW+w>VW) { lines.push(cur); cur=[]; curW=0; }
+          cur.push([o[1],curW]); curW+=w;
+        });
+        if (cur.length) lines.push(cur);
+      }
+      var labelH=CAP+DESC+(lw.length-1)*LEAD+hw.length*9, optH=lines.length?CAP+DESC+(lines.length-1)*15:0;
+      var need=Math.max(it.t==='area'?46:24, 2*PADY+Math.max(labelH,optH));
+      ensureRow(need);
+      var b=y-PADY-CAP;
+      gray(MUTED); lw.forEach(function(l,i){ txt(M+2,b-i*LEAD,8.6,'F1',l); });
+      gray(0.55); hw.forEach(function(l,i){ txt(M+2,b-(lw.length-1)*LEAD-9*(i+1),6.8,'F1',l); });
+      lines.forEach(function(ln,k){ ln.forEach(function(o){ checkbox(VX+o[1],b-k*15-1.5,false); gray(INK); txt(VX+o[1]+13,b-k*15,8.8,'F1',o[0]); }); });
+      if (it.t==='num' && it.unit) { gray(MUTED); txtR(W-M-2,y-need+6,8.4,'F1',it.unit); }
+      y-=need; gray(RULE,true); line(M,y,W-M,y,0.4);
+    }
     function ynRow(label,val){
       var lw=pdfWrapW(label,W-2*M-110,'F1',9), need=rowHeight(lw.length);
       ensureRow(need);
@@ -4436,7 +4462,7 @@
     // ---- Seite 1: Kopf, Titel, Metadaten ----
     header(true);
     var metaW=176, metaX=W-M-metaW, titleW=metaX-M-18, ty0=y;
-    col(ACC); txt(M,y,8.4,'F2','PRÜFPROTOKOLL',1.6); y-=22;
+    col(ACC); txt(M,y,8.4,'F2',blank?'PRÜFPROTOKOLL · FORMULAR':'PRÜFPROTOKOLL',1.6); y-=22;
     gray(INK); pdfWrapW(t.title,titleW,'F2',18).forEach(function(l){ txt(M,y,18,'F2',l); y-=21; });
     y+=4; gray(MUTED); pdfWrapW(t.sub,titleW,'F1',9.4).forEach(function(l){ txt(M,y,9.4,'F1',l); y-=12; });
     pdfWrapW('Grundlage: '+t.basis,titleW,'F1',8.4).forEach(function(l){ txt(M,y,8.4,'F1',l); y-=11; });
@@ -4447,6 +4473,7 @@
     meta.forEach(function(m,i){
       var yy=mTop-18-i*17;
       gray(MUTED); txt(metaX+12,yy,7.8,'F1',m[0]);
+      if (blank) { gray(0.72,true); line(metaX+80,yy-2.5,metaX+metaW-10,yy-2.5,0.5); return; }
       gray(INK); var mv=pdfWrapW(m[1],metaW-86,'F2',9)[0]; txt(metaX+80,yy,9,'F2',mv);
     });
     y=Math.min(y,mTop-mh)-14;
@@ -4456,6 +4483,7 @@
       var items=sec.items.filter(function(it){
         if (it.k==='bemerkung') return false;
         if (it.k==='kunde_name' || it.k==='ort' || it.k==='datum' || it.k==='auftragsnr') return false;
+        if (blank) return true;
         var val=protoVal(v,it);
         if ((it.opt || it.ph==='optional') && !String(val==null?'':val).trim()) return false;
         return true;
@@ -4463,8 +4491,9 @@
       if (!items.length) return;
       section(sec.title, items.some(function(it){ return it.t==='yn'; }));
       items.forEach(function(it){
+        if (it.t==='yn') { ynRow(it.label,blank?null:v[it.k]); return; }
+        if (blank) { rowBlank(it); return; }
         var val=protoVal(v,it);
-        if (it.t==='yn') { ynRow(it.label,v[it.k]); return; }
         if (it.t==='sel') val=protoOptLabel(it,val);
         else if (it.t==='date') val=isoToDe(val);
         else if (it.t==='num') val=(val===''||val==null)?'':String(val).replace('.',',')+(it.unit?' '+it.unit:'');
@@ -4472,6 +4501,44 @@
       });
       y-=14;                      // Abstand zur nächsten Abschnittsüberschrift (Grundlinie)
     });
+
+    if (blank) {
+      var choices=t.id==='gas_gf'
+        ? [['Unbeschränkte Gebrauchsfähigkeit','Leckmenge unter 1 l/h und keine weiteren Mängel'],['Verminderte Gebrauchsfähigkeit','Leckmenge von 1 bis unter 5 l/h – Instandsetzung innerhalb von 4 Wochen'],['Keine Gebrauchsfähigkeit','Leckmenge ab 5 l/h – unverzüglich außer Betrieb nehmen und instand setzen']]
+        : [['Bestanden','Prüfdruck während der Prüfzeit nicht gefallen – Anlage dicht'],['Nicht bestanden','Mängel siehe Bemerkungen – nach Instandsetzung erneut prüfen']];
+      var remN=6;                               // Schreiblinien für Bemerkungen
+      ensure(19+choices.length*22+14+remN*22+120);
+      section('Ergebnis', false);
+      choices.forEach(function(ch){
+        var need=22; ensureRow(need);
+        var b=y-PADY-CAP-2;
+        checkbox(M+2,b-1.5,false);
+        gray(INK); txt(M+18,b,9.4,'F2',ch[0]);
+        gray(MUTED); txt(M+18+pdfWidth(ch[0],'F2',9.4)+8,b,8.4,'F1',ch[1]);
+        y-=need; gray(RULE,true); line(M,y,W-M,y,0.4);
+      });
+      y-=14; ensure(remN*22+10);
+      gray(MUTED); txt(M+2,y,8.6,'F1','Bemerkungen / festgestellte Mängel'); y-=4;
+      for (var bl=0; bl<remN; bl++) { y-=22; gray(RULE,true); line(M,y,W-M,y,0.4); }
+      y-=22;
+      var gapB=22, colWB=(W-2*M-gapB)/2;
+      ensure(96);
+      gray(MUTED); txt(M,y,8,'F1','Ort, Datum');
+      gray(0.72,true); line(M+pdfWidth('Ort, Datum','F1',8)+8,y-2.5,M+colWB,y-2.5,0.5);
+      y-=12;
+      ['Prüfer / Auftragnehmer','Auftraggeber / Kunde'].forEach(function(lbl,i){
+        var x=M+i*(colWB+gapB), bottom=y-56;
+        gray(0.82,true); c+='0.5 w '; rect(x,bottom,colWB,56,'S');
+        gray(MUTED); txt(x,bottom-12,7.6,'F2',('Unterschrift '+lbl).toUpperCase(),0.5);
+        txt(x,bottom-25,7.6,'F1','Name in Druckbuchstaben');
+        gray(0.72,true); line(x+pdfWidth('Name in Druckbuchstaben','F1',7.6)+6,bottom-27.5,x+colWB,bottom-27.5,0.5);
+      });
+      y-=56+34;
+      pages.push(c);
+      var totalB=pages.length;
+      pages=pages.map(function(stream,i){ return stream+footer(i,totalB); });
+      return pdfAssemble(pages,images);
+    }
 
     // ---- Ergebnis + Unterschriften (möglichst zusammen auf einer Seite) ----
     var stCol=res.status==='ok'?[0.11,0.52,0.3]:res.status==='fail'?[0.74,0.14,0.2]:[0.78,0.47,0.04];
@@ -4551,6 +4618,10 @@
     document.addEventListener('keydown',onKey);
     document.documentElement.style.overflow='hidden';   // Seite dahinter nicht mitscrollen
     document.body.appendChild(ov);
+  }
+  function downloadBlankProtocolPdf() {
+    var t=protoType(protoEnsure());
+    downloadPdf(('Formular '+t.title+' (leer)').replace(/[\\/:*?"<>|]+/g,'-')+'.pdf',buildProtocolPdf(protoEnsure(),true));
   }
   function downloadProtocolPdf() {
     var v=protoEnsure(), check=protoValidate(v);
@@ -4736,6 +4807,7 @@
           el('button',{class:'pdf-btn pdf-btn-ghost',type:'button',onClick:previewProtocolPdf},[el('span',{text:'Vorschau'})]),
           el('button',{class:'pdf-btn',type:'button',onClick:downloadProtocolPdf},[el('span',{text:'PDF herunterladen'})])
         ]),
+        el('button',{class:'blank-btn',type:'button',title:'Leeres Formular mit Firmenkopf und Logo zum Ausdrucken und Ausfüllen von Hand',onClick:downloadBlankProtocolPdf},[el('span',{text:'Leeres Formular zum Ausdrucken (PDF)'})]),
         el('div',{class:'proto-actions-meta',text:((state.company&&state.company.logo)?'mit Firmenlogo':'ohne Logo')+' · '+sigCount+' von 2 Unterschriften'})
       ]));
     }

@@ -172,6 +172,10 @@ test('Protokoll-PDF: Fußleiste nur bei Aktivierung, 1 cm hoch, in gewählter Fa
   const bar='0.00 0.00 595.28 28.35 re f';
   return !ohne.includes(bar)&&mit.includes('0.702 0.149 0.118 rg\n'+bar);
 });
+test('Leeres Formular enthält keine eingegebenen Werte und Ankreuzfelder für das Ergebnis',()=>{
+  const pdf=api.buildProtocolPdf(Object.assign({},protoGas,{objekt:'Geheimweg 7',auftraggeber:'Kunde XY'}),true);
+  return pdf.startsWith('%PDF-1.4')&&pdf.includes('FORMULAR')&&!pdf.includes('Geheimweg')&&!pdf.includes('Kunde XY')&&pdf.includes('(Nicht bestanden) Tj');
+});
 test('Modernisierte Oberfläche enthält Schnellnavigation, Arbeitsbereich und reduzierte Bewegung',()=>html.includes('class:\'quick-nav\'')&&html.includes('class:\'tool-workspace\'')&&html.includes('@media (prefers-reduced-motion:reduce)'));
 
 if (!process.exitCode) console.log(`\n${passed} Regressionstests bestanden.`);
