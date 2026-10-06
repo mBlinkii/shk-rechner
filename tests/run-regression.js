@@ -176,6 +176,19 @@ test('Leeres Formular enthält keine eingegebenen Werte und Ankreuzfelder für d
   const pdf=api.buildProtocolPdf(Object.assign({},protoGas,{objekt:'Geheimweg 7',auftraggeber:'Kunde XY'}),true);
   return pdf.startsWith('%PDF-1.4')&&pdf.includes('FORMULAR')&&!pdf.includes('Geheimweg')&&!pdf.includes('Kunde XY')&&pdf.includes('(Nicht bestanden) Tj');
 });
+const fd=(v)=>api.computeFor('fdnummer',v).main.value;
+test('Remeha 0820005040280 ergibt KW 20 / 2008',()=>fd({hersteller:'remeha',format:'auto',code:'0820005040280'})==='KW 20 / 2008');
+test('Remeha-Altformat 1999F47621870 ergibt 1999',()=>fd({hersteller:'remeha',format:'auto',code:'1999F47621870'})==='1999');
+test('De Dietrich Herstelljahr 0342 ergibt KW 42 / 2003',()=>fd({hersteller:'dedietrich',code:'0342'})==='KW 42 / 2003');
+test('Buderus-Altformat 08189555-01-4123-321 (2000er): 123. Tag im Schaltjahr 2004 = 02.05.2004',()=>fd({hersteller:'buderus',format:'auto',code:'08189555-01-4123-321',jahrzehnt:'2000'})==='02.05.2004');
+test('Buderus-Neuformat 8290-654-051081-7716010387 ergibt Juni 2016',()=>fd({hersteller:'buderus',format:'auto',code:'8290-654-051081-7716010387'})==='Juni 2016');
+test('Junkers 23-stellige Seriennummer 8290-654-… ergibt Juni 2016',()=>fd({modus:'fdzudatum',fd:'8290-654-051081-7716010387'})==='Juni 2016');
+test('MHG 0310503010134 ergibt Oktober 2003',()=>fd({hersteller:'mhg',code:'0310503010134'})==='Oktober 2003');
+test('Schäfer 0291826-00-04528 ergibt 2002',()=>fd({hersteller:'schaefer',code:'0291826-00-04528'})==='2002');
+test('Geminox 419971711 ergibt KW 41 / 1999',()=>fd({hersteller:'geminox',code:'419971711'})==='KW 41 / 1999');
+test('Riello DZZT ergibt 2003, UNOH ergibt 1987',()=>fd({hersteller:'riello',code:'DZZT'})==='2003'&&fd({hersteller:'riello',code:'UNOH'})==='1987');
+test('Elco-Klöckner CB ergibt 2. Quartal 1996',()=>fd({hersteller:'elco',code:'CB'})==='2. Quartal 1996');
+test('Unplausible Codes werden abgewiesen',()=>!api.validateFor('fdnummer',{hersteller:'mhg',code:'0313000000'}).ok&&!api.validateFor('fdnummer',{hersteller:'remeha',format:'neu',code:'0860123'}).ok);
 test('Modernisierte Oberfläche enthält Schnellnavigation, Arbeitsbereich und reduzierte Bewegung',()=>html.includes('class:\'quick-nav\'')&&html.includes('class:\'tool-workspace\'')&&html.includes('@media (prefers-reduced-motion:reduce)'));
 
 if (!process.exitCode) console.log(`\n${passed} Regressionstests bestanden.`);
